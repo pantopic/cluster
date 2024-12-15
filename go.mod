@@ -2,9 +2,13 @@ module github.com/logbn/microstack
 
 go 1.23.4
 
+replace github.com/valyala/fastjson => github.com/kevburnsjr/fastjson v1.4.1
+
 require (
 	github.com/caarlos0/env/v11 v11.2.2
+	github.com/hashicorp/go-memdb v1.3.4
 	github.com/logbn/zongzi v0.0.9
+	github.com/valyala/fastjson v1.6.4
 )
 
 require (
@@ -27,7 +31,6 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
-	github.com/hashicorp/go-memdb v1.3.4 // indirect
 	github.com/hashicorp/go-msgpack v0.5.3 // indirect
 	github.com/hashicorp/go-multierror v1.0.0 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.0 // indirect
