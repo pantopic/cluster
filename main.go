@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/logbn/zongzi"
+
+	"github.com/pantopic/microstack/internal"
 )
 
 func main() {
@@ -20,7 +22,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// Load microstack state machines
+	logger := getLogger(cfg)
+	agent.StateMachineRegister(internal.StateMachineUri, func(shardID, replicaID uint64) zongzi.StateMachine {
+		return internal.NewStateMachine(logger, shardID, replicaID)
+	})
 	// Load extension state machines - agent.StateMachineRegister(uri, factory)
 	if err = agent.Start(ctx); err != nil {
 		panic(err)

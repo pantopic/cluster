@@ -4,11 +4,11 @@ import (
 	"context"
 	"io"
 
+	"github.com/logbn/fastjson-valid"
 	"github.com/logbn/zongzi"
-	"github.com/valyala/fastjson"
 )
 
-const StateMachineUri = "zongzi://github.com/logbn/microstack/internal"
+const StateMachineUri = "zongzi://github.com/pantopic/microstack/internal"
 
 func NewStateMachine(logger Logger, shardID, replicaID uint64) *StateMachine {
 	return &StateMachine{
@@ -21,7 +21,7 @@ func NewStateMachine(logger Logger, shardID, replicaID uint64) *StateMachine {
 
 var _ zongzi.StateMachine = (*StateMachine)(nil)
 
-type cmdFunc func(*fastjson.Value, *Entry, *State) error
+type cmdFunc func(*Entry, *State) error
 
 type StateMachine struct {
 	zongzi.StateMachine
@@ -31,6 +31,8 @@ type StateMachine struct {
 	replicaID uint64
 	state     *State
 }
+
+var p fastjson.ValidParser
 
 func (fsm *StateMachine) Update(entries []Entry) []Entry {
 	var state *State
@@ -42,7 +44,7 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 			fsm.log.Errorf(ErrCommandEmpty.Error())
 			continue
 		}
-		cmd, err = fastjson.ParseBytes(entry.Cmd)
+		cmd, err = p.ParseBytes(entry.Cmd)
 		if err != nil {
 			fsm.log.Errorf(`invalid command (%s): %s`, err.Error(), string(entry.Cmd))
 			continue
@@ -53,7 +55,7 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 			fsm.log.Errorf(`unrecognized command (%s): %s`, cmdType, string(entry.Cmd))
 			continue
 		}
-		err = cmdFunc(cmd, &entry, state)
+		err = cmdFunc(&entry, state)
 		if err != nil {
 			fsm.log.Warningf(err.Error())
 			state.abort()

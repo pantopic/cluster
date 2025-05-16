@@ -46,7 +46,7 @@ func newState() *State {
 			},
 		},
 	}
-	namspaceSchema := &memdb.TableSchema{
+	namespaceSchema := &memdb.TableSchema{
 		Name: "namespace",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
@@ -159,7 +159,7 @@ func newState() *State {
 	db, err := memdb.NewMemDB(&memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
 			"meta":      metaSchema,
-			"namespace": namspaceSchema,
+			"namespace": namespaceSchema,
 			"resource":  resourceSchema,
 			"component": componentSchema,
 		},
@@ -227,8 +227,21 @@ func (fsm *State) Index() (val uint64) {
 }
 
 // Namespace returns the namespace with the specified id or ok false if not found.
-func (fsm *State) Namespace(id string) (s Namespace, ok bool) {
+func (fsm *State) Namespace(id uint64) (s Namespace, ok bool) {
 	res, err := fsm.txn.First(`namespace`, `id`, id)
+	if err != nil {
+		panic(err)
+	}
+	if res != nil {
+		s = res.(Namespace)
+		ok = true
+	}
+	return
+}
+
+// Namespace returns the namespace with the specified name or ok false if not found.
+func (fsm *State) NamespaceByName(name string) (s Namespace, ok bool) {
+	res, err := fsm.txn.First(`namespace`, `name`, name)
 	if err != nil {
 		panic(err)
 	}
@@ -253,7 +266,7 @@ func (fsm *State) namespaceDelete(s Namespace) {
 	}
 }
 
-func (fsm *State) namespaceTouch(id string, index uint64) {
+func (fsm *State) namespaceTouch(id, index uint64) {
 	if s, ok := fsm.Namespace(id); ok {
 		s.Updated = index
 		fsm.namespacePut(s)
@@ -456,8 +469,8 @@ func (fsm *State) Resource(id uint64) (s Resource, ok bool) {
 }
 
 // ResourceFindByName returns the resource with the specified name or ok false if not found.
-func (fsm *State) ResourceFindByName(name string) (s Resource, ok bool) {
-	res, err := fsm.txn.First(`resource`, `Name`, name)
+func (fsm *State) ResourceFindByName(namespaceID uint64, name string) (s Resource, ok bool) {
+	res, err := fsm.txn.First(`resource`, `Name`, namespaceID, name)
 	if err != nil {
 		panic(err)
 	}
@@ -499,9 +512,9 @@ func (fsm *State) ResourceIterate(fn func(s Resource) bool) {
 	fsm.resourceIter(iter, fn)
 }
 
-// ResourceIterateByParentID executes a callback for every child of a resource.
-func (fsm *State) ResourceIterateByParentID(parentID uint64, fn func(r Resource) bool) {
-	iter, err := fsm.txn.Get(`resource`, `ParentID`, parentID)
+// ResourceIterateByNamespaceID executes a callback for every child of a resource.
+func (fsm *State) ResourceIterateByNamespaceID(namespaceID uint64, fn func(r Resource) bool) {
+	iter, err := fsm.txn.Get(`resource`, `NamespaceID`, namespaceID)
 	if err != nil {
 		panic(err)
 	}
@@ -549,8 +562,10 @@ func (fsm *State) resourceIter(iter memdb.ResultIterator, fn func(r Resource) bo
 func (fsm *State) Save(w io.Writer) error {
 	f := fsm.withTxn(false)
 	header := fsmStateMetaHeader{
-		Index:      f.metaGetVal(`index`),
-		ResourceID: f.metaGetVal(`resourceID`),
+		Index:       f.metaGetVal(`index`),
+		NamespaceID: f.metaGetVal(`namespaceID`),
+		ResourceID:  f.metaGetVal(`resourceID`),
+		ComponentID: f.metaGetVal(`componentID`),
 	}
 	f.ResourceIterate(func(Resource) bool {
 		header.Resources++
