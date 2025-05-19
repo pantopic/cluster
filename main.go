@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"strings"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/logbn/zongzi"
 
@@ -13,12 +15,12 @@ import (
 func main() {
 	cfg := getConfig()
 	ctx := context.Background()
-	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","),
+	agent, err := zongzi.NewAgent(cfg.ClusterName, cfg.Peers(),
 		zongzi.WithRaftDir(cfg.DirRaft),
 		zongzi.WithWALDir(cfg.DirWAL),
 		zongzi.WithGossipAddress(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortGossip)),
 		zongzi.WithRaftAddress(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortRaft)),
-		zongzi.WithApiAddress(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortApi)))
+		zongzi.WithApiAddress(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortZongzi)))
 	if err != nil {
 		panic(err)
 	}
@@ -32,5 +34,13 @@ func main() {
 	}
 	// Bootstrap cluster
 	// Start GRPC Server
-	// Start extension servers (ie. table http api)
+	// Start interfaces (ie. table http api)
+
+	// await stop
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+	signal.Notify(stop, syscall.SIGTERM)
+	<-stop
+
+	agent.Stop()
 }

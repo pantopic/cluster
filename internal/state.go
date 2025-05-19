@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"iter"
 	"sync"
 
 	"github.com/hashicorp/go-memdb"
@@ -273,49 +274,39 @@ func (fsm *State) namespaceTouch(id, index uint64) {
 	}
 }
 
-// NamespaceIterate executes a callback for every namespace in the namespace ordered by namespace id ascending.
+func resultIterSeq[V any](iter memdb.ResultIterator) func(yield func(V) bool) {
+	return func(yield func(V) bool) {
+		for {
+			if !yield(iter.Next().(V)) {
+				break
+			}
+		}
+	}
+}
+
+// NamespaceIter executes a callback for every namespace ordered by id ascending.
 // Return true to continue iterating, false to stop.
-func (fsm *State) NamespaceIterate(fn func(s Namespace) bool) {
-	iter, err := fsm.txn.LowerBound(`namespace`, `id`, uint64(0))
-	if err != nil {
-		panic(err)
-	}
-	for {
-		res := iter.Next()
-		if res == nil || !fn(res.(Namespace)) {
-			break
-		}
-	}
+func (fsm *State) NamespaceIter() iter.Seq[Namespace] {
+	return namespaceIter(fsm.txn.LowerBound(`namespace`, `id`, uint64(0)))
 }
 
-// NamespaceIterateByTag executes a callback for every namespace in the namespace matching the specified tag,
+// NamespaceIterByTag executes a callback for every namespace in the namespace matching the specified tag,
 // ordered by namespace id ascending. Return true to continue iterating, false to stop.
-func (fsm *State) NamespaceIterateByTag(tag string, fn func(r Namespace) bool) {
-	iter, err := fsm.txn.Get(`namespace`, `Tags`, tag)
-	if err != nil {
-		panic(err)
-	}
-	for {
-		res := iter.Next()
-		if res == nil || !fn(res.(Namespace)) {
-			break
-		}
-	}
+func (fsm *State) NamespaceIterByTag(tag string) iter.Seq[Namespace] {
+	return namespaceIter(fsm.txn.Get(`namespace`, `Tags`, tag))
 }
 
-// NamespaceIterateUpdatedAfter executes a callback for every namespace in the namespace having an updated index
+// NamespaceIterUpdatedAfter executes a callback for every namespace in the namespace having an updated index
 // greater than the supplied index
-func (fsm *State) NamespaceIterateUpdatedAfter(index uint64, fn func(r Namespace) bool) {
-	iter, err := fsm.txn.LowerBound(`namespace`, `Updated`, index+1)
+func (fsm *State) NamespaceIterUpdatedAfter(index uint64) iter.Seq[Namespace] {
+	return namespaceIter(fsm.txn.LowerBound(`namespace`, `Updated`, index+1))
+}
+
+func namespaceIter(iter memdb.ResultIterator, err error) iter.Seq[Namespace] {
 	if err != nil {
 		panic(err)
 	}
-	for {
-		res := iter.Next()
-		if res == nil || !fn(res.(Namespace)) {
-			break
-		}
-	}
+	return resultIterSeq[Namespace](iter)
 }
 
 func (fsm *State) componentIncr() uint64 {
@@ -377,70 +368,48 @@ func (fsm *State) componentTouch(id, index uint64) {
 	}
 }
 
-// ComponentIterate executes a callback for every component in the component ordered by component id ascending.
+// ComponentIter executes a callback for every component in the component ordered by component id ascending.
 // Return true to continue iterating, false to stop.
-func (fsm *State) ComponentIterate(fn func(s Component) bool) {
-	iter, err := fsm.txn.LowerBound(`component`, `id`, uint64(0))
-	if err != nil {
-		panic(err)
-	}
-	fsm.componentIter(iter, fn)
+func (fsm *State) ComponentIter() iter.Seq[Component] {
+	return componentIter(fsm.txn.LowerBound(`component`, `id`, uint64(0)))
 }
 
-// ComponentIterateByResourceID executes a callback for every child of a component.
-func (fsm *State) ComponentIterateByResourceID(resourceID uint64, fn func(r Component) bool) {
-	iter, err := fsm.txn.Get(`component`, `ResourceID`, resourceID)
-	if err != nil {
-		panic(err)
-	}
-	fsm.componentIter(iter, fn)
+// ComponentIterByResourceID executes a callback for every child of a component.
+func (fsm *State) ComponentIterByResourceID(resourceID uint64) iter.Seq[Component] {
+	return componentIter(fsm.txn.Get(`component`, `ResourceID`, resourceID))
 }
 
-// ComponentIterateByNamespaceID executes a callback for every component in the component in the namespace.
-func (fsm *State) ComponentIterateByNamespaceID(namespaceID string, fn func(r Component) bool) {
-	iter, err := fsm.txn.Get(`component`, `NamespaceID`, namespaceID)
-	if err != nil {
-		panic(err)
-	}
-	fsm.componentIter(iter, fn)
+// ComponentIterByNamespaceID executes a callback for every component in the component in the namespace.
+func (fsm *State) ComponentIterByNamespaceID(namespaceID string) iter.Seq[Component] {
+	return componentIter(fsm.txn.Get(`component`, `NamespaceID`, namespaceID))
 }
 
-// ComponentIterateByType executes a callback for every component of a specific type.
-func (fsm *State) ComponentIterateByType(uri string, fn func(r Component) bool) {
-	iter, err := fsm.txn.Get(`component`, `Type`, uri)
-	if err != nil {
-		panic(err)
-	}
-	fsm.componentIter(iter, fn)
+// ComponentIterByType executes a callback for every component of a specific type.
+func (fsm *State) ComponentIterByType(uri string) iter.Seq[Component] {
+	return componentIter(fsm.txn.Get(`component`, `Type`, uri))
 }
 
-// ComponentIterateByTag executes a callback for every component in the component matching the specified tag,
+// ComponentIterByTag executes a callback for every component in the component matching the specified tag,
 // ordered by component id ascending. Return true to continue iterating, false to stop.
-func (fsm *State) ComponentIterateByTag(tag string, fn func(r Component) bool) {
-	iter, err := fsm.txn.Get(`component`, `Tags`, tag)
+func (fsm *State) ComponentIterByTag(tag string) iter.Seq[Component] {
+	return componentIter(fsm.txn.Get(`component`, `Tags`, tag))
+}
+
+func componentIter(iter memdb.ResultIterator, err error) iter.Seq[Component] {
 	if err != nil {
 		panic(err)
 	}
-	fsm.componentIter(iter, fn)
+	return resultIterSeq[Component](iter)
 }
 
 // ComponentIterateUpdatedAfter executes a callback for every component in the component having an updated index
 // greater than the supplied index
-func (fsm *State) ComponentIterateUpdatedAfter(index uint64, fn func(c Component) bool) {
+func (fsm *State) ComponentIterUpdatedAfter(index uint64) iter.Seq[Component] {
 	iter, err := fsm.txn.LowerBound(`component`, `Updated`, index+1)
 	if err != nil {
 		panic(err)
 	}
-	fsm.componentIter(iter, fn)
-}
-
-func (fsm *State) componentIter(iter memdb.ResultIterator, fn func(c Component) bool) {
-	for {
-		item := iter.Next()
-		if item == nil || !fn(item.(Component)) {
-			break
-		}
-	}
+	return resultIterSeq[Component](iter)
 }
 
 func (fsm *State) resourceIncr() uint64 {
@@ -502,52 +471,39 @@ func (fsm *State) resourceTouch(id, index uint64) {
 	}
 }
 
-// ResourceIterate executes a callback for every resource in the resource ordered by resource id ascending.
+// ResourceIter executes a callback for every resource in the resource ordered by resource id ascending.
 // Return true to continue iterating, false to stop.
-func (fsm *State) ResourceIterate(fn func(s Resource) bool) {
-	iter, err := fsm.txn.LowerBound(`resource`, `id`, uint64(0))
-	if err != nil {
-		panic(err)
-	}
-	fsm.resourceIter(iter, fn)
+func (fsm *State) ResourceIter() iter.Seq[Resource] {
+	return resourceIter(fsm.txn.LowerBound(`resource`, `id`, uint64(0)))
 }
 
-// ResourceIterateByNamespaceID executes a callback for every child of a resource.
-func (fsm *State) ResourceIterateByNamespaceID(namespaceID uint64, fn func(r Resource) bool) {
-	iter, err := fsm.txn.Get(`resource`, `NamespaceID`, namespaceID)
-	if err != nil {
-		panic(err)
-	}
-	fsm.resourceIter(iter, fn)
+// ResourceIterByNamespaceID executes a callback for every child of a resource.
+func (fsm *State) ResourceIterByNamespaceID(namespaceID uint64) iter.Seq[Resource] {
+	return resourceIter(fsm.txn.Get(`resource`, `NamespaceID`, namespaceID))
 }
 
-// ResourceIterateByType executes a callback for every resource of a specific type.
-func (fsm *State) ResourceIterateByType(uri string, fn func(r Resource) bool) {
-	iter, err := fsm.txn.Get(`resource`, `Type`, uri)
-	if err != nil {
-		panic(err)
-	}
-	fsm.resourceIter(iter, fn)
+// ResourceIterByType executes a callback for every resource of a specific type.
+func (fsm *State) ResourceIterByType(uri string) iter.Seq[Resource] {
+	return resourceIter(fsm.txn.Get(`resource`, `Type`, uri))
 }
 
-// ResourceIterateByTag executes a callback for every resource in the resource matching the specified tag,
+// ResourceIterByTag executes a callback for every resource in the resource matching the specified tag,
 // ordered by resource id ascending. Return true to continue iterating, false to stop.
-func (fsm *State) ResourceIterateByTag(tag string, fn func(r Resource) bool) {
-	iter, err := fsm.txn.Get(`resource`, `Tags`, tag)
-	if err != nil {
-		panic(err)
-	}
-	fsm.resourceIter(iter, fn)
+func (fsm *State) ResourceIterByTag(tag string) iter.Seq[Resource] {
+	return resourceIter(fsm.txn.Get(`resource`, `Tags`, tag))
 }
 
-// ResourceIterateUpdatedAfter executes a callback for every resource in the resource having an updated index
+// ResourceIterUpdatedAfter executes a callback for every resource in the resource having an updated index
 // greater than the supplied index
-func (fsm *State) ResourceIterateUpdatedAfter(index uint64, fn func(r Resource) bool) {
-	iter, err := fsm.txn.LowerBound(`resource`, `Updated`, index+1)
+func (fsm *State) ResourceIterUpdatedAfter(index uint64) iter.Seq[Resource] {
+	return resourceIter(fsm.txn.LowerBound(`resource`, `Updated`, index+1))
+}
+
+func resourceIter(iter memdb.ResultIterator, err error) iter.Seq[Resource] {
 	if err != nil {
 		panic(err)
 	}
-	fsm.resourceIter(iter, fn)
+	return resultIterSeq[Resource](iter)
 }
 
 func (fsm *State) resourceIter(iter memdb.ResultIterator, fn func(r Resource) bool) {
@@ -567,17 +523,15 @@ func (fsm *State) Save(w io.Writer) error {
 		ResourceID:  f.metaGetVal(`resourceID`),
 		ComponentID: f.metaGetVal(`componentID`),
 	}
-	f.ResourceIterate(func(Resource) bool {
+	for range f.ResourceIter() {
 		header.Resources++
-		return true
-	})
+	}
 	b, _ := json.Marshal(header)
 	w.Write(append(b, '\n'))
-	f.ResourceIterate(func(item Resource) bool {
+	for item := range f.ResourceIter() {
 		b, _ := json.Marshal(item)
 		w.Write(append(b, '\n'))
-		return true
-	})
+	}
 	return nil
 }
 

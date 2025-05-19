@@ -1,0 +1,49 @@
+x-variables:
+  common: &common
+    build:
+      context: ../..
+      dockerfile: cmd/standalone/Dockerfile
+      target: standalone
+    networks:
+      - microstack
+    volumes:
+      - type: tmpfs
+        target: /var/lib/microstack
+        tmpfs:
+          mode: 01777
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+  env: &env
+    MICROSTACK_HOST_PEERS: microstack-0,microstack-1,microstack-2
+    MICROSTACK_LOG_LEVEL: warn # (info, debug)
+
+services:
+  microstack-0:
+    <<: *common
+    environment:
+      <<: *env
+      MICROSTACK_HOST_NAME: microstack-0
+    ports:
+      - 8000:8000
+      - 9090:9090
+  microstack-1:
+    <<: *common
+    environment:
+      <<: *env
+      MICROSTACK_HOST_NAME: microstack-1
+    ports:
+      - 8001:8000
+      - 9091:9090
+  microstack-2:
+    <<: *common
+    environment:
+      <<: *env
+      MICROSTACK_HOST_NAME: microstack-2
+    ports:
+      - 8002:8000
+      - 9092:9090
+
+networks:
+  microstack:
