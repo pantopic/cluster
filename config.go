@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/caarlos0/env/v11"
 )
 
@@ -43,14 +40,4 @@ func getConfig() config {
 		panic(err)
 	}
 	return cfg
-}
-
-func (cfg config) Peers() (peers []string) {
-	peers = strings.Split(cfg.HostPeers, ",")
-	for i, addr := range peers {
-		if !strings.Contains(addr, ":") {
-			peers[i] = fmt.Sprintf("%s:%d", addr, cfg.PortZongzi)
-		}
-	}
-	return
 }
