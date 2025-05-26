@@ -28,7 +28,7 @@ func getConfig() config {
 		DirWAL:      "/var/lib/microstack/wal",
 		HostName:    "microstack-a-0",
 		HostPeers:   "microstack-a-0,microstack-b-0,microstack-c-0",
-		LogLevel:    "warn",
+		LogLevel:    "info",
 		PortApi:     8000,
 		PortGossip:  17001,
 		PortRaft:    17002,

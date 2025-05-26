@@ -6,6 +6,10 @@ import (
 	"github.com/logbn/zongzi"
 )
 
+const (
+	ShardID = 1
+)
+
 type (
 	NamespaceStatus string
 	ComponentStatus string
@@ -15,16 +19,13 @@ type (
 	Logger = zongzi.Logger
 	Result = zongzi.Result
 	Shard  = zongzi.Shard
+	Agent  = zongzi.Agent
 
+	LeaderInfo  = zongzi.LeaderInfo
 	ShardOption = zongzi.ShardOption
 )
 
 var (
-	NamespaceStatus_Pending     = NamespaceStatus("pending")
-	NamespaceStatus_Active      = NamespaceStatus("active")
-	NamespaceStatus_Unavailable = NamespaceStatus("unavailable")
-	NamespaceStatus_Gone        = NamespaceStatus("gone")
-
 	ResourceStatus_Pending     = ResourceStatus("pending")
 	ResourceStatus_Active      = ResourceStatus("active")
 	ResourceStatus_Unavailable = ResourceStatus("unavailable")
@@ -45,11 +46,10 @@ var (
 )
 
 type Namespace struct {
-	Name    string            `json:"name"`
+	Name    string            `json:"name" validate:"required"`
 	Created uint64            `json:"created"`
 	Deleted uint64            `json:"deleted"`
-	ID      string            `json:"id"`
-	Status  NamespaceStatus   `json:"status"`
+	ID      uint64            `json:"id"`
 	Tags    map[string]string `json:"tags"`
 	Updated uint64            `json:"updated"`
 }

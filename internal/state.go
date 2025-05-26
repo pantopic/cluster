@@ -227,6 +227,13 @@ func (fsm *State) Index() (val uint64) {
 	return fsm.metaGetVal(`index`)
 }
 
+func (fsm *State) namespaceIncr() uint64 {
+	id := fsm.metaGetVal(`namespaceID`)
+	id++
+	fsm.metaSet(`namespaceID`, id, nil)
+	return id
+}
+
 // Namespace returns the namespace with the specified id or ok false if not found.
 func (fsm *State) Namespace(id uint64) (s Namespace, ok bool) {
 	res, err := fsm.txn.First(`namespace`, `id`, id)
@@ -242,7 +249,7 @@ func (fsm *State) Namespace(id uint64) (s Namespace, ok bool) {
 
 // Namespace returns the namespace with the specified name or ok false if not found.
 func (fsm *State) NamespaceByName(name string) (s Namespace, ok bool) {
-	res, err := fsm.txn.First(`namespace`, `name`, name)
+	res, err := fsm.txn.First(`namespace`, `Name`, name)
 	if err != nil {
 		panic(err)
 	}

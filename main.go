@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -16,34 +15,35 @@ import (
 	"github.com/pantopic/microstack/system"
 )
 
-const (
-	ShardID = 1
-)
-
 func main() {
 	cfg := getConfig()
 	ctx := context.Background()
+	logger := getLogger(cfg)
+	ctrl := internal.NewControllerCluster(logger)
 	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","),
 		zongzi.WithDirRaft(cfg.DirRaft),
 		zongzi.WithDirWAL(cfg.DirWAL),
 		zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortGossip)),
 		zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortRaft)),
 		zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortZongzi)),
-		zongzi.WithHostTags(`microstack:host`))
+		zongzi.WithHostTags(`microstack:host`),
+		zongzi.WithRaftEventListener(ctrl))
 	if err != nil {
 		panic(err)
 	}
-	start(ctx, agent, getLogger(cfg))
+	ctrl.SetAgent(agent)
+	start(ctx, agent, ctrl, logger)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
 	<-stop
 
+	ctrl.Stop()
 	agent.Stop()
 }
 
-func start(ctx context.Context, agent *zongzi.Agent, logger zongzi.Logger) {
+func start(ctx context.Context, agent *zongzi.Agent, ctrl internal.ControllerCluster, logger zongzi.Logger) {
 	agent.StateMachineRegister(internal.StateMachineUri, func(shardID, replicaID uint64) zongzi.StateMachine {
 		return internal.NewStateMachine(logger, shardID, replicaID)
 	})
@@ -59,28 +59,11 @@ func start(ctx context.Context, agent *zongzi.Agent, logger zongzi.Logger) {
 	agent.StateMachineRegister(guest.StateMachinePersistentUri, func(shardID, replicaID uint64) zongzi.StateMachinePersistent {
 		return guest.NewStateMachinePersistent(logger, shardID, replicaID)
 	})
+	ctrl.SetAgent(agent)
 	if err := agent.Start(ctx); err != nil {
 		panic(err)
 	}
-
-	// Start cluster controller
-	// Cluster controller bootstraps the cluster
-	shard, err := agent.ShardFind(ctx, ShardID)
-	if err != nil {
-		panic(err)
-	}
-	if shard.ID == 0 {
-		shard, _, err = agent.ShardCreate(ctx, internal.StateMachineUri,
-			zongzi.WithName("microstack"),
-			zongzi.WithPlacementMembers(3),
-			zongzi.WithPlacementCover("microstack:host"))
-		if err != nil {
-			panic(err)
-		}
-		// Create system namespace
-		// Propose creation of system namespace
-	}
-	log.Printf("%#v", shard)
+	ctrl.Start(ctx)
 
 	// Start GRPC Server
 	// Start interfaces (ie. table http api)

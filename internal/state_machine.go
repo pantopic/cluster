@@ -21,8 +21,6 @@ func NewStateMachine(logger Logger, shardID, replicaID uint64) *StateMachine {
 
 var _ zongzi.StateMachine = (*StateMachine)(nil)
 
-type cmdFunc func(*Entry, *State) error
-
 type StateMachine struct {
 	zongzi.StateMachine
 
@@ -46,16 +44,18 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 		}
 		cmd, err = p.ParseBytes(entry.Cmd)
 		if err != nil {
+			entry.Result.Value = ResultErrSyntactic
 			fsm.log.Errorf(`invalid command (%s): %s`, err.Error(), string(entry.Cmd))
 			continue
 		}
 		cmdType := string(cmd.GetStringBytes(`type`))
-		cmdFunc, ok := commands[cmdType] // see commands.go
+		cmdFunc, ok := commands[cmdType] // see command.go
 		if !ok {
+			entry.Result.Value = ResultErrSemantic
 			fsm.log.Errorf(`unrecognized command (%s): %s`, cmdType, string(entry.Cmd))
 			continue
 		}
-		err = cmdFunc(&entry, state)
+		err = cmdFunc(&entry, state, cmd.Get(`data`))
 		if err != nil {
 			fsm.log.Warningf(err.Error())
 			state.abort()
@@ -69,6 +69,22 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 }
 
 func (fsm *StateMachine) Query(ctx context.Context, data []byte) (result *Result) {
+	result = &Result{}
+	query, err := p.ParseBytes(data)
+	if err != nil {
+		result.Value = ResultErrSyntactic
+		fsm.log.Errorf(`invalid query (%s): %s`, err.Error(), string(data))
+		return
+	}
+	t := string(query.GetStringBytes(`type`))
+	queryFunc, ok := queries[t] // see query.go
+	if !ok {
+		result.Value = ResultErrSemantic
+		fsm.log.Errorf(`unrecognized query (%s): %s`, t, string(data))
+		return
+	}
+	err = queryFunc(result, fsm.state.withTxn(false), query.Get(`data`))
+
 	return
 }
 
