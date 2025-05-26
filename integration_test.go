@@ -70,7 +70,7 @@ func TestMain(t *testing.T) {
 	})
 	client := agents[0].Client(internal.ShardID)
 	t.Run(`namespaces`, func(t *testing.T) {
-		for _, namespace := range []string{"system", "default"} {
+		for _, namespace := range []string{"internal", "default"} {
 			q, err := json.Marshal(map[string]any{
 				"type": "namespaceFind",
 				"data": internal.Namespace{Name: namespace},

@@ -62,7 +62,7 @@ func (c *controllerCluster) Start(ctx context.Context) (err error) {
 			panic(err)
 		}
 		client := c.agent.Client(shard.ID)
-		for _, namespace := range []string{"system", "default"} {
+		for _, namespace := range []string{"internal", "default"} {
 			c.log.Infof(`Creating namespace: ` + namespace)
 			for {
 				b, err := json.Marshal(map[string]any{
