@@ -84,7 +84,6 @@ func (fsm *StateMachine) Query(ctx context.Context, data []byte) (result *Result
 		return
 	}
 	err = queryFunc(result, fsm.state.withTxn(false), query.Get(`data`))
-
 	return
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 func queryNamespaceFind(result *Result, state *State, v *fastjson.Value) error {
-	name := string(v.GetStringBytes(`name`))
+	name := string(v.GetStringBytes())
 	obj, ok := state.NamespaceByName(name)
 	if !ok {
 		result.Value = ResultErrNotFound

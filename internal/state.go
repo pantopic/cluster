@@ -229,8 +229,7 @@ func (fsm *State) Index() (val uint64) {
 
 func (fsm *State) namespaceIncr() uint64 {
 	id := fsm.metaGetVal(`namespaceID`)
-	id++
-	fsm.metaSet(`namespaceID`, id, nil)
+	fsm.metaSet(`namespaceID`, id+1, nil)
 	return id
 }
 

@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"encoding/json"
+
 	"github.com/logbn/fastjson-valid"
 )
 
@@ -16,11 +18,19 @@ func commandNamespaceCreate(entry *Entry, state *State, v *fastjson.Value) error
 		entry.Result.Data = []byte("Namespace exists")
 		return nil
 	}
-	state.namespacePut(Namespace{
+	obj := Namespace{
 		ID:      state.namespaceIncr(),
 		Name:    name,
 		Created: entry.Index,
 		Updated: entry.Index,
-	})
+	}
+	state.namespacePut(obj)
+	b, err := json.Marshal(obj)
+	if err != nil {
+		entry.Result.Value = ResultErrInternal
+		entry.Result.Data = []byte(err.Error())
+	}
+	entry.Result.Value = ResultSuccess
+	entry.Result.Data = b
 	return nil
 }

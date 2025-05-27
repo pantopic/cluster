@@ -28,13 +28,13 @@ func TestMain(t *testing.T) {
 		`127.0.0.1:18031`,
 	}
 	agents := make([]*zongzi.Agent, len(peers))
-	ctrls := make([]internal.ControllerCluster, len(peers))
+	controllers := make([]internal.ControllerCluster, len(peers))
 	cfg := getConfig()
 	cfg.HostName = "127.0.0.1"
 	logger := getLogger(cfg)
 	start := func(t *testing.T, peers []string, class string, portSets ...[]uint16) {
 		for i, ports := range portSets {
-			ctrls[i] = internal.NewControllerCluster(logger)
+			controllers[i] = internal.NewControllerCluster(logger)
 			if agents[i], err = zongzi.NewAgent(cfg.ClusterName, peers,
 				zongzi.WithDirRaft(fmt.Sprintf(basedir+`/%d/raft`, i)),
 				zongzi.WithDirWAL(fmt.Sprintf(basedir+`/%d/wal`, i)),
@@ -42,15 +42,15 @@ func TestMain(t *testing.T) {
 				zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[1])),
 				zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[2])),
 				zongzi.WithHostTags(`microstack:host`, `host:class=`+class),
-				zongzi.WithRaftEventListener(ctrls[i]),
+				zongzi.WithRaftEventListener(controllers[i]),
 			); err != nil {
 				panic(err)
 			}
-			go start(ctx, agents[i], ctrls[i], logger)
+			go start(ctx, agents[i], controllers[i], logger)
 		}
 		time.Sleep(time.Second)
 		// 10 seconds to start the cluster.
-		require.True(t, await(10, 100, func() bool {
+		require.True(t, await(10, 10, func() bool {
 			mutex.Lock()
 			defer mutex.Unlock()
 			for j := range agents {
@@ -73,21 +73,20 @@ func TestMain(t *testing.T) {
 		for _, namespace := range []string{"internal", "default"} {
 			q, err := json.Marshal(map[string]any{
 				"type": "namespaceFind",
-				"data": internal.Namespace{Name: namespace},
+				"data": namespace,
 			})
 			require.Nil(t, err)
 			var val uint64
 			var data []byte
-			require.True(t, await(10, 100, func() bool {
-				val, data, err = client.Read(ctx, q, false)
+			require.True(t, await(10, 10, func() bool {
+				val, data, err = client.Read(ctx, q, true)
 				return err == nil && val == internal.ResultSuccess && len(data) > 0
 			}), `%d %s %v`, val, data, err)
 		}
 	})
-	time.Sleep(time.Second)
 	logger.Infof("Stopping")
 	for i := range len(peers) {
-		ctrls[i].Stop()
+		controllers[i].Stop()
 	}
 	for i := range len(peers) {
 		agents[i].Stop()
@@ -95,7 +94,7 @@ func TestMain(t *testing.T) {
 }
 
 func await(d, n time.Duration, fn func() bool) bool {
-	for i := 0; i < int(n); i++ {
+	for range n {
 		if fn() {
 			return true
 		}
