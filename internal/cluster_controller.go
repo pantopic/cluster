@@ -8,6 +8,8 @@ import (
 
 	"github.com/benbjohnson/clock"
 	"github.com/logbn/zongzi"
+
+	"github.com/pantopic/microstack/internal/modulestore"
 )
 
 type ControllerCluster interface {
@@ -86,7 +88,7 @@ func (c *clusterController) tick() {
 	if c.isLeader.Load() {
 		for updated {
 			updated = false
-			//
+			// controller manager resolves resources
 			if err != nil {
 				hadErr = true
 			}
@@ -100,28 +102,21 @@ func (c *clusterController) tick() {
 
 func (c *clusterController) LeaderUpdated(info LeaderInfo) {
 	if info.ShardID == zongzi.ShardID && info.LeaderID == info.ReplicaID && c.shard().ID == 0 {
-		go c.initShard()
+		go c.createShard()
 	}
 	if info.ShardID == ShardID {
 		c.log.Infof("[%05d:%05d] LeaderUpdated: %05d (term %d)", info.ShardID, info.ReplicaID, info.LeaderID, info.Term)
 		c.isLeader.Store(info.LeaderID == info.ReplicaID)
 		c.replicaID.Store(info.ReplicaID)
 		if c.isLeader.Load() {
-			if !c.controls.NamespaceExists(c.ctx, "default") {
-				go c.initNamespaces()
+			if !c.controls.NamespaceExists(c.ctx, "internal") {
+				go c.init()
 			}
 		}
 	}
 }
 
-func (c *clusterController) initNamespaces() {
-	for _, name := range []string{"internal", "default"} {
-		c.log.Infof(`[%05d:%05d] Creating namespace: %s`, ShardID, c.replicaID.Load(), name)
-		c.controls.NamespaceCreate(c.ctx, name)
-	}
-}
-
-func (c *clusterController) initShard() {
+func (c *clusterController) createShard() {
 	c.log.Infof(`Creating shard`)
 	if _, _, err := c.agent.ShardCreate(c.ctx, StateMachineUri,
 		zongzi.WithName("microstack"),
@@ -130,6 +125,19 @@ func (c *clusterController) initShard() {
 	); err != nil {
 		panic(err)
 	}
+}
+
+func (c *clusterController) init() {
+	internal := c.controls.NamespaceCreate(c.ctx, `internal`)
+	c.controls.NamespaceCreate(c.ctx, `default`)
+	c.controls.ResourceCreate(c.ctx, Resource{
+		Name:        `modules`,
+		NamespaceID: internal.ID,
+		Type:        modulestore.ResourceUri,
+	})
+	// modules
+	// metrics
+	// permissions
 }
 
 func (c *clusterController) Stop() {

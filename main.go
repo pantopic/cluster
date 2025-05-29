@@ -12,6 +12,7 @@ import (
 
 	"github.com/pantopic/microstack/guest"
 	"github.com/pantopic/microstack/internal"
+	"github.com/pantopic/microstack/internal/modulestore"
 	"github.com/pantopic/microstack/system"
 )
 
@@ -47,7 +48,7 @@ func start(ctx context.Context, agent *zongzi.Agent, ctrl internal.ControllerClu
 	agent.StateMachineRegister(internal.StateMachineUri, func(shardID, replicaID uint64) zongzi.StateMachine {
 		return internal.NewStateMachine(logger, shardID, replicaID)
 	})
-	agent.StateMachineRegister(system.StateMachineUri, func(shardID, replicaID uint64) zongzi.StateMachine {
+	agent.StateMachineRegister(modulestore.StateMachinePersistentUri, func(shardID, replicaID uint64) zongzi.StateMachine {
 		return system.NewStateMachine(logger, shardID, replicaID)
 	})
 	agent.StateMachineRegister(system.StateMachinePersistentUri, func(shardID, replicaID uint64) zongzi.StateMachinePersistent {

@@ -8,4 +8,5 @@ type cmdFunc func(*Entry, *State, *fastjson.Value) error
 
 var commands = map[string]cmdFunc{
 	"namespaceCreate": commandNamespaceCreate,
+	"resourceCreate":  commandResourceCreate,
 }

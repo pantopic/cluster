@@ -456,8 +456,8 @@ func (fsm *State) ResourceFindByName(namespaceID uint64, name string) (s Resourc
 	return
 }
 
-func (fsm *State) resourcePut(s Resource) {
-	err := fsm.txn.Insert(`resource`, s)
+func (fsm *State) resourcePut(r Resource) {
+	err := fsm.txn.Insert(`resource`, r)
 	if err != nil {
 		panic(err)
 	}
