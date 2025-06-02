@@ -30,7 +30,7 @@ type StateMachine struct {
 	state     *State
 }
 
-var p fastjson.ValidParser
+var parser fastjson.ValidParserPool
 
 func (fsm *StateMachine) Update(entries []Entry) []Entry {
 	var state *State
@@ -42,6 +42,8 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 			fsm.log.Errorf(ErrCommandEmpty.Error())
 			continue
 		}
+		p := parser.Get()
+		defer parser.Put(p)
 		cmd, err = p.ParseBytes(entry.Cmd)
 		if err != nil {
 			entry.Result.Value = ResultErrSyntactic
@@ -70,6 +72,8 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 
 func (fsm *StateMachine) Query(ctx context.Context, data []byte) (result *Result) {
 	result = &Result{}
+	p := parser.Get()
+	defer parser.Put(p)
 	query, err := p.ParseBytes(data)
 	if err != nil {
 		result.Value = ResultErrSyntactic
