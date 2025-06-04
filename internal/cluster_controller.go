@@ -108,10 +108,8 @@ func (c *clusterController) LeaderUpdated(info LeaderInfo) {
 		c.log.Infof("[%05d:%05d] LeaderUpdated: %05d (term %d)", info.ShardID, info.ReplicaID, info.LeaderID, info.Term)
 		c.isLeader.Store(info.LeaderID == info.ReplicaID)
 		c.replicaID.Store(info.ReplicaID)
-		if c.isLeader.Load() {
-			if !c.controls.NamespaceExists(c.ctx, "internal") {
-				go c.init()
-			}
+		if info.LeaderID == info.ReplicaID {
+			go c.init()
 		}
 	}
 }
@@ -128,16 +126,20 @@ func (c *clusterController) createShard() {
 }
 
 func (c *clusterController) init() {
+	if c.controls.NamespaceExists(c.ctx, "internal") {
+		return
+	}
 	internal := c.controls.NamespaceCreate(c.ctx, `internal`)
 	c.controls.NamespaceCreate(c.ctx, `default`)
 	c.controls.ResourceCreate(c.ctx, Resource{
-		Name:        `modules`,
 		NamespaceID: internal.ID,
+		Name:        `modules`,
 		Type:        modulestore.ResourceUri,
 	})
-	// modules
-	// metrics
-	// permissions
+	// Create module registry
+	// Create log store
+	// Create metric store
+	// Create permission store
 }
 
 func (c *clusterController) Stop() {

@@ -30,6 +30,8 @@ type fsmStateMetaHeader struct {
 	Resources   uint64 `json:"resources"`
 	ComponentID uint64 `json:"componentID"`
 	Components  uint64 `json:"components"`
+	InterfaceID uint64 `json:"interfaceID"`
+	Interfaces  uint64 `json:"interfaces"`
 }
 
 var statePool = sync.Pool{New: func() any {

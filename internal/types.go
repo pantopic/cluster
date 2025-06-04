@@ -45,6 +45,10 @@ var (
 	ErrNotFound            = fmt.Errorf("Not Found")
 )
 
+type Item interface {
+	ItemType() string
+}
+
 type Namespace struct {
 	Name    string            `json:"name" validate:"required"`
 	Created uint64            `json:"created"`
@@ -52,6 +56,10 @@ type Namespace struct {
 	ID      uint64            `json:"id"`
 	Tags    map[string]string `json:"tags"`
 	Updated uint64            `json:"updated"`
+}
+
+func (n Namespace) ItemType() string {
+	return `namespace`
 }
 
 type Resource struct {
@@ -65,6 +73,10 @@ type Resource struct {
 	Tags        map[string]string `json:"tags"`
 	Type        string            `json:"type" validate:"required"`
 	Updated     uint64            `json:"updated"`
+}
+
+func (n Resource) ItemType() string {
+	return `resource`
 }
 
 type Component struct {

@@ -22,39 +22,12 @@ var _ ClusterControls = new(clusterControls)
 
 func (cc clusterControls) NamespaceCreate(ctx context.Context, name string) (n Namespace) {
 	n.Name = name
-	b, err := json.Marshal(map[string]any{
-		"type": "namespaceCreate",
-		"data": n,
-	})
-	if err != nil {
-		panic(err)
-	}
-	res, b, err := cc.client.Apply(ctx, b)
-	if err != nil || res != ResultSuccess {
-		return
-	}
-	if err := json.Unmarshal(b, &n); err != nil {
-		panic(err.Error())
-	}
-	return
+	return itemCreate(ctx, cc.client, n)
 }
 
 func (cc clusterControls) NamespaceFind(ctx context.Context, name string) (n Namespace) {
-	b, err := json.Marshal(map[string]any{
-		"type": "namespaceFind",
-		"data": name,
-	})
-	if err != nil {
-		panic(err)
-	}
-	res, b, err := cc.client.Read(ctx, b, true)
-	if err != nil || res != ResultSuccess {
-		return
-	}
-	if err := json.Unmarshal(b, &n); err != nil {
-		panic(err.Error())
-	}
-	return
+	n.Name = name
+	return itemFindByName(ctx, cc.client, n)
 }
 
 func (cc clusterControls) NamespaceExists(ctx context.Context, name string) bool {
@@ -62,14 +35,36 @@ func (cc clusterControls) NamespaceExists(ctx context.Context, name string) bool
 }
 
 func (cc clusterControls) ResourceCreate(ctx context.Context, item Resource) Resource {
+	return itemCreate(ctx, cc.client, item)
+}
+
+func itemCreate[T Item](ctx context.Context, client zongzi.ShardClient, item T) T {
 	b, err := json.Marshal(map[string]any{
-		"type": "resourceCreate",
+		"type": item.ItemType() + "Create",
 		"data": item,
 	})
 	if err != nil {
 		panic(err)
 	}
-	res, b, err := cc.client.Apply(ctx, b)
+	res, b, err := client.Apply(ctx, b)
+	if err != nil || res != ResultSuccess {
+		return item
+	}
+	if err := json.Unmarshal(b, &item); err != nil {
+		panic(err.Error())
+	}
+	return item
+}
+
+func itemFindByName[T Item](ctx context.Context, client zongzi.ShardClient, item T) T {
+	b, err := json.Marshal(map[string]any{
+		"type": item.ItemType() + "Find",
+		"data": item,
+	})
+	if err != nil {
+		panic(err)
+	}
+	res, b, err := client.Read(ctx, b, true)
 	if err != nil || res != ResultSuccess {
 		return item
 	}
