@@ -7,46 +7,32 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-type ClusterControls interface {
-	NamespaceCreate(ctx context.Context, name string) Namespace
-	NamespaceExists(ctx context.Context, name string) bool
-	NamespaceFind(ctx context.Context, name string) Namespace
-	ResourceCreate(ctx context.Context, item Resource) Resource
+type ClusterControls struct {
+	Namespace *clusterItemControls[Namespace]
+	Resource  *clusterItemControls[Resource]
 }
 
-type clusterControls struct {
+func NewClusterControls(client zongzi.ShardClient) *ClusterControls {
+	return &ClusterControls{
+		Namespace: &clusterItemControls[Namespace]{client},
+		Resource:  &clusterItemControls[Resource]{client},
+	}
+}
+
+type clusterItemControls[T Item] struct {
 	client zongzi.ShardClient
 }
 
-var _ ClusterControls = new(clusterControls)
-
-func (cc clusterControls) NamespaceCreate(ctx context.Context, name string) (n Namespace) {
-	n.Name = name
-	return itemCreate(ctx, cc.client, n)
-}
-
-func (cc clusterControls) NamespaceFind(ctx context.Context, name string) (n Namespace) {
-	n.Name = name
-	return itemFindByName(ctx, cc.client, n)
-}
-
-func (cc clusterControls) NamespaceExists(ctx context.Context, name string) bool {
-	return cc.NamespaceFind(ctx, name).Created > 0
-}
-
-func (cc clusterControls) ResourceCreate(ctx context.Context, item Resource) Resource {
-	return itemCreate(ctx, cc.client, item)
-}
-
-func itemCreate[T Item](ctx context.Context, client zongzi.ShardClient, item T) T {
+func (c *clusterItemControls[T]) Create(ctx context.Context, item T) T {
 	b, err := json.Marshal(map[string]any{
-		"type": item.ItemType() + "Create",
+		"type": item.Type(),
+		"meth": "Create",
 		"data": item,
 	})
 	if err != nil {
 		panic(err)
 	}
-	res, b, err := client.Apply(ctx, b)
+	res, b, err := c.client.Apply(ctx, b)
 	if err != nil || res != ResultSuccess {
 		return item
 	}
@@ -56,15 +42,16 @@ func itemCreate[T Item](ctx context.Context, client zongzi.ShardClient, item T) 
 	return item
 }
 
-func itemFindByName[T Item](ctx context.Context, client zongzi.ShardClient, item T) T {
+func (c *clusterItemControls[T]) FindByName(ctx context.Context, item T) T {
 	b, err := json.Marshal(map[string]any{
-		"type": item.ItemType() + "Find",
+		"type": item.Type(),
+		"meth": "FindByName",
 		"data": item,
 	})
 	if err != nil {
 		panic(err)
 	}
-	res, b, err := client.Read(ctx, b, true)
+	res, b, err := c.client.Read(ctx, b, true)
 	if err != nil || res != ResultSuccess {
 		return item
 	}

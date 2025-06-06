@@ -12,7 +12,7 @@ import (
 	"github.com/pantopic/microstack/internal/modulestore"
 )
 
-type ControllerCluster interface {
+type ClusterController interface {
 	zongzi.RaftEventListener
 	SetAgent(*Agent)
 	Start(context.Context) error
@@ -22,7 +22,7 @@ type ControllerCluster interface {
 type clusterController struct {
 	agent     *Agent
 	clock     clock.Clock
-	controls  ClusterControls
+	controls  *ClusterControls
 	ctx       context.Context
 	ctxCancel context.CancelFunc
 	index     uint64
@@ -33,7 +33,9 @@ type clusterController struct {
 	wg        sync.WaitGroup
 }
 
-func NewControllerCluster(logger Logger) *clusterController {
+var _ ClusterController = new(clusterController)
+
+func NewClusterController(logger Logger) *clusterController {
 	return &clusterController{
 		clock: clock.New(),
 		log:   logger,
@@ -44,9 +46,9 @@ func (c *clusterController) SetAgent(agent *Agent) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.agent = agent
-	c.controls = &clusterControls{
-		client: agent.Client(ShardID, zongzi.WithWriteToLeader()),
-	}
+	c.controls = NewClusterControls(
+		agent.Client(ShardID, zongzi.WithWriteToLeader()),
+	)
 }
 
 func (c *clusterController) Start(ctx context.Context) (err error) {
@@ -126,17 +128,17 @@ func (c *clusterController) createShard() {
 }
 
 func (c *clusterController) init() {
-	if c.controls.NamespaceExists(c.ctx, "internal") {
+	if c.controls.Namespace.FindByName(c.ctx, Namespace{Name: `internal`}).Created > 0 {
 		return
 	}
-	internal := c.controls.NamespaceCreate(c.ctx, `internal`)
-	c.controls.NamespaceCreate(c.ctx, `default`)
-	c.controls.ResourceCreate(c.ctx, Resource{
+	internal := c.controls.Namespace.Create(c.ctx, Namespace{Name: `internal`})
+	c.controls.Namespace.Create(c.ctx, Namespace{Name: `default`})
+	c.controls.Resource.Create(c.ctx, Resource{
 		NamespaceID: internal.ID,
 		Name:        `modules`,
-		Type:        modulestore.ResourceUri,
+		Uri:         modulestore.ResourceUri,
 	})
-	// Create module registry
+	// Create module store
 	// Create log store
 	// Create metric store
 	// Create permission store

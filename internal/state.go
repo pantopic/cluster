@@ -104,9 +104,9 @@ func newState() *State {
 				AllowMissing: true,
 				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
 			},
-			"Type": {
-				Name:    "Type",
-				Indexer: &memdb.StringFieldIndex{Field: "Type"},
+			"Uri": {
+				Name:    "Uri",
+				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
 			},
 			"Created": {
 				Name:    "Created",
@@ -145,9 +145,9 @@ func newState() *State {
 				AllowMissing: true,
 				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
 			},
-			"Type": {
-				Name:    "Type",
-				Indexer: &memdb.StringFieldIndex{Field: "Type"},
+			"Uri": {
+				Name:    "Uri",
+				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
 			},
 			"Created": {
 				Name:    "Created",
@@ -392,9 +392,9 @@ func (fsm *State) ComponentIterByNamespaceID(namespaceID string) iter.Seq[Compon
 	return componentIter(fsm.txn.Get(`component`, `NamespaceID`, namespaceID))
 }
 
-// ComponentIterByType executes a callback for every component of a specific type.
-func (fsm *State) ComponentIterByType(uri string) iter.Seq[Component] {
-	return componentIter(fsm.txn.Get(`component`, `Type`, uri))
+// ComponentIterByUri executes a callback for every component of a specific Uri.
+func (fsm *State) ComponentIterByUri(uri string) iter.Seq[Component] {
+	return componentIter(fsm.txn.Get(`component`, `Uri`, uri))
 }
 
 // ComponentIterByTag executes a callback for every component in the component matching the specified tag,
@@ -490,9 +490,9 @@ func (fsm *State) ResourceIterByNamespaceID(namespaceID uint64) iter.Seq[Resourc
 	return resourceIter(fsm.txn.Get(`resource`, `NamespaceID`, namespaceID))
 }
 
-// ResourceIterByType executes a callback for every resource of a specific type.
-func (fsm *State) ResourceIterByType(uri string) iter.Seq[Resource] {
-	return resourceIter(fsm.txn.Get(`resource`, `Type`, uri))
+// ResourceIterByUri executes a callback for every resource of a specific type.
+func (fsm *State) ResourceIterByUri(uri string) iter.Seq[Resource] {
+	return resourceIter(fsm.txn.Get(`resource`, `Uri`, uri))
 }
 
 // ResourceIterByTag executes a callback for every resource in the resource matching the specified tag,

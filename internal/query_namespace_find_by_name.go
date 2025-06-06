@@ -7,8 +7,8 @@ import (
 	"github.com/logbn/fastjson-valid"
 )
 
-func queryNamespaceFind(result *Result, state *State, v *fastjson.Value) error {
-	name := string(v.GetStringBytes())
+func queryNamespaceFindByName(result *Result, state *State, v *fastjson.Value) error {
+	name := string(v.GetStringBytes(`name`))
 	obj, ok := state.NamespaceByName(name)
 	if !ok {
 		result.Value = ResultErrNotFound

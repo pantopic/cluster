@@ -31,6 +31,7 @@ func commandResourceCreate(entry *Entry, state *State, v *fastjson.Value) error 
 	if err != nil {
 		entry.Result.Value = ResultErrInternal
 		entry.Result.Data = []byte(err.Error())
+		return nil
 	}
 	entry.Result.Value = ResultSuccess
 	entry.Result.Data = b

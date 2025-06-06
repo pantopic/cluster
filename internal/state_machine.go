@@ -50,7 +50,7 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 			fsm.log.Errorf(`invalid command (%s): %s`, err.Error(), string(entry.Cmd))
 			continue
 		}
-		cmdType := string(cmd.GetStringBytes(`type`))
+		cmdType := string(cmd.GetStringBytes(`type`)) + string(cmd.GetStringBytes(`meth`))
 		cmdFunc, ok := commands[cmdType] // see command.go
 		if !ok {
 			entry.Result.Value = ResultErrSemantic
@@ -80,7 +80,7 @@ func (fsm *StateMachine) Query(ctx context.Context, data []byte) (result *Result
 		fsm.log.Errorf(`invalid query (%s): %s`, err.Error(), string(data))
 		return
 	}
-	t := string(query.GetStringBytes(`type`))
+	t := string(query.GetStringBytes(`type`)) + string(query.GetStringBytes(`meth`))
 	queryFunc, ok := queries[t] // see query.go
 	if !ok {
 		result.Value = ResultErrSemantic

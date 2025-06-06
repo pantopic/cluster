@@ -28,13 +28,13 @@ func TestMain(t *testing.T) {
 		`127.0.0.1:18031`,
 	}
 	agents := make([]*zongzi.Agent, len(peers))
-	controllers := make([]internal.ControllerCluster, len(peers))
+	controllers := make([]internal.ClusterController, len(peers))
 	cfg := getConfig()
 	cfg.HostName = "127.0.0.1"
 	logger := getLogger(cfg)
 	start := func(t *testing.T, peers []string, class string, portSets ...[]uint16) {
 		for i, ports := range portSets {
-			controllers[i] = internal.NewControllerCluster(logger)
+			controllers[i] = internal.NewClusterController(logger)
 			if agents[i], err = zongzi.NewAgent(cfg.ClusterName, peers,
 				zongzi.WithDirRaft(fmt.Sprintf(basedir+`/%d/raft`, i)),
 				zongzi.WithDirWAL(fmt.Sprintf(basedir+`/%d/wal`, i)),
@@ -50,7 +50,7 @@ func TestMain(t *testing.T) {
 		}
 		time.Sleep(time.Second)
 		// 10 seconds to start the cluster.
-		require.True(t, await(10, 10, func() bool {
+		require.True(t, await(10, 100, func() bool {
 			mutex.Lock()
 			defer mutex.Unlock()
 			for j := range agents {
@@ -62,7 +62,7 @@ func TestMain(t *testing.T) {
 		}), `%#v`, agents)
 	}
 	t.Run(`start`, func(t *testing.T) {
-		start(t, peers, `main`,
+		start(t, peers, `default`,
 			[]uint16{18011, 18012, 18013},
 			[]uint16{18021, 18022, 18023},
 			[]uint16{18031, 18032, 18033},
@@ -72,16 +72,18 @@ func TestMain(t *testing.T) {
 	t.Run(`namespaces`, func(t *testing.T) {
 		for _, namespace := range []string{"internal", "default"} {
 			q, err := json.Marshal(map[string]any{
-				"type": "namespaceFind",
-				"data": namespace,
+				"type": "namespace",
+				"meth": "FindByName",
+				"data": internal.Namespace{Name: namespace},
 			})
 			require.Nil(t, err)
 			var val uint64
 			var data []byte
-			require.True(t, await(10, 10, func() bool {
+			// 10 seconds for namespaces to be created
+			require.True(t, await(10, 100, func() bool {
 				val, data, err = client.Read(ctx, q, true)
 				return err == nil && val == internal.ResultSuccess && len(data) > 0
-			}), `%d %s %v`, val, data, err)
+			}), `%d %s %s %v`, val, data, namespace, err)
 		}
 	})
 	logger.Infof("Stopping")

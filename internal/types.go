@@ -46,7 +46,7 @@ var (
 )
 
 type Item interface {
-	ItemType() string
+	Type() string
 }
 
 type Namespace struct {
@@ -58,7 +58,7 @@ type Namespace struct {
 	Updated uint64            `json:"updated"`
 }
 
-func (n Namespace) ItemType() string {
+func (n Namespace) Type() string {
 	return `namespace`
 }
 
@@ -71,11 +71,11 @@ type Resource struct {
 	NamespaceID uint64            `json:"namespaceID" validate:"required"`
 	Status      ResourceStatus    `json:"status"`
 	Tags        map[string]string `json:"tags"`
-	Type        string            `json:"type" validate:"required"`
+	Uri         string            `json:"uri" validate:"required"`
 	Updated     uint64            `json:"updated"`
 }
 
-func (n Resource) ItemType() string {
+func (n Resource) Type() string {
 	return `resource`
 }
 
@@ -88,6 +88,10 @@ type Component struct {
 	ResourceID uint64            `json:"resourceID" validate:"required"`
 	Status     ComponentStatus   `json:"status"`
 	Tags       map[string]string `json:"tags"`
-	Type       string            `json:"type" validate:"required"`
+	Uri        string            `json:"uri" validate:"required"`
 	Updated    uint64            `json:"updated"`
+}
+
+func (n Component) Type() string {
+	return `component`
 }

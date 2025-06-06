@@ -20,7 +20,7 @@ func main() {
 	cfg := getConfig()
 	ctx := context.Background()
 	logger := getLogger(cfg)
-	ctrl := internal.NewControllerCluster(logger)
+	ctrl := internal.NewClusterController(logger)
 	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","),
 		zongzi.WithDirRaft(cfg.DirRaft),
 		zongzi.WithDirWAL(cfg.DirWAL),
@@ -44,7 +44,7 @@ func main() {
 	agent.Stop()
 }
 
-func start(ctx context.Context, agent *zongzi.Agent, ctrl internal.ControllerCluster, logger zongzi.Logger) {
+func start(ctx context.Context, agent *zongzi.Agent, ctrl internal.ClusterController, logger zongzi.Logger) {
 	agent.StateMachineRegister(internal.StateMachineUri, func(shardID, replicaID uint64) zongzi.StateMachine {
 		return internal.NewStateMachine(logger, shardID, replicaID)
 	})
