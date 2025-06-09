@@ -7,5 +7,6 @@ import (
 type queryFunc func(*Result, *State, *fastjson.Value) error
 
 var queries = map[string]queryFunc{
-	"namespaceFindByName": queryNamespaceFindByName,
+	"namespaceFindByName": queryFindByName[Namespace],
+	"resourceFindByName":  queryFindByName[Resource],
 }

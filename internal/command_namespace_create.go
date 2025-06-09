@@ -13,7 +13,7 @@ func commandNamespaceCreate(entry *Entry, state *State, v *fastjson.Value) error
 		entry.Result.Data = []byte(`Name cannot be empty`)
 		return nil
 	}
-	if _, ok := state.NamespaceByName(name); ok {
+	if _, ok := state.NamespaceFindByName(name); ok {
 		entry.Result.Value = ResultErrConflict
 		entry.Result.Data = []byte("Namespace exists")
 		return nil

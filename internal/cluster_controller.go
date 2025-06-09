@@ -12,6 +12,8 @@ import (
 	"github.com/pantopic/microstack/internal/modulestore"
 )
 
+var version = `1`
+
 type ClusterController interface {
 	zongzi.RaftEventListener
 	SetAgent(*Agent)
@@ -128,20 +130,33 @@ func (c *clusterController) createShard() {
 }
 
 func (c *clusterController) init() {
-	if c.controls.Namespace.FindByName(c.ctx, Namespace{Name: `internal`}).Created > 0 {
+	internal := c.controls.Namespace.FindByName(c.ctx, Namespace{Name: `internal`})
+	if v, ok := internal.Tags[`version`]; ok && v == version {
 		return
 	}
-	internal := c.controls.Namespace.Create(c.ctx, Namespace{Name: `internal`})
-	c.controls.Namespace.Create(c.ctx, Namespace{Name: `default`})
-	c.controls.Resource.Create(c.ctx, Resource{
-		NamespaceID: internal.ID,
+	if internal.Created == 0 {
+		internal = c.controls.Namespace.Create(c.ctx, Namespace{Name: `internal`})
+	}
+	moduleStore := Resource{
+		NamespaceID: internal.GetID(),
 		Name:        `modules`,
 		Uri:         modulestore.ResourceUri,
-	})
+	}
+	if m := c.controls.Resource.FindByName(c.ctx, moduleStore); m.Created > 0 {
+		moduleStore = m
+	} else {
+		moduleStore = c.controls.Resource.Create(c.ctx, moduleStore)
+	}
 	// Create module store
 	// Create log store
 	// Create metric store
 	// Create permission store
+	if c.controls.Namespace.FindByName(c.ctx, Namespace{Name: `default`}).Created == 0 {
+		c.controls.Namespace.Create(c.ctx, Namespace{Name: `default`})
+	}
+	c.controls.Namespace.AddTags(c.ctx, Namespace{ID: internal.ID, Tags: map[string]string{
+		`version`: version,
+	}})
 }
 
 func (c *clusterController) Stop() {

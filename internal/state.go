@@ -248,8 +248,8 @@ func (fsm *State) Namespace(id uint64) (s Namespace, ok bool) {
 	return
 }
 
-// Namespace returns the namespace with the specified name or ok false if not found.
-func (fsm *State) NamespaceByName(name string) (s Namespace, ok bool) {
+// NamespaceFindByName returns the namespace with the specified name or ok false if not found.
+func (fsm *State) NamespaceFindByName(name string) (s Namespace, ok bool) {
 	res, err := fsm.txn.First(`namespace`, `Name`, name)
 	if err != nil {
 		panic(err)
