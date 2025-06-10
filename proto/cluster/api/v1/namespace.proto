@@ -13,8 +13,8 @@ message Namespace {
   uint64 id = 1;
   uint64 created = 2;
   uint64 updated = 3;
-  string name = 5;
-  map<string, string> tags = 6;
+  string name = 4;
+  map<string, string> tags = 5;
 }
 
 message NamespaceServiceDeleteRequest {
