@@ -10,10 +10,10 @@ import (
 
 	"github.com/logbn/zongzi"
 
-	"github.com/pantopic/microstack/guest"
-	"github.com/pantopic/microstack/internal"
-	"github.com/pantopic/microstack/internal/modulestore"
-	"github.com/pantopic/microstack/system"
+	"github.com/pantopic/cluster/guest"
+	"github.com/pantopic/cluster/internal"
+	"github.com/pantopic/cluster/internal/modulestore"
+	"github.com/pantopic/cluster/system"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 		zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortGossip)),
 		zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortRaft)),
 		zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortZongzi)),
-		zongzi.WithHostTags(`microstack:host`),
+		zongzi.WithHostTags(`cluster:host`, `cluster:member`),
 		zongzi.WithRaftEventListener(ctrl))
 	if err != nil {
 		panic(err)

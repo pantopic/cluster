@@ -5,10 +5,10 @@ x-variables:
       dockerfile: cmd/standalone/Dockerfile
       target: standalone
     networks:
-      - microstack
+      - pantopic
     volumes:
       - type: tmpfs
-        target: /var/lib/microstack
+        target: /var/lib/pantopic
         tmpfs:
           mode: 01777
     deploy:
@@ -16,34 +16,34 @@ x-variables:
         limits:
           memory: 1G
   env: &env
-    MICROSTACK_HOST_PEERS: microstack-0,microstack-1,microstack-2
-    MICROSTACK_LOG_LEVEL: warn # (info, debug)
+    PANTOPIC_HOST_PEERS: pantopic-0,pantopic-1,pantopic-2
+    PANTOPIC_LOG_LEVEL: warn # (info, debug)
 
 services:
-  microstack-0:
+  pantopic-0:
     <<: *common
     environment:
       <<: *env
-      MICROSTACK_HOST_NAME: microstack-0
+      PANTOPIC_HOST_NAME: pantopic-0
     ports:
       - 8000:8000
       - 9090:9090
-  microstack-1:
+  pantopic-1:
     <<: *common
     environment:
       <<: *env
-      MICROSTACK_HOST_NAME: microstack-1
+      PANTOPIC_HOST_NAME: pantopic-1
     ports:
       - 8001:8000
       - 9091:9090
-  microstack-2:
+  pantopic-2:
     <<: *common
     environment:
       <<: *env
-      MICROSTACK_HOST_NAME: microstack-2
+      PANTOPIC_HOST_NAME: pantopic-2
     ports:
       - 8002:8000
       - 9092:9090
 
 networks:
-  microstack:
+  pantopic:

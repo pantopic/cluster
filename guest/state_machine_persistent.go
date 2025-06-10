@@ -7,7 +7,7 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-const StateMachinePersistentUri = "zongzi://microstack.com/guest/persistent"
+const StateMachinePersistentUri = "zongzi://pantopic.com/cluster/guest/persistent"
 
 func NewStateMachinePersistent(logger Logger, shardID, replicaID uint64) *StateMachinePersistent {
 	return &StateMachinePersistent{

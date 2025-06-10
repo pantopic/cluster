@@ -1,5 +1,5 @@
 FROM debian:stable-slim as standalone
 
-COPY _dist/microstack .
+COPY _dist/pantopic .
 
-CMD ["./microstack"]
+CMD ["./pantopic"]

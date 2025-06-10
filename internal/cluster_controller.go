@@ -9,7 +9,7 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/logbn/zongzi"
 
-	"github.com/pantopic/microstack/internal/modulestore"
+	"github.com/pantopic/cluster/internal/modulestore"
 )
 
 var version = `1`
@@ -92,7 +92,6 @@ func (c *clusterController) tick() {
 	if c.isLeader.Load() {
 		for updated {
 			updated = false
-			// controller manager resolves resources
 			if err != nil {
 				hadErr = true
 			}
@@ -121,9 +120,9 @@ func (c *clusterController) LeaderUpdated(info LeaderInfo) {
 func (c *clusterController) createShard() {
 	c.log.Infof(`Creating shard`)
 	if _, _, err := c.agent.ShardCreate(c.ctx, StateMachineUri,
-		zongzi.WithName("microstack"),
-		zongzi.WithPlacementMembers(3, "microstack:host"),
-		zongzi.WithPlacementCover("microstack:host"),
+		zongzi.WithName("cluster"),
+		zongzi.WithPlacementMembers(3, "cluster:member"),
+		zongzi.WithPlacementCover("cluster:host"),
 	); err != nil {
 		panic(err)
 	}

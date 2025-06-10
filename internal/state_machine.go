@@ -8,7 +8,7 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-const StateMachineUri = "zongzi://microstack.com/internal"
+const StateMachineUri = "zongzi://pantopic.com/cluster/internal"
 
 func NewStateMachine(logger Logger, shardID, replicaID uint64) *StateMachine {
 	return &StateMachine{

@@ -7,7 +7,7 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-const StateMachinePersistentUri = "zongzi://microstack.com/internal/modulestore"
+const StateMachinePersistentUri = "zongzi://pantopic.com/cluster/internal/modulestore"
 
 func NewStateMachinePersistent(logger Logger, shardID, replicaID uint64) *StateMachinePersistent {
 	return &StateMachinePersistent{

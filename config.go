@@ -21,13 +21,13 @@ type config struct {
 
 func getConfig() config {
 	cfg := config{
-		ClusterName: "microstack",
-		DirBlock:    "/var/lib/microstack/block",
-		DirLocal:    "/var/lib/microstack/local",
-		DirRaft:     "/var/lib/microstack/raft",
-		DirWAL:      "/var/lib/microstack/wal",
-		HostName:    "microstack-a-0",
-		HostPeers:   "microstack-a-0,microstack-b-0,microstack-c-0",
+		ClusterName: "pantopic",
+		DirBlock:    "/var/lib/pantopic/block",
+		DirLocal:    "/var/lib/pantopic/local",
+		DirRaft:     "/var/lib/pantopic/raft",
+		DirWAL:      "/var/lib/pantopic/wal",
+		HostName:    "pantopic-a-0",
+		HostPeers:   "pantopic-a-0,pantopic-b-0,pantopic-c-0",
 		LogLevel:    "info",
 		PortApi:     8000,
 		PortGossip:  17001,
@@ -35,7 +35,7 @@ func getConfig() config {
 		PortZongzi:  17003,
 	}
 	if err := env.ParseWithOptions(&cfg, env.Options{
-		Prefix: "MICROSTACK_",
+		Prefix: "PANTOPIC_",
 	}); err != nil {
 		panic(err)
 	}

@@ -13,11 +13,11 @@ import (
 	// "github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/pantopic/microstack/internal"
+	"github.com/pantopic/cluster/internal"
 )
 
 func TestMain(t *testing.T) {
-	basedir := `./tmp/microstack`
+	basedir := `./tmp/pantopic`
 	var ctx = context.Background()
 	var mutex sync.Mutex
 	var err error
@@ -41,7 +41,7 @@ func TestMain(t *testing.T) {
 				zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[0])),
 				zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[1])),
 				zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[2])),
-				zongzi.WithHostTags(`microstack:host`, `host:class=`+class),
+				zongzi.WithHostTags(`cluster:member`, `host:class=`+class),
 				zongzi.WithRaftEventListener(controllers[i]),
 			); err != nil {
 				panic(err)
@@ -85,6 +85,11 @@ func TestMain(t *testing.T) {
 				return err == nil && val == internal.ResultSuccess && len(data) > 0
 			}), `%d %s %s %v`, val, data, namespace, err)
 		}
+	})
+	t.Run(`resource`, func(t *testing.T) {
+		t.Run(`create`, func(t *testing.T) {
+			// gRPC Api Call to create resource
+		})
 	})
 	logger.Infof("Stopping")
 	for i := range len(peers) {

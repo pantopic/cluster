@@ -23,8 +23,6 @@ type clusterItemControls[T Item] struct {
 	client zongzi.ShardClient
 }
 
-// command
-
 func (c *clusterItemControls[T]) Create(ctx context.Context, item T) T {
 	b, err := json.Marshal(map[string]any{
 		"type": item.Type(),
@@ -62,8 +60,6 @@ func (c *clusterItemControls[T]) AddTags(ctx context.Context, item T) T {
 	}
 	return item
 }
-
-// query
 
 func (c *clusterItemControls[T]) FindByName(ctx context.Context, item T) T {
 	b, err := json.Marshal(map[string]any{

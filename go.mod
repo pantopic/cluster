@@ -1,4 +1,4 @@
-module github.com/pantopic/microstack
+module github.com/pantopic/cluster
 
 go 1.23.4
 

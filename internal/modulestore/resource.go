@@ -1,5 +1,5 @@
 package modulestore
 
 const (
-	ResourceUri = "microstack://internal/modulestore"
+	ResourceUri = "pantopic://internal/modulestore"
 )

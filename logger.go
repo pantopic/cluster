@@ -5,7 +5,7 @@ import (
 )
 
 func getLogger(cfg config) zongzi.Logger {
-	log := zongzi.GetLogger(`microstack`)
+	log := zongzi.GetLogger(`pantopic`)
 	switch cfg.LogLevel {
 	case "debug":
 		zongzi.SetLogLevelDebug()
