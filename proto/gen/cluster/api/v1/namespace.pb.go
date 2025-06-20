@@ -26,8 +26,8 @@ type Namespace struct {
 	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Created       uint64                 `protobuf:"varint,2,opt,name=created,proto3" json:"created,omitempty"`
 	Updated       uint64                 `protobuf:"varint,3,opt,name=updated,proto3" json:"updated,omitempty"`
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
-	Tags          map[string]string      `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -522,8 +522,8 @@ const file_cluster_api_v1_namespace_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
 	"\acreated\x18\x02 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\x03 \x01(\x04R\aupdated\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x127\n" +
-	"\x04tags\x18\x06 \x03(\v2#.cluster.api.v1.Namespace.TagsEntryR\x04tags\x1a7\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x127\n" +
+	"\x04tags\x18\x05 \x03(\v2#.cluster.api.v1.Namespace.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"/\n" +

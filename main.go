@@ -67,6 +67,9 @@ func start(ctx context.Context, agent *zongzi.Agent, ctrl internal.ClusterContro
 	ctrl.Start(ctx)
 
 	// Start GRPC Server
+
+	// Load plugins
+
 	// Start interfaces (ie. table http api)
 	// Report ready
 
