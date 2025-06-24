@@ -14,18 +14,20 @@ type (
 var (
 	fnOpen   openFunc
 	fnUpdate updateFunc
-	fnRead   readFunc
 	fnFinish finishFunc
+	fnRead   readFunc
 )
 
-func Register(update updateFunc, read readFunc) {
+func Register(update updateFunc, finish finishFunc, read readFunc) {
 	fnUpdate = update
+	fnFinish = finish
 	fnRead = read
 }
 
-func RegisterPersistent(open openFunc, update updateFunc, read readFunc) {
+func RegisterPersistent(open openFunc, update updateFunc, finish finishFunc, read readFunc) {
 	fnOpen = open
 	fnUpdate = update
+	fnFinish = finish
 	fnRead = read
 }
 
