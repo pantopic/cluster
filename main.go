@@ -10,10 +10,10 @@ import (
 
 	"github.com/logbn/zongzi"
 
-	"github.com/pantopic/cluster/guest"
 	"github.com/pantopic/cluster/internal"
 	"github.com/pantopic/cluster/internal/modulestore"
 	"github.com/pantopic/cluster/system"
+	"github.com/pantopic/wazero-state-machine/host"
 )
 
 func main() {
