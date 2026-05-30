@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/pantopic/proto";
+
+service Control {
+  rpc NamespaceDelete(NamespaceDeleteRequest) returns (NamespaceDeleteResponse) {}
+  rpc NamespaceGet(NamespaceGetRequest) returns (NamespaceGetResponse) {}
+  rpc NamespaceList(NamespaceListRequest) returns (NamespaceListResponse) {}
+  rpc NamespaceCreate(NamespaceCreateRequest) returns (NamespaceCreateResponse) {}
+  rpc NamespacePut(NamespacePutRequest) returns (NamespacePutResponse) {}
+  rpc ResourceDelete(ResourceDeleteRequest) returns (ResourceDeleteResponse) {}
+  rpc ResourceGet(ResourceGetRequest) returns (ResourceGetResponse) {}
+  rpc ResourceList(ResourceListRequest) returns (ResourceListResponse) {}
+  rpc ResourceCreate(ResourceCreateRequest) returns (ResourceCreateResponse) {}
+  rpc ResourcePut(ResourcePutRequest) returns (ResourcePutResponse) {}
+}
+
+message Namespace {
+  uint64 id = 1;
+  uint64 created = 2;
+  uint64 updated = 3;
+  uint64 deleted = 4;
+  map<string, string> tags = 5;
+  string name = 6;
+}
+
+message NamespaceDeleteRequest {
+  string id = 1;
+}
+message NamespaceDeleteResponse {
+  uint64 code = 1;
+  string error = 2;
+}
+
+message NamespaceGetRequest {
+  string name = 1;
+}
+message NamespaceGetResponse {
+  uint64 code = 1;
+  string error = 2;
+  Namespace item = 3;
+}
+
+message NamespaceCreateRequest {
+  string name = 1;
+  map<string, string> tags = 2;
+}
+message NamespaceCreateResponse {
+  uint64 code = 1;
+  string error = 2;
+  Namespace item = 3;
+}
+
+message NamespacePutRequest {
+  Namespace item = 1;
+}
+message NamespacePutResponse {
+  uint64 code = 1;
+  string error = 2;
+  Namespace item = 3;
+}
+
+message NamespaceListRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+message NamespaceListResponse {
+  uint64 code = 1;
+  string error = 2;
+  repeated Namespace item = 3;
+}
+
+message Resource {
+  uint64 id = 1;
+  uint64 created = 2;
+  uint64 updated = 3;
+  uint64 deleted = 4;
+  map<string, string> tags = 5;
+  string status = 6;
+  string namespace = 7;
+  string name = 8;
+  string uri = 9;
+}
+
+message ResourceDeleteRequest {
+  string id = 1;
+}
+message ResourceDeleteResponse {
+  uint64 code = 1;
+  string error = 2;
+}
+
+message ResourceGetRequest {
+  string namespace = 1;
+  string name = 2;
+}
+message ResourceGetResponse {
+  uint64 code = 1;
+  string error = 2;
+  Resource item = 3;
+}
+
+message ResourceCreateRequest {
+  map<string, string> tags = 4;
+  string namespace = 1;
+  string name = 2;
+  string uri = 3;
+}
+message ResourceCreateResponse {
+  uint64 code = 1;
+  string error = 2;
+  Resource item = 3;
+}
+
+message ResourcePutRequest {
+  Resource item = 1;
+}
+message ResourcePutResponse {
+  uint64 code = 1;
+  string error = 2;
+  Resource item = 3;
+}
+
+message ResourceListRequest {
+  string namespace = 1;
+  string query = 2;
+  uint64 limit = 3;
+  uint64 offset = 4;
+}
+message ResourceListResponse {
+  uint64 code = 1;
+  string error = 2;
+  repeated Resource item = 3;
+}

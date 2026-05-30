@@ -6,7 +6,7 @@ import (
 	"github.com/logbn/fastjson-valid"
 )
 
-func commandResourceCreate(entry *Entry, state *State, v *fastjson.Value) error {
+func cmdResourceCreate(entry *Entry, state *State, v *fastjson.Value) error {
 	var item Resource
 	if err := json.Unmarshal(v.MarshalTo(nil), &item); err != nil {
 		entry.Result.Value = ResultErrInternal
@@ -23,7 +23,7 @@ func commandResourceCreate(entry *Entry, state *State, v *fastjson.Value) error 
 		entry.Result.Data = []byte("Resource exists")
 		return nil
 	}
-	item.ID = state.resourceIncr()
+	item.ID = state.incrResourceID()
 	item.Created = entry.Index
 	item.Updated = entry.Index
 	state.resourcePut(item)

@@ -7,13 +7,15 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-const StateMachinePersistentUri = "zongzi://pantopic.com/cluster/internal/modulestore"
+const StateMachinePersistentUri = "pantopic/cluster/modulestore"
 
-func NewStateMachinePersistent(logger Logger, shardID, replicaID uint64) *StateMachinePersistent {
-	return &StateMachinePersistent{
-		log:       logger,
-		shardID:   shardID,
-		replicaID: replicaID,
+func StateMachinePersistentFactory(logger Logger) func(shardID, replicaID uint64) zongzi.StateMachinePersistent {
+	return func(shardID, replicaID uint64) zongzi.StateMachinePersistent {
+		return &StateMachinePersistent{
+			log:       logger,
+			shardID:   shardID,
+			replicaID: replicaID,
+		}
 	}
 }
 

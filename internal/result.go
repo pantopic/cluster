@@ -9,4 +9,5 @@ const (
 	ResultErrNotFound
 	ResultErrConflict
 	ResultErrInternal
+	ResultErrExists
 )

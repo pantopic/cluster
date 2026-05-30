@@ -6,7 +6,7 @@ import (
 	"github.com/logbn/fastjson-valid"
 )
 
-func commandNamespaceCreate(entry *Entry, state *State, v *fastjson.Value) error {
+func cmdNamespaceCreate(entry *Entry, state *State, v *fastjson.Value) error {
 	name := string(v.GetStringBytes(`name`))
 	if len(name) == 0 {
 		entry.Result.Value = ResultErrSyntactic
@@ -19,7 +19,7 @@ func commandNamespaceCreate(entry *Entry, state *State, v *fastjson.Value) error
 		return nil
 	}
 	obj := Namespace{
-		ID:      state.namespaceIncr(),
+		ID:      state.incrNamespaceID(),
 		Name:    name,
 		Created: entry.Index,
 		Updated: entry.Index,

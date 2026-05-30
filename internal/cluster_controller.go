@@ -16,14 +16,14 @@ var version = `1`
 
 type ClusterController interface {
 	zongzi.RaftEventListener
-	SetAgent(*Agent)
-	Start(context.Context) error
+	Start(context.Context, *Agent) error
 	Stop()
 }
 
 type clusterController struct {
 	agent     *Agent
 	clock     clock.Clock
+	cluster   Cluster
 	controls  *ClusterControls
 	ctx       context.Context
 	ctxCancel context.CancelFunc
@@ -44,22 +44,15 @@ func NewClusterController(logger Logger) *clusterController {
 	}
 }
 
-func (c *clusterController) SetAgent(agent *Agent) {
+func (c *clusterController) Start(ctx context.Context, agent *Agent) (err error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.agent = agent
 	c.controls = NewClusterControls(
 		agent.Client(ShardID, zongzi.WithWriteToLeader()),
 	)
-}
-
-func (c *clusterController) Start(ctx context.Context) (err error) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
 	c.ctx, c.ctxCancel = context.WithCancel(ctx)
-	c.wg.Add(1)
-	go func() {
-		defer c.wg.Done()
+	c.wg.Go(func() {
 		t := c.clock.Ticker(time.Second)
 		defer t.Stop()
 		for {
@@ -70,7 +63,7 @@ func (c *clusterController) Start(ctx context.Context) (err error) {
 				c.tick()
 			}
 		}
-	}()
+	})
 	return
 }
 
@@ -88,10 +81,12 @@ func (c *clusterController) tick() {
 	var err error
 	var hadErr bool
 	var index uint64
-	var updated = true
 	if c.isLeader.Load() {
-		for updated {
+		for updated := true; updated; {
 			updated = false
+
+			// TODO: schedule service endpoints
+
 			if err != nil {
 				hadErr = true
 			}
@@ -100,7 +95,6 @@ func (c *clusterController) tick() {
 	if !hadErr && index > c.index {
 		c.index = index
 	}
-	return
 }
 
 func (c *clusterController) LeaderUpdated(info LeaderInfo) {
@@ -129,33 +123,42 @@ func (c *clusterController) createShard() {
 }
 
 func (c *clusterController) init() {
-	internal := c.controls.Namespace.FindByName(c.ctx, Namespace{Name: `internal`})
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	internal := c.controls.Namespace.FindByName(c.ctx, Namespace{Name: NAMESPACE_INTERNAL})
 	if v, ok := internal.Tags[`version`]; ok && v == version {
 		return
 	}
 	if internal.Created == 0 {
-		internal = c.controls.Namespace.Create(c.ctx, Namespace{Name: `internal`})
+		internal = c.controls.Namespace.Create(c.ctx, Namespace{Name: NAMESPACE_INTERNAL})
 	}
-	moduleStore := Resource{
-		NamespaceID: internal.GetID(),
-		Name:        `modules`,
-		Uri:         modulestore.ResourceUri,
+	for _, name := range []string{
+		`model`,
+		`module`,
+		`log`,
+		`metric`,
+		`policy`,
+	} {
+		if c.controls.Resource.FindByName(c.ctx, Resource{
+			NamespaceID: internal.ID,
+			Name:        name,
+			Uri:         modulestore.ResourceUri,
+		}).Created == 0 {
+			c.log.Infof(`Creating internal %s store`, name)
+			c.controls.Resource.Create(c.ctx, Resource{
+				NamespaceID: internal.ID,
+				Name:        name,
+				Uri:         modulestore.ResourceUri,
+			})
+		}
 	}
-	if m := c.controls.Resource.FindByName(c.ctx, moduleStore); m.Created > 0 {
-		moduleStore = m
-	} else {
-		moduleStore = c.controls.Resource.Create(c.ctx, moduleStore)
-	}
-	// Create module store
-	// Create log store
-	// Create metric store
-	// Create permission store
-	if c.controls.Namespace.FindByName(c.ctx, Namespace{Name: `default`}).Created == 0 {
-		c.controls.Namespace.Create(c.ctx, Namespace{Name: `default`})
+	if c.controls.Namespace.FindByName(c.ctx, Namespace{Name: NAMESPACE_DEFAULT}).Created == 0 {
+		c.controls.Namespace.Create(c.ctx, Namespace{Name: NAMESPACE_DEFAULT})
 	}
 	c.controls.Namespace.AddTags(c.ctx, Namespace{ID: internal.ID, Tags: map[string]string{
 		`version`: version,
 	}})
+	c.cluster = c.controls.Cluster.Create(c.ctx, Cluster{Name: c.agent.ClusterName()})
 }
 
 func (c *clusterController) Stop() {

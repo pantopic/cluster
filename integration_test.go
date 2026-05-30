@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"sync"
 	"testing"
@@ -12,8 +13,12 @@ import (
 	"github.com/logbn/zongzi"
 	// "github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/pantopic/cluster/internal"
+	"github.com/pantopic/cluster/proto"
 )
 
 func TestMain(t *testing.T) {
@@ -46,7 +51,8 @@ func TestMain(t *testing.T) {
 			); err != nil {
 				panic(err)
 			}
-			go start(ctx, agents[i], controllers[i], logger)
+			controllers[i].Start(ctx, agents[i])
+			go run(ctx, agents[i], logger)
 		}
 		time.Sleep(time.Second)
 		// 10 seconds to start the cluster.
@@ -68,7 +74,7 @@ func TestMain(t *testing.T) {
 			[]uint16{18031, 18032, 18033},
 		)
 	})
-	client := agents[0].Client(internal.ShardID)
+	shardClient := agents[0].Client(internal.ShardID)
 	t.Run(`namespaces`, func(t *testing.T) {
 		for _, namespace := range []string{"internal", "default"} {
 			q, err := json.Marshal(map[string]any{
@@ -81,14 +87,79 @@ func TestMain(t *testing.T) {
 			var data []byte
 			// 10 seconds for namespaces to be created
 			require.True(t, await(10, 100, func() bool {
-				val, data, err = client.Read(ctx, q, true)
+				val, data, err = shardClient.Read(ctx, q, true)
 				return err == nil && val == internal.ResultSuccess && len(data) > 0
 			}), `%d %s %s %v`, val, data, namespace, err)
 		}
 	})
+	t.Run(`cluster`, func(t *testing.T) {
+		q, err := json.Marshal(map[string]any{
+			"type": "cluster",
+			"meth": "FindByName",
+			"data": internal.Namespace{Name: cfg.ClusterName},
+		})
+		require.Nil(t, err)
+		var val uint64
+		var data []byte
+		// 10 seconds for namespaces to be created
+		require.True(t, await(10, 100, func() bool {
+			val, data, err = shardClient.Read(ctx, q, true)
+			return err == nil && val == internal.ResultSuccess && len(data) > 0
+		}), `%d %s %s %v`, val, data, cfg.ClusterName, err)
+	})
+	// gRPC server
+	var grpcServer = grpc.NewServer([]grpc.ServerOption{
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             5 * time.Second,
+			PermitWithoutStream: false,
+		}),
+		grpc.KeepaliveParams(keepalive.ServerParameters{
+			Time:    2 * time.Hour,
+			Timeout: 20 * time.Second,
+		}),
+	}...)
+	addr := fmt.Sprintf(":%d", cfg.PortApi)
+	lis, err := net.Listen("tcp", addr)
+	if err != nil {
+		panic(err)
+	}
+	proto.RegisterControlServer(grpcServer, internal.NewServiceControl(shardClient))
+	go func() {
+		if err := grpcServer.Serve(lis); err != nil {
+			panic(err)
+		}
+	}()
+
+	conn, err := grpc.NewClient("localhost"+addr, []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}...)
+	grpcClient := proto.NewControlClient(conn)
 	t.Run(`resource`, func(t *testing.T) {
 		t.Run(`create`, func(t *testing.T) {
-			// gRPC Api Call to create resource
+			res, err := grpcClient.ResourceCreate(ctx, &proto.ResourceCreateRequest{
+				Name:      "test",
+				Namespace: "default",
+				Uri:       "github.com/pantopic/test",
+			})
+			require.Nil(t, err)
+			require.Equal(t, uint64(0), res.Code)
+			require.Equal(t, "default", res.Item.Namespace)
+			require.Equal(t, "test", res.Item.Name)
+			require.Greater(t, res.Item.Id, uint64(0), res.Item)
+			// 10s - component is created
+			// 10s - shard is created
+			// 10s - shard is healthy
+			// 10s - component is healthy
+			// 10s - resource is healthy
+		})
+		t.Run(`delete`, func(t *testing.T) {
+			// gRPC Api Call to delete resource
+			// ensure resource status deleting
+			// 10s - component is deleting
+			// 10s - shard is deleting
+			// 10s - shard is deleted
+			// 10s - component is deleted
+			// 10s - resource is deleted
 		})
 	})
 	logger.Infof("Stopping")

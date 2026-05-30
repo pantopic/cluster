@@ -8,14 +8,22 @@ import (
 )
 
 type ClusterControls struct {
+	Cluster   *clusterItemControls[Cluster]
+	Component *clusterItemControls[Component]
+	Endpoint  *clusterItemControls[Endpoint]
 	Namespace *clusterItemControls[Namespace]
 	Resource  *clusterItemControls[Resource]
+	Service   *clusterItemControls[Service]
 }
 
 func NewClusterControls(client zongzi.ShardClient) *ClusterControls {
 	return &ClusterControls{
+		Cluster:   &clusterItemControls[Cluster]{client},
+		Component: &clusterItemControls[Component]{client},
+		Endpoint:  &clusterItemControls[Endpoint]{client},
 		Namespace: &clusterItemControls[Namespace]{client},
 		Resource:  &clusterItemControls[Resource]{client},
+		Service:   &clusterItemControls[Service]{client},
 	}
 }
 

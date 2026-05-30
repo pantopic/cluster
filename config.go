@@ -29,10 +29,10 @@ func getConfig() config {
 		HostName:    "pantopic-a-0",
 		HostPeers:   "pantopic-a-0,pantopic-b-0,pantopic-c-0",
 		LogLevel:    "info",
-		PortApi:     8000,
-		PortGossip:  17001,
+		PortApi:     17000,
+		PortZongzi:  17001,
 		PortRaft:    17002,
-		PortZongzi:  17003,
+		PortGossip:  17003,
 	}
 	if err := env.ParseWithOptions(&cfg, env.Options{
 		Prefix: "PANTOPIC_",

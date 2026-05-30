@@ -6,7 +6,7 @@ import (
 	"github.com/logbn/fastjson-valid"
 )
 
-func commandTagsAdd[T Item](entry *Entry, state *State, v *fastjson.Value) error {
+func cmdTagsAdd[T Item](entry *Entry, state *State, v *fastjson.Value) error {
 	var input T
 	if err := json.Unmarshal(v.MarshalTo(nil), &input); err != nil {
 		entry.Result.Value = ResultErrInternal
@@ -37,19 +37,23 @@ func commandTagsAdd[T Item](entry *Entry, state *State, v *fastjson.Value) error
 		entry.Result.Data = []byte(input.Type() + " not found")
 		return nil
 	}
-	item.Touch(entry.Index)
 	item.TagsAdd(input.TagsGet())
-	switch input.Type() {
-	case Type_Namespace:
-		state.namespacePut(item.(Namespace))
-	case Type_Resource:
-		state.resourcePut(item.(Resource))
-	case Type_Component:
-		state.componentPut(item.(Component))
-		// case Type_Interface:
-		// 	state.interfacePut(item.(Interface))
-		// case Type_Endpoint:
-		// 	state.endpointPut(item.(Endpoint))
+	switch item := item.(type) {
+	case Namespace:
+		item.Updated = entry.Index
+		state.namespacePut(item)
+	case Resource:
+		item.Updated = entry.Index
+		state.resourcePut(item)
+	case Component:
+		item.Updated = entry.Index
+		state.componentPut(item)
+		// case Interface:
+		//  item.Updated = entry.Index
+		// 	state.interfacePut(item)
+		// case Endpoint:
+		//  item.Updated = entry.Index
+		// 	state.endpointPut(item)
 	}
 	b, err := json.Marshal(item)
 	if err != nil {

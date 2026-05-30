@@ -13,6 +13,8 @@ func queryFindByName[T Item](result *Result, state *State, v *fastjson.Value) er
 	var obj any
 	name := string(v.GetStringBytes(`name`))
 	switch item.Type() {
+	case Type_Cluster:
+		obj, ok = state.ClusterFindByName(name)
 	case Type_Namespace:
 		obj, ok = state.NamespaceFindByName(name)
 	case Type_Resource:

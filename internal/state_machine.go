@@ -2,26 +2,29 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/logbn/fastjson-valid"
 	"github.com/logbn/zongzi"
 )
 
-const StateMachineUri = "zongzi://pantopic.com/cluster/internal"
+const StateMachineUri = "pantopic/cluster/internal"
 
-func NewStateMachine(logger Logger, shardID, replicaID uint64) *StateMachine {
-	return &StateMachine{
-		log:       logger,
-		shardID:   shardID,
-		replicaID: replicaID,
-		state:     newState(),
+func StateMachineFactory(logger Logger) func(shardID, replicaID uint64) zongzi.StateMachine {
+	return func(shardID, replicaID uint64) zongzi.StateMachine {
+		return &stateMachine{
+			log:       logger,
+			shardID:   shardID,
+			replicaID: replicaID,
+			state:     newState(),
+		}
 	}
 }
 
-var _ zongzi.StateMachine = (*StateMachine)(nil)
+var _ zongzi.StateMachine = (*stateMachine)(nil)
 
-type StateMachine struct {
+type stateMachine struct {
 	zongzi.StateMachine
 
 	log       Logger
@@ -32,7 +35,7 @@ type StateMachine struct {
 
 var parser fastjson.ValidParserPool
 
-func (fsm *StateMachine) Update(entries []Entry) []Entry {
+func (fsm *stateMachine) Update(entries []Entry) []Entry {
 	var state *State
 	var err error
 	var cmd *fastjson.Value
@@ -50,7 +53,9 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 			fsm.log.Errorf(`invalid command (%s): %s`, err.Error(), string(entry.Cmd))
 			continue
 		}
-		cmdType := string(cmd.GetStringBytes(`type`)) + string(cmd.GetStringBytes(`meth`))
+		cmdType := fmt.Sprintf("%s.%s",
+			cmd.GetStringBytes(`type`),
+			cmd.GetStringBytes(`meth`))
 		cmdFunc, ok := commands[cmdType] // see command.go
 		if !ok {
 			entry.Result.Value = ResultErrSemantic
@@ -70,7 +75,7 @@ func (fsm *StateMachine) Update(entries []Entry) []Entry {
 	return entries
 }
 
-func (fsm *StateMachine) Query(ctx context.Context, data []byte) (result *Result) {
+func (fsm *stateMachine) Query(ctx context.Context, data []byte) (result *Result) {
 	result = &Result{}
 	p := parser.Get()
 	defer parser.Put(p)
@@ -80,33 +85,35 @@ func (fsm *StateMachine) Query(ctx context.Context, data []byte) (result *Result
 		fsm.log.Errorf(`invalid query (%s): %s`, err.Error(), string(data))
 		return
 	}
-	t := string(query.GetStringBytes(`type`)) + string(query.GetStringBytes(`meth`))
-	queryFunc, ok := queries[t] // see query.go
+	qType := fmt.Sprintf(`%s.%s`,
+		query.GetStringBytes(`type`),
+		query.GetStringBytes(`meth`))
+	queryFunc, ok := queries[qType] // see query.go
 	if !ok {
 		result.Value = ResultErrSemantic
-		fsm.log.Errorf(`unrecognized query (%s): %s`, t, string(data))
+		fsm.log.Errorf(`unrecognized query (%s): %s`, qType, string(data))
 		return
 	}
 	err = queryFunc(result, fsm.state.withTxn(false), query.Get(`data`))
 	return
 }
 
-func (fsm *StateMachine) PrepareSnapshot() (cursor any, err error) {
+func (fsm *stateMachine) PrepareSnapshot() (cursor any, err error) {
 	return fsm.state.withTxn(false), nil
 }
 
-func (fsm *StateMachine) SaveSnapshot(cursor any, w io.Writer, _ zongzi.SnapshotFileCollection, close <-chan struct{}) (err error) {
+func (fsm *stateMachine) SaveSnapshot(cursor any, w io.Writer, _ zongzi.SnapshotFileCollection, close <-chan struct{}) (err error) {
 	return cursor.(*State).Save(w)
 }
 
-func (fsm *StateMachine) RecoverFromSnapshot(r io.Reader, _ []zongzi.SnapshotFile, _ <-chan struct{}) error {
+func (fsm *stateMachine) RecoverFromSnapshot(r io.Reader, _ []zongzi.SnapshotFile, _ <-chan struct{}) error {
 	return fsm.state.recover(r)
 }
 
-func (fsm *StateMachine) Lookup(any) (res any, err error) { return }
+func (fsm *stateMachine) Lookup(any) (res any, err error) { return }
 
-func (fsm *StateMachine) Close() (err error) { return }
+func (fsm *stateMachine) Close() (err error) { return }
 
-func (fsm *StateMachine) Txn(write bool) *State {
+func (fsm *stateMachine) Txn(write bool) *State {
 	return fsm.state.withTxn(write)
 }
