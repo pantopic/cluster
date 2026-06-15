@@ -2,87 +2,88 @@ package internal
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/logbn/zongzi"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/pantopic/cluster/pb"
 )
 
 type ClusterControls struct {
-	Cluster   *clusterItemControls[Cluster]
-	Component *clusterItemControls[Component]
-	Endpoint  *clusterItemControls[Endpoint]
-	Namespace *clusterItemControls[Namespace]
-	Resource  *clusterItemControls[Resource]
-	Service   *clusterItemControls[Service]
+	Cluster   *clusterItemControls[*pb.Cluster]
+	Component *clusterItemControls[*pb.Component]
+	Namespace *clusterItemControls[*pb.Namespace]
+	Resource  *clusterItemControls[*pb.Resource]
+	Service   *clusterItemControls[*pb.Service]
 }
 
 func NewClusterControls(client zongzi.ShardClient) *ClusterControls {
 	return &ClusterControls{
-		Cluster:   &clusterItemControls[Cluster]{client},
-		Component: &clusterItemControls[Component]{client},
-		Endpoint:  &clusterItemControls[Endpoint]{client},
-		Namespace: &clusterItemControls[Namespace]{client},
-		Resource:  &clusterItemControls[Resource]{client},
-		Service:   &clusterItemControls[Service]{client},
+		Cluster:   &clusterItemControls[*pb.Cluster]{client},
+		Component: &clusterItemControls[*pb.Component]{client},
+		Namespace: &clusterItemControls[*pb.Namespace]{client},
+		Resource:  &clusterItemControls[*pb.Resource]{client},
+		Service:   &clusterItemControls[*pb.Service]{client},
 	}
 }
 
-type clusterItemControls[T Item] struct {
+type clusterItemControls[T proto.Message] struct {
 	client zongzi.ShardClient
 }
 
-func (c *clusterItemControls[T]) Create(ctx context.Context, item T) T {
-	b, err := json.Marshal(map[string]any{
-		"type": item.Type(),
-		"meth": "Create",
-		"data": item,
-	})
+func (c *clusterItemControls[T]) Put(ctx context.Context, item T) T {
+	b, err := proto.Marshal(item)
 	if err != nil {
 		panic(err)
+	}
+	switch any(item).(type) {
+	case *pb.Cluster:
+		b = append(b, CMD_CLUSTER_PUT)
+	case *pb.Component:
+		b = append(b, CMD_COMPONENT_PUT)
+	case *pb.Namespace:
+		b = append(b, CMD_NAMESPACE_PUT)
+	case *pb.Resource:
+		b = append(b, CMD_RESOURCE_PUT)
+	case *pb.Service:
+		b = append(b, CMD_SERVICE_PUT)
+	default:
+		panic("unsupported type")
 	}
 	res, b, err := c.client.Apply(ctx, b)
 	if err != nil || res != ResultSuccess {
 		return item
 	}
-	if err := json.Unmarshal(b, &item); err != nil {
-		panic(err.Error())
-	}
-	return item
-}
-
-func (c *clusterItemControls[T]) AddTags(ctx context.Context, item T) T {
-	b, err := json.Marshal(map[string]any{
-		"type": item.Type(),
-		"meth": "TagsAdd",
-		"data": item,
-	})
-	if err != nil {
-		panic(err)
-	}
-	res, b, err := c.client.Apply(ctx, b)
-	if err != nil || res != ResultSuccess {
-		return item
-	}
-	if err := json.Unmarshal(b, &item); err != nil {
+	if err := proto.Unmarshal(b, item); err != nil {
 		panic(err.Error())
 	}
 	return item
 }
 
 func (c *clusterItemControls[T]) FindByName(ctx context.Context, item T) T {
-	b, err := json.Marshal(map[string]any{
-		"type": item.Type(),
-		"meth": "FindByName",
-		"data": item,
-	})
+	b, err := proto.Marshal(item)
 	if err != nil {
 		panic(err)
+	}
+	switch any(item).(type) {
+	case *pb.Cluster:
+		b = append(b, QUERY_CLUSTER_GET)
+	case *pb.Component:
+		b = append(b, QUERY_COMPONENT_GET)
+	case *pb.Namespace:
+		b = append(b, QUERY_NAMESPACE_GET)
+	case *pb.Resource:
+		b = append(b, QUERY_RESOURCE_GET)
+	case *pb.Service:
+		b = append(b, QUERY_SERVICE_GET)
+	default:
+		panic("unsupported type")
 	}
 	res, b, err := c.client.Read(ctx, b, true)
 	if err != nil || res != ResultSuccess {
 		return item
 	}
-	if err := json.Unmarshal(b, &item); err != nil {
+	if err := proto.Unmarshal(b, item); err != nil {
 		panic(err.Error())
 	}
 	return item

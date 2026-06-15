@@ -2,32 +2,92 @@ syntax = "proto3";
 
 package proto;
 
-option go_package = "github.com/pantopic/proto";
+option go_package = "github.com/pantopic/cluster/pb";
 
 service Control {
   rpc NamespaceDelete(NamespaceDeleteRequest) returns (NamespaceDeleteResponse) {}
   rpc NamespaceGet(NamespaceGetRequest) returns (NamespaceGetResponse) {}
   rpc NamespaceList(NamespaceListRequest) returns (NamespaceListResponse) {}
-  rpc NamespaceCreate(NamespaceCreateRequest) returns (NamespaceCreateResponse) {}
   rpc NamespacePut(NamespacePutRequest) returns (NamespacePutResponse) {}
   rpc ResourceDelete(ResourceDeleteRequest) returns (ResourceDeleteResponse) {}
   rpc ResourceGet(ResourceGetRequest) returns (ResourceGetResponse) {}
   rpc ResourceList(ResourceListRequest) returns (ResourceListResponse) {}
-  rpc ResourceCreate(ResourceCreateRequest) returns (ResourceCreateResponse) {}
   rpc ResourcePut(ResourcePutRequest) returns (ResourcePutResponse) {}
+  rpc ClusterDelete(ClusterDeleteRequest) returns (ClusterDeleteResponse) {}
+  rpc ClusterGet(ClusterGetRequest) returns (ClusterGetResponse) {}
+  rpc ClusterList(ClusterListRequest) returns (ClusterListResponse) {}
+  rpc ClusterPut(ClusterPutRequest) returns (ClusterPutResponse) {}
+  rpc ServiceDelete(ServiceDeleteRequest) returns (ServiceDeleteResponse) {}
+  rpc ServiceGet(ServiceGetRequest) returns (ServiceGetResponse) {}
+  rpc ServiceList(ServiceListRequest) returns (ServiceListResponse) {}
+  rpc ServicePut(ServicePutRequest) returns (ServicePutResponse) {}
+  rpc ComponentDelete(ComponentDeleteRequest) returns (ComponentDeleteResponse) {}
+  rpc ComponentGet(ComponentGetRequest) returns (ComponentGetResponse) {}
+  rpc ComponentList(ComponentListRequest) returns (ComponentListResponse) {}
+  rpc ComponentPut(ComponentPutRequest) returns (ComponentPutResponse) {}
 }
 
 message Namespace {
-  uint64 id = 1;
-  uint64 created = 2;
-  uint64 updated = 3;
-  uint64 deleted = 4;
-  map<string, string> tags = 5;
-  string name = 6;
+  string name = 1;
+  uint64 version = 2;
+  uint64 created = 3;
+  uint64 updated = 4;
+  uint64 deleted = 5;
+  map<string, string> tags = 6;
+}
+
+message Cluster {
+  string name = 1;
+  uint64 version = 2;
+  uint64 created = 3;
+  uint64 updated = 4;
+  uint64 deleted = 5;
+  map<string, string> tags = 6;
+}
+
+message Resource {
+  string namespace = 1;
+  string name = 2;
+  uint64 version = 3;
+  uint64 created = 4;
+  uint64 updated = 5;
+  uint64 deleted = 6;
+  map<string, string> tags = 7;
+  string uri = 8;
+  string status = 9;
+}
+
+message Service {
+  string namespace = 1;
+  string resource = 2;
+  string name = 3;
+  uint64 version = 4;
+  uint64 created = 5;
+  uint64 updated = 6;
+  uint64 deleted = 7;
+  map<string, string> tags = 8;
+  string cluster = 9;
+  string uri = 10;
+  string status = 11;
+  uint64 port = 12;
+}
+
+message Component {
+  string namespace = 1;
+  string resource = 2;
+  string name = 3;
+  uint64 version = 4;
+  uint64 created = 5;
+  uint64 updated = 6;
+  uint64 deleted = 7;
+  map<string, string> tags = 8;
+  string cluster = 9;
+  string uri = 10;  
+  string status = 11;
 }
 
 message NamespaceDeleteRequest {
-  string id = 1;
+  string name = 1;
 }
 message NamespaceDeleteResponse {
   uint64 code = 1;
@@ -38,16 +98,6 @@ message NamespaceGetRequest {
   string name = 1;
 }
 message NamespaceGetResponse {
-  uint64 code = 1;
-  string error = 2;
-  Namespace item = 3;
-}
-
-message NamespaceCreateRequest {
-  string name = 1;
-  map<string, string> tags = 2;
-}
-message NamespaceCreateResponse {
   uint64 code = 1;
   string error = 2;
   Namespace item = 3;
@@ -72,20 +122,9 @@ message NamespaceListResponse {
   repeated Namespace item = 3;
 }
 
-message Resource {
-  uint64 id = 1;
-  uint64 created = 2;
-  uint64 updated = 3;
-  uint64 deleted = 4;
-  map<string, string> tags = 5;
-  string status = 6;
-  string namespace = 7;
-  string name = 8;
-  string uri = 9;
-}
-
 message ResourceDeleteRequest {
-  string id = 1;
+  string namespace = 1;
+  string name = 2;
 }
 message ResourceDeleteResponse {
   uint64 code = 1;
@@ -97,18 +136,6 @@ message ResourceGetRequest {
   string name = 2;
 }
 message ResourceGetResponse {
-  uint64 code = 1;
-  string error = 2;
-  Resource item = 3;
-}
-
-message ResourceCreateRequest {
-  map<string, string> tags = 4;
-  string namespace = 1;
-  string name = 2;
-  string uri = 3;
-}
-message ResourceCreateResponse {
   uint64 code = 1;
   string error = 2;
   Resource item = 3;
@@ -133,4 +160,116 @@ message ResourceListResponse {
   uint64 code = 1;
   string error = 2;
   repeated Resource item = 3;
+}
+
+message ClusterDeleteRequest {
+  uint64 id = 1;
+}
+message ClusterDeleteResponse {
+  uint64 code = 1;
+  string error = 2;
+}
+
+message ClusterGetRequest {
+  string name = 1;
+}
+message ClusterGetResponse {
+  uint64 code = 1;
+  string error = 2;
+  Cluster item = 3;
+}
+
+message ClusterPutRequest {
+  Cluster item = 1;
+}
+message ClusterPutResponse {
+  uint64 code = 1;
+  string error = 2;
+  Cluster item = 3;
+}
+
+message ClusterListRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+message ClusterListResponse {
+  uint64 code = 1;
+  string error = 2;
+  repeated Cluster item = 3;
+}
+
+message ServiceDeleteRequest {
+  uint64 id = 1;
+}
+message ServiceDeleteResponse {
+  uint64 code = 1;
+  string error = 2;
+}
+
+message ServiceGetRequest {
+  string namespace = 1;
+  string resource = 2;
+  string name = 3;
+}
+message ServiceGetResponse {
+  uint64 code = 1;
+  string error = 2;
+  Service item = 3;
+}
+
+message ServicePutRequest {
+  Service item = 1;
+}
+message ServicePutResponse {
+  uint64 code = 1;
+  string error = 2;
+  Service item = 3;
+}
+
+message ServiceListRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+message ServiceListResponse {
+  uint64 code = 1;
+  string error = 2;
+  repeated Service item = 3;
+}
+
+message ComponentDeleteRequest {
+  Component item = 1;
+}
+message ComponentDeleteResponse {
+  uint64 code = 1;
+  string error = 2;
+}
+
+message ComponentGetRequest {
+  string namespace = 1;
+  string resource = 2;
+  string name = 3;
+}
+message ComponentGetResponse {
+  uint64 code = 1;
+  string error = 2;
+  Component item = 3;
+}
+
+message ComponentPutRequest {
+  Component item = 1;
+}
+message ComponentPutResponse {
+  uint64 code = 1;
+  string error = 2;
+  Component item = 3;
+}
+
+message ComponentListRequest {
+  uint64 limit = 1;
+  uint64 offset = 2;
+}
+message ComponentListResponse {
+  uint64 code = 1;
+  string error = 2;
+  repeated Component item = 3;
 }

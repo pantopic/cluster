@@ -1,16 +1,11 @@
-package internal
+﻿package internal
 
-import (
-	"github.com/logbn/fastjson-valid"
-)
+type cmdFunc func(*Entry, *State, []byte) error
 
-type cmdFunc func(*Entry, *State, *fastjson.Value) error
-
-var commands = map[string]cmdFunc{
-	"cluster.Create":    cmdClusterCreate,
-	"cluster.TagsAdd":   cmdTagsAdd[Cluster],
-	"namespace.Create":  cmdNamespaceCreate,
-	"namespace.TagsAdd": cmdTagsAdd[Namespace],
-	"resource.Create":   cmdResourceCreate,
-	"resource.TagsAdd":  cmdTagsAdd[Resource],
+var commands = map[byte]cmdFunc{
+	CMD_CLUSTER_PUT:   cmdClusterPut,
+	CMD_NAMESPACE_PUT: cmdNamespacePut,
+	CMD_RESOURCE_PUT:  cmdResourcePut,
+	CMD_COMPONENT_PUT: cmdComponentPut,
+	CMD_SERVICE_PUT:   cmdServicePut,
 }

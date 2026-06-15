@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -16,9 +15,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pantopic/cluster/internal"
-	"github.com/pantopic/cluster/proto"
+	"github.com/pantopic/cluster/pb"
 )
 
 func TestMain(t *testing.T) {
@@ -76,12 +76,9 @@ func TestMain(t *testing.T) {
 	})
 	shardClient := agents[0].Client(internal.ShardID)
 	t.Run(`namespaces`, func(t *testing.T) {
-		for _, namespace := range []string{"internal", "default"} {
-			q, err := json.Marshal(map[string]any{
-				"type": "namespace",
-				"meth": "FindByName",
-				"data": internal.Namespace{Name: namespace},
-			})
+		for _, namespace := range []string{internal.NAMESPACE_INTERNAL, internal.NAMESPACE_DEFAULT} {
+			b, err := proto.Marshal(&pb.Namespace{Name: namespace})
+			q := append(b, internal.QUERY_NAMESPACE_GET)
 			require.Nil(t, err)
 			var val uint64
 			var data []byte
@@ -93,12 +90,10 @@ func TestMain(t *testing.T) {
 		}
 	})
 	t.Run(`cluster`, func(t *testing.T) {
-		q, err := json.Marshal(map[string]any{
-			"type": "cluster",
-			"meth": "FindByName",
-			"data": internal.Namespace{Name: cfg.ClusterName},
-		})
+		req := &pb.Cluster{Name: cfg.ClusterName}
+		reqBytes, err := proto.Marshal(req)
 		require.Nil(t, err)
+		q := append(reqBytes, internal.QUERY_CLUSTER_GET)
 		var val uint64
 		var data []byte
 		// 10 seconds for namespaces to be created
@@ -123,7 +118,7 @@ func TestMain(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	proto.RegisterControlServer(grpcServer, internal.NewServiceControl(shardClient))
+	pb.RegisterControlServer(grpcServer, internal.NewServiceControl(shardClient))
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
 			panic(err)
@@ -133,19 +128,20 @@ func TestMain(t *testing.T) {
 	conn, err := grpc.NewClient("localhost"+addr, []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}...)
-	grpcClient := proto.NewControlClient(conn)
+	grpcClient := pb.NewControlClient(conn)
 	t.Run(`resource`, func(t *testing.T) {
 		t.Run(`create`, func(t *testing.T) {
-			res, err := grpcClient.ResourceCreate(ctx, &proto.ResourceCreateRequest{
-				Name:      "test",
-				Namespace: "default",
-				Uri:       "github.com/pantopic/test",
+			res, err := grpcClient.ResourcePut(ctx, &pb.ResourcePutRequest{
+				Item: &pb.Resource{
+					Namespace: "default",
+					Name:      "test",
+					Uri:       "github.com/pantopic/test",
+				},
 			})
 			require.Nil(t, err)
-			require.Equal(t, uint64(0), res.Code)
+			require.Equal(t, uint64(0), res.Code, res.Error)
 			require.Equal(t, "default", res.Item.Namespace)
 			require.Equal(t, "test", res.Item.Name)
-			require.Greater(t, res.Item.Id, uint64(0), res.Item)
 			// 10s - component is created
 			// 10s - shard is created
 			// 10s - shard is healthy

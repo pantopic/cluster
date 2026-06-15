@@ -10,6 +10,7 @@ import (
 	"github.com/logbn/zongzi"
 
 	"github.com/pantopic/cluster/internal/modulestore"
+	"github.com/pantopic/cluster/pb"
 )
 
 var version = `1`
@@ -23,7 +24,7 @@ type ClusterController interface {
 type clusterController struct {
 	agent     *Agent
 	clock     clock.Clock
-	cluster   Cluster
+	cluster   *pb.Cluster
 	controls  *ClusterControls
 	ctx       context.Context
 	ctxCancel context.CancelFunc
@@ -125,12 +126,12 @@ func (c *clusterController) createShard() {
 func (c *clusterController) init() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	internal := c.controls.Namespace.FindByName(c.ctx, Namespace{Name: NAMESPACE_INTERNAL})
+	internal := c.controls.Namespace.FindByName(c.ctx, &pb.Namespace{Name: NAMESPACE_INTERNAL})
 	if v, ok := internal.Tags[`version`]; ok && v == version {
 		return
 	}
 	if internal.Created == 0 {
-		internal = c.controls.Namespace.Create(c.ctx, Namespace{Name: NAMESPACE_INTERNAL})
+		internal = c.controls.Namespace.Put(c.ctx, &pb.Namespace{Name: NAMESPACE_INTERNAL})
 	}
 	for _, name := range []string{
 		`model`,
@@ -139,26 +140,31 @@ func (c *clusterController) init() {
 		`metric`,
 		`policy`,
 	} {
-		if c.controls.Resource.FindByName(c.ctx, Resource{
-			NamespaceID: internal.ID,
-			Name:        name,
-			Uri:         modulestore.ResourceUri,
+		if c.controls.Resource.FindByName(c.ctx, &pb.Resource{
+			Namespace: internal.Name,
+			Name:      name,
+			Uri:       modulestore.ResourceUri,
 		}).Created == 0 {
 			c.log.Infof(`Creating internal %s store`, name)
-			c.controls.Resource.Create(c.ctx, Resource{
-				NamespaceID: internal.ID,
-				Name:        name,
-				Uri:         modulestore.ResourceUri,
+			c.controls.Resource.Put(c.ctx, &pb.Resource{
+				Namespace: internal.Name,
+				Name:      name,
+				Uri:       modulestore.ResourceUri,
 			})
 		}
 	}
-	if c.controls.Namespace.FindByName(c.ctx, Namespace{Name: NAMESPACE_DEFAULT}).Created == 0 {
-		c.controls.Namespace.Create(c.ctx, Namespace{Name: NAMESPACE_DEFAULT})
+	ns := c.controls.Namespace.FindByName(c.ctx, &pb.Namespace{Name: NAMESPACE_DEFAULT})
+	if ns.Created == 0 {
+		ns = c.controls.Namespace.Put(c.ctx, &pb.Namespace{Name: NAMESPACE_DEFAULT})
 	}
-	c.controls.Namespace.AddTags(c.ctx, Namespace{ID: internal.ID, Tags: map[string]string{
-		`version`: version,
-	}})
-	c.cluster = c.controls.Cluster.Create(c.ctx, Cluster{Name: c.agent.ClusterName()})
+	if ns.Tags == nil {
+		ns.Tags = make(map[string]string)
+	}
+	if ns.Tags[`version`] != version {
+		ns.Tags[`version`] = version
+		ns = c.controls.Namespace.Put(c.ctx, ns)
+	}
+	c.cluster = c.controls.Cluster.Put(c.ctx, &pb.Cluster{Name: c.agent.ClusterName()})
 }
 
 func (c *clusterController) Stop() {

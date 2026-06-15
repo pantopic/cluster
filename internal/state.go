@@ -7,6 +7,8 @@ import (
 	"sync"
 
 	"github.com/hashicorp/go-memdb"
+
+	"github.com/pantopic/cluster/pb"
 )
 
 // State represents internal state. All public methods are read only.
@@ -22,19 +24,13 @@ type metaValue struct {
 }
 
 type fsmStateMetaHeader struct {
-	ClusterID   uint64 `json:"clusterID"`
-	Clusters    uint64 `json:"clusters"`
-	ComponentID uint64 `json:"componentID"`
-	Components  uint64 `json:"components"`
-	EndpointID  uint64 `json:"endpointID"`
-	Endpoints   uint64 `json:"endpoints"`
-	Index       uint64 `json:"index"`
-	NamespaceID uint64 `json:"namespaceID"`
-	Namespaces  uint64 `json:"namespaces"`
-	ResourceID  uint64 `json:"resourceID"`
-	Resources   uint64 `json:"resources"`
-	ServiceID   uint64 `json:"serviceID"`
-	Services    uint64 `json:"services"`
+	Clusters   uint64 `json:"clusters"`
+	Components uint64 `json:"components"`
+	Endpoints  uint64 `json:"endpoints"`
+	Index      uint64 `json:"index"`
+	Namespaces uint64 `json:"namespaces"`
+	Resources  uint64 `json:"resources"`
+	Services   uint64 `json:"services"`
 }
 
 var statePool = sync.Pool{New: func() any {
@@ -42,7 +38,10 @@ var statePool = sync.Pool{New: func() any {
 }}
 
 func newState() *State {
-	metaSchema := &memdb.TableSchema{
+	schema := &memdb.DBSchema{
+		Tables: make(map[string]*memdb.TableSchema),
+	}
+	schema.Tables[`meta`] = &memdb.TableSchema{
 		Name: "meta",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
@@ -52,17 +51,12 @@ func newState() *State {
 			},
 		},
 	}
-	clusterSchema := &memdb.TableSchema{
+	schema.Tables[`cluster`] = &memdb.TableSchema{
 		Name: "cluster",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
 				Name:    "id",
 				Unique:  true,
-				Indexer: &memdb.UintFieldIndex{Field: "ID"},
-			},
-			"Name": {
-				Name:    "Name",
-				Unique:  true,
 				Indexer: &memdb.StringFieldIndex{Field: "Name"},
 			},
 			"Tags": {
@@ -80,17 +74,12 @@ func newState() *State {
 			},
 		},
 	}
-	namespaceSchema := &memdb.TableSchema{
+	schema.Tables[`namespace`] = &memdb.TableSchema{
 		Name: "namespace",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
 				Name:    "id",
 				Unique:  true,
-				Indexer: &memdb.UintFieldIndex{Field: "ID"},
-			},
-			"Name": {
-				Name:    "Name",
-				Unique:  true,
 				Indexer: &memdb.StringFieldIndex{Field: "Name"},
 			},
 			"Tags": {
@@ -108,27 +97,22 @@ func newState() *State {
 			},
 		},
 	}
-	resourceSchema := &memdb.TableSchema{
+	schema.Tables[`resource`] = &memdb.TableSchema{
 		Name: "resource",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.UintFieldIndex{Field: "ID"},
-			},
-			"NamespaceID": {
-				Name:    "NamespaceID",
-				Indexer: &memdb.UintFieldIndex{Field: "NamespaceID"},
-			},
-			"Name": {
-				Name:   "Name",
+				Name:   "id",
 				Unique: true,
 				Indexer: &memdb.CompoundIndex{
 					Indexes: []memdb.Indexer{
-						&memdb.UintFieldIndex{Field: "NamespaceID"},
+						&memdb.StringFieldIndex{Field: "Namespace"},
 						&memdb.StringFieldIndex{Field: "Name"},
 					},
 				},
+			},
+			"Namespace": {
+				Name:    "Namespace",
+				Indexer: &memdb.StringFieldIndex{Field: "Namespace"},
 			},
 			"Tags": {
 				Name:         "Tags",
@@ -149,31 +133,36 @@ func newState() *State {
 			},
 		},
 	}
-	componentSchema := &memdb.TableSchema{
+	schema.Tables[`component`] = &memdb.TableSchema{
 		Name: "component",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.UintFieldIndex{Field: "ID"},
-			},
-			"ClusterID": {
-				Name:    "ClusterID",
-				Indexer: &memdb.UintFieldIndex{Field: "ClusterID"},
-			},
-			"ResourceID": {
-				Name:    "ResourceID",
-				Indexer: &memdb.UintFieldIndex{Field: "ResourceID"},
-			},
-			"Name": {
-				Name:   "Name",
+				Name:   "id",
 				Unique: true,
 				Indexer: &memdb.CompoundIndex{
 					Indexes: []memdb.Indexer{
-						&memdb.UintFieldIndex{Field: "ResourceID"},
+						&memdb.StringFieldIndex{Field: "Namespace"},
+						&memdb.StringFieldIndex{Field: "Resource"},
 						&memdb.StringFieldIndex{Field: "Name"},
 					},
 				},
+			},
+			"Namespace": {
+				Name:    "Namespace",
+				Indexer: &memdb.StringFieldIndex{Field: "Namespace"},
+			},
+			"Resource": {
+				Name: "Resource",
+				Indexer: &memdb.CompoundIndex{
+					Indexes: []memdb.Indexer{
+						&memdb.StringFieldIndex{Field: "Namespace"},
+						&memdb.StringFieldIndex{Field: "Resource"},
+					},
+				},
+			},
+			"Cluster": {
+				Name:    "Cluster",
+				Indexer: &memdb.StringFieldIndex{Field: "Cluster"},
 			},
 			"Tags": {
 				Name:         "Tags",
@@ -194,31 +183,36 @@ func newState() *State {
 			},
 		},
 	}
-	serviceSchema := &memdb.TableSchema{
+	schema.Tables[`service`] = &memdb.TableSchema{
 		Name: "service",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.UintFieldIndex{Field: "ID"},
-			},
-			"ClusterID": {
-				Name:    "ClusterID",
-				Indexer: &memdb.UintFieldIndex{Field: "ClusterID"},
-			},
-			"ResourceID": {
-				Name:    "ResourceID",
-				Indexer: &memdb.UintFieldIndex{Field: "ResourceID"},
-			},
-			"Name": {
-				Name:   "Name",
+				Name:   "id",
 				Unique: true,
 				Indexer: &memdb.CompoundIndex{
 					Indexes: []memdb.Indexer{
-						&memdb.UintFieldIndex{Field: "ResourceID"},
+						&memdb.StringFieldIndex{Field: "Namespace"},
+						&memdb.StringFieldIndex{Field: "Resource"},
 						&memdb.StringFieldIndex{Field: "Name"},
 					},
 				},
+			},
+			"Namespace": {
+				Name:    "Namespace",
+				Indexer: &memdb.StringFieldIndex{Field: "Namespace"},
+			},
+			"Resource": {
+				Name: "Resource",
+				Indexer: &memdb.CompoundIndex{
+					Indexes: []memdb.Indexer{
+						&memdb.StringFieldIndex{Field: "Namespace"},
+						&memdb.StringFieldIndex{Field: "Resource"},
+					},
+				},
+			},
+			"Cluster": {
+				Name:    "Cluster",
+				Indexer: &memdb.StringFieldIndex{Field: "Cluster"},
 			},
 			"Tags": {
 				Name:         "Tags",
@@ -239,43 +233,7 @@ func newState() *State {
 			},
 		},
 	}
-	endpointSchema := &memdb.TableSchema{
-		Name: "endpoint",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.UintFieldIndex{Field: "ID"},
-			},
-			"ServiceID": {
-				Name:    "ServiceID",
-				Indexer: &memdb.UintFieldIndex{Field: "ServiceID"},
-			},
-			"HostID": {
-				Name:    "HostID",
-				Indexer: &memdb.UintFieldIndex{Field: "HostID"},
-			},
-			"Created": {
-				Name:    "Created",
-				Indexer: &memdb.UintFieldIndex{Field: "Created"},
-			},
-			"Updated": {
-				Name:    "Updated",
-				Indexer: &memdb.UintFieldIndex{Field: "Updated"},
-			},
-		},
-	}
-	db, err := memdb.NewMemDB(&memdb.DBSchema{
-		Tables: map[string]*memdb.TableSchema{
-			"cluster":   clusterSchema,
-			"component": componentSchema,
-			"endpoint":  endpointSchema,
-			"meta":      metaSchema,
-			"namespace": namespaceSchema,
-			"resource":  resourceSchema,
-			"service":   serviceSchema,
-		},
-	})
+	db, err := memdb.NewMemDB(schema)
 	if err != nil {
 		panic(err)
 	}
@@ -314,26 +272,37 @@ func resultIterSeq[V any](iter memdb.ResultIterator) func(yield func(V) bool) {
 func (fsm *State) Save(w io.Writer) error {
 	f := fsm.withTxn(false)
 	header := fsmStateMetaHeader{
-		ClusterID:   f.metaGetVal(`clusterID`),
-		ComponentID: f.metaGetVal(`componentID`),
-		EndpointID:  f.metaGetVal(`endpointID`),
-		Index:       f.metaGetVal(`index`),
-		NamespaceID: f.metaGetVal(`namespaceID`),
-		ResourceID:  f.metaGetVal(`resourceID`),
-		ServiceID:   f.metaGetVal(`serviceID`),
-	}
-	for range f.ResourceIter() {
-		header.Resources++
+		Clusters:   f.metaGetVal(`clusters`),
+		Components: f.metaGetVal(`components`),
+		Index:      f.metaGetVal(`index`),
+		Namespaces: f.metaGetVal(`namespaces`),
+		Resources:  f.metaGetVal(`resources`),
+		Services:   f.metaGetVal(`services`),
 	}
 	b, _ := json.Marshal(header)
 	w.Write(append(b, '\n'))
-	for item := range f.ResourceIter() {
+	for item := range f.ClusterIter() {
+		b, _ := json.Marshal(item)
+		w.Write(append(b, '\n'))
+	}
+	for item := range f.NamespaceIter() {
+		b, _ := json.Marshal(item)
+		w.Write(append(b, '\n'))
+	}
+	for item := range f.ResourceIterAll() {
+		b, _ := json.Marshal(item)
+		w.Write(append(b, '\n'))
+	}
+	for item := range f.ComponentIterAll() {
+		b, _ := json.Marshal(item)
+		w.Write(append(b, '\n'))
+	}
+	for item := range f.ServiceIterAll() {
 		b, _ := json.Marshal(item)
 		w.Write(append(b, '\n'))
 	}
 	return nil
 }
-
 func (fsm *State) recover(r io.Reader) (err error) {
 	f := fsm.withTxn(true)
 	defer f.commit()
@@ -342,15 +311,47 @@ func (fsm *State) recover(r io.Reader) (err error) {
 	if err := decoder.Decode(&header); err != nil {
 		return err
 	}
+	f.metaSet(`clusters`, header.Clusters, nil)
+	f.metaSet(`components`, header.Components, nil)
 	f.metaSet(`index`, header.Index, nil)
-	f.metaSet(`resourceID`, header.ResourceID, nil)
+	f.metaSet(`namespaces`, header.Namespaces, nil)
+	f.metaSet(`resources`, header.Resources, nil)
+	f.metaSet(`services`, header.Services, nil)
 	var i uint64
+	for i = 0; i < header.Clusters; i++ {
+		var s = &pb.Cluster{}
+		if err = decoder.Decode(&s); err != nil {
+			return fmt.Errorf("parse cluster: %w", err)
+		}
+		f.clusterPut(s, false)
+	}
+	for i = 0; i < header.Namespaces; i++ {
+		var s = &pb.Namespace{}
+		if err = decoder.Decode(&s); err != nil {
+			return fmt.Errorf("parse namespace: %w", err)
+		}
+		f.namespacePut(s, false)
+	}
 	for i = 0; i < header.Resources; i++ {
-		var s Resource
+		var s = &pb.Resource{}
 		if err = decoder.Decode(&s); err != nil {
 			return fmt.Errorf("parse resource: %w", err)
 		}
-		f.resourcePut(s)
+		f.resourcePut(s, false)
+	}
+	for i = 0; i < header.Components; i++ {
+		var s = &pb.Component{}
+		if err = decoder.Decode(&s); err != nil {
+			return fmt.Errorf("parse component: %w", err)
+		}
+		f.componentPut(s, false)
+	}
+	for i = 0; i < header.Services; i++ {
+		var s = &pb.Service{}
+		if err = decoder.Decode(&s); err != nil {
+			return fmt.Errorf("parse service: %w", err)
+		}
+		f.servicePut(s, false)
 	}
 	return nil
 }

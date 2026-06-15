@@ -4,86 +4,78 @@ import (
 	"iter"
 
 	"github.com/hashicorp/go-memdb"
+
+	"github.com/pantopic/cluster/pb"
 )
 
-// Resource returns the resource with the specified id or ok false if not found.
-func (fsm *State) Resource(id uint64) (s Resource, ok bool) {
-	res, err := fsm.txn.First(`resource`, `id`, id)
-	if err != nil {
-		panic(err)
-	}
-	if res != nil {
-		s = res.(Resource)
-		ok = true
-	}
-	return
-}
-
 // ResourceFindByName returns the resource with the specified name or ok false if not found.
-func (fsm *State) ResourceFindByName(namespaceID uint64, name string) (s Resource, ok bool) {
-	res, err := fsm.txn.First(`resource`, `Name`, namespaceID, name)
+func (fsm *State) ResourceFindByName(namespace, name string) (s *pb.Resource, ok bool) {
+	res, err := fsm.txn.First(`resource`, `id`, namespace, name)
 	if err != nil {
 		panic(err)
 	}
 	if res != nil {
-		s = res.(Resource)
+		s = res.(*pb.Resource)
 		ok = true
 	}
 	return
 }
 
-// ResourceIter executes a callback for every resource in the resource ordered by resource id ascending.
+// ResourceIterAll executes a callback for every resource in the resource ordered by resource id ascending.
 // Return true to continue iterating, false to stop.
-func (fsm *State) ResourceIter() iter.Seq[Resource] {
-	return resourceIter(fsm.txn.LowerBound(`resource`, `id`, uint64(0)))
+func (fsm *State) ResourceIterAll() iter.Seq[*pb.Resource] {
+	return resourceIter(fsm.txn.LowerBound(`resource`, `id`, "", "", ""))
 }
 
-// ResourceIterByNamespaceID executes a callback for every child of a resource.
-func (fsm *State) ResourceIterByNamespaceID(namespaceID uint64) iter.Seq[Resource] {
-	return resourceIter(fsm.txn.Get(`resource`, `NamespaceID`, namespaceID))
+// ResourceIterByNamespace executes a callback for every child of a resource.
+func (fsm *State) ResourceIterByNamespace(namespace string) iter.Seq[*pb.Resource] {
+	return resourceIter(fsm.txn.Get(`resource`, `Namespace`, namespace))
 }
 
 // ResourceIterByUri executes a callback for every resource of a specific type.
-func (fsm *State) ResourceIterByUri(uri string) iter.Seq[Resource] {
+func (fsm *State) ResourceIterByUri(uri string) iter.Seq[*pb.Resource] {
 	return resourceIter(fsm.txn.Get(`resource`, `Uri`, uri))
 }
 
 // ResourceIterByTag executes a callback for every resource in the resource matching the specified tag,
 // ordered by resource id ascending. Return true to continue iterating, false to stop.
-func (fsm *State) ResourceIterByTag(tag string) iter.Seq[Resource] {
+func (fsm *State) ResourceIterByTag(tag string) iter.Seq[*pb.Resource] {
 	return resourceIter(fsm.txn.Get(`resource`, `Tags`, tag))
 }
 
 // ResourceIterUpdatedAfter executes a callback for every resource in the resource having an updated index
 // greater than the supplied index
-func (fsm *State) ResourceIterUpdatedAfter(index uint64) iter.Seq[Resource] {
+func (fsm *State) ResourceIterUpdatedAfter(index uint64) iter.Seq[*pb.Resource] {
 	return resourceIter(fsm.txn.LowerBound(`resource`, `Updated`, index+1))
 }
 
-func (fsm *State) resourcePut(r Resource) {
+func (fsm *State) resourcePut(r *pb.Resource, create bool) {
 	err := fsm.txn.Insert(`resource`, r)
 	if err != nil {
 		panic(err)
 	}
+	if create {
+		fsm.metaIncrVal(`resources`)
+	}
 }
 
-func (fsm *State) resourceDelete(r Resource) {
+func (fsm *State) resourceDelete(r *pb.Resource) {
 	err := fsm.txn.Delete(`resource`, r)
 	if err != nil && err != memdb.ErrNotFound {
 		panic(err)
 	}
 }
 
-func (fsm *State) resourceTouch(id, index uint64) {
-	if s, ok := fsm.Resource(id); ok {
+func (fsm *State) resourceTouch(namespace, name string, index uint64) {
+	if s, ok := fsm.ResourceFindByName(namespace, name); ok {
 		s.Updated = index
-		fsm.resourcePut(s)
+		fsm.resourcePut(s, false)
 	}
 }
 
-func resourceIter(iter memdb.ResultIterator, err error) iter.Seq[Resource] {
+func resourceIter(iter memdb.ResultIterator, err error) iter.Seq[*pb.Resource] {
 	if err != nil {
 		panic(err)
 	}
-	return resultIterSeq[Resource](iter)
+	return resultIterSeq[*pb.Resource](iter)
 }

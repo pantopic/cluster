@@ -1,13 +1,11 @@
-package internal
+﻿package internal
 
-import (
-	"github.com/logbn/fastjson-valid"
-)
+type queryFunc func(*Result, *State, []byte)
 
-type queryFunc func(*Result, *State, *fastjson.Value) error
-
-var queries = map[string]queryFunc{
-	"cluster.FindByName":   queryFindByName[Cluster],
-	"namespace.FindByName": queryFindByName[Namespace],
-	"resource.FindByName":  queryFindByName[Resource],
+var queries = map[byte]queryFunc{
+	QUERY_CLUSTER_GET:   queryClusterGet,
+	QUERY_NAMESPACE_GET: queryNamespaceGet,
+	QUERY_RESOURCE_GET:  queryResourceGet,
+	QUERY_COMPONENT_GET: queryComponentGet,
+	QUERY_SERVICE_GET:   queryServiceGet,
 }
