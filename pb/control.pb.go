@@ -301,13 +301,13 @@ type Service struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Version       uint64                 `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
-	Created       uint64                 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
-	Updated       uint64                 `protobuf:"varint,6,opt,name=updated,proto3" json:"updated,omitempty"`
-	Deleted       uint64                 `protobuf:"varint,7,opt,name=deleted,proto3" json:"deleted,omitempty"`
-	Tags          map[string]string      `protobuf:"bytes,8,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Cluster       string                 `protobuf:"bytes,9,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Cluster       string                 `protobuf:"bytes,3,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Version       uint64                 `protobuf:"varint,5,opt,name=version,proto3" json:"version,omitempty"`
+	Created       uint64                 `protobuf:"varint,6,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       uint64                 `protobuf:"varint,7,opt,name=updated,proto3" json:"updated,omitempty"`
+	Deleted       uint64                 `protobuf:"varint,8,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Uri           string                 `protobuf:"bytes,10,opt,name=uri,proto3" json:"uri,omitempty"`
 	Status        string                 `protobuf:"bytes,11,opt,name=status,proto3" json:"status,omitempty"`
 	Port          uint64                 `protobuf:"varint,12,opt,name=port,proto3" json:"port,omitempty"`
@@ -359,6 +359,13 @@ func (x *Service) GetResource() string {
 	return ""
 }
 
+func (x *Service) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
 func (x *Service) GetName() string {
 	if x != nil {
 		return x.Name
@@ -401,13 +408,6 @@ func (x *Service) GetTags() map[string]string {
 	return nil
 }
 
-func (x *Service) GetCluster() string {
-	if x != nil {
-		return x.Cluster
-	}
-	return ""
-}
-
 func (x *Service) GetUri() string {
 	if x != nil {
 		return x.Uri
@@ -433,13 +433,13 @@ type Component struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Version       uint64                 `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
-	Created       uint64                 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
-	Updated       uint64                 `protobuf:"varint,6,opt,name=updated,proto3" json:"updated,omitempty"`
-	Deleted       uint64                 `protobuf:"varint,7,opt,name=deleted,proto3" json:"deleted,omitempty"`
-	Tags          map[string]string      `protobuf:"bytes,8,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Cluster       string                 `protobuf:"bytes,9,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Cluster       string                 `protobuf:"bytes,3,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	Version       uint64                 `protobuf:"varint,5,opt,name=version,proto3" json:"version,omitempty"`
+	Created       uint64                 `protobuf:"varint,6,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       uint64                 `protobuf:"varint,7,opt,name=updated,proto3" json:"updated,omitempty"`
+	Deleted       uint64                 `protobuf:"varint,8,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Uri           string                 `protobuf:"bytes,10,opt,name=uri,proto3" json:"uri,omitempty"`
 	Status        string                 `protobuf:"bytes,11,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -490,6 +490,13 @@ func (x *Component) GetResource() string {
 	return ""
 }
 
+func (x *Component) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
 func (x *Component) GetName() string {
 	if x != nil {
 		return x.Name
@@ -530,13 +537,6 @@ func (x *Component) GetTags() map[string]string {
 		return x.Tags
 	}
 	return nil
-}
-
-func (x *Component) GetCluster() string {
-	if x != nil {
-		return x.Cluster
-	}
-	return ""
 }
 
 func (x *Component) GetUri() string {
@@ -2155,8 +2155,10 @@ func (x *ServicePutResponse) GetItem() *Service {
 
 type ServiceListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         uint64                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        uint64                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Limit         uint64                 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        uint64                 `protobuf:"varint,4,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2189,6 +2191,20 @@ func (x *ServiceListRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ServiceListRequest.ProtoReflect.Descriptor instead.
 func (*ServiceListRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *ServiceListRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *ServiceListRequest) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
 }
 
 func (x *ServiceListRequest) GetLimit() uint64 {
@@ -2587,8 +2603,10 @@ func (x *ComponentPutResponse) GetItem() *Component {
 
 type ComponentListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         uint64                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        uint64                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Limit         uint64                 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        uint64                 `protobuf:"varint,4,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2621,6 +2639,20 @@ func (x *ComponentListRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ComponentListRequest.ProtoReflect.Descriptor instead.
 func (*ComponentListRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *ComponentListRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *ComponentListRequest) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
 }
 
 func (x *ComponentListRequest) GetLimit() uint64 {
@@ -2737,14 +2769,14 @@ const file_control_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfe\x02\n" +
 	"\aService\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
-	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
-	"\aversion\x18\x04 \x01(\x04R\aversion\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x04R\acreated\x12\x18\n" +
-	"\aupdated\x18\x06 \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\a \x01(\x04R\adeleted\x12,\n" +
-	"\x04tags\x18\b \x03(\v2\x18.proto.Service.TagsEntryR\x04tags\x12\x18\n" +
-	"\acluster\x18\t \x01(\tR\acluster\x12\x10\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
+	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12\x18\n" +
+	"\aversion\x18\x05 \x01(\x04R\aversion\x12\x18\n" +
+	"\acreated\x18\x06 \x01(\x04R\acreated\x12\x18\n" +
+	"\aupdated\x18\a \x01(\x04R\aupdated\x12\x18\n" +
+	"\adeleted\x18\b \x01(\x04R\adeleted\x12,\n" +
+	"\x04tags\x18\t \x03(\v2\x18.proto.Service.TagsEntryR\x04tags\x12\x10\n" +
 	"\x03uri\x18\n" +
 	" \x01(\tR\x03uri\x12\x16\n" +
 	"\x06status\x18\v \x01(\tR\x06status\x12\x12\n" +
@@ -2754,14 +2786,14 @@ const file_control_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xee\x02\n" +
 	"\tComponent\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
-	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
-	"\aversion\x18\x04 \x01(\x04R\aversion\x12\x18\n" +
-	"\acreated\x18\x05 \x01(\x04R\acreated\x12\x18\n" +
-	"\aupdated\x18\x06 \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\a \x01(\x04R\adeleted\x12.\n" +
-	"\x04tags\x18\b \x03(\v2\x1a.proto.Component.TagsEntryR\x04tags\x12\x18\n" +
-	"\acluster\x18\t \x01(\tR\acluster\x12\x10\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
+	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12\x18\n" +
+	"\aversion\x18\x05 \x01(\x04R\aversion\x12\x18\n" +
+	"\acreated\x18\x06 \x01(\x04R\acreated\x12\x18\n" +
+	"\aupdated\x18\a \x01(\x04R\aupdated\x12\x18\n" +
+	"\adeleted\x18\b \x01(\x04R\adeleted\x12.\n" +
+	"\x04tags\x18\t \x03(\v2\x1a.proto.Component.TagsEntryR\x04tags\x12\x10\n" +
 	"\x03uri\x18\n" +
 	" \x01(\tR\x03uri\x12\x16\n" +
 	"\x06status\x18\v \x01(\tR\x06status\x1a7\n" +
@@ -2862,10 +2894,12 @@ const file_control_proto_rawDesc = "" +
 	"\x12ServicePutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x01(\v2\x0e.proto.ServiceR\x04item\"B\n" +
-	"\x12ServiceListRequest\x12\x14\n" +
-	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\"c\n" +
+	"\x04item\x18\x03 \x01(\v2\x0e.proto.ServiceR\x04item\"|\n" +
+	"\x12ServiceListRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x04R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x04 \x01(\x04R\x06offset\"c\n" +
 	"\x13ServiceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
@@ -2888,10 +2922,12 @@ const file_control_proto_rawDesc = "" +
 	"\x14ComponentPutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x01(\v2\x10.proto.ComponentR\x04item\"D\n" +
-	"\x14ComponentListRequest\x12\x14\n" +
-	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\"g\n" +
+	"\x04item\x18\x03 \x01(\v2\x10.proto.ComponentR\x04item\"~\n" +
+	"\x14ComponentListRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x04R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x04 \x01(\x04R\x06offset\"g\n" +
 	"\x15ComponentListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +

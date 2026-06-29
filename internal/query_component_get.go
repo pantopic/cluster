@@ -16,7 +16,7 @@ func queryComponentGet(result *Result, state *State, query []byte) {
 		result.Data = []byte("Component get request is invalid")
 		return
 	}
-	found, ok := state.ComponentFindByName(component.Namespace, component.Resource, component.Name)
+	found, ok := state.ComponentFindByName(component.Namespace, component.Resource, component.Cluster, component.Name)
 	if !ok {
 		result.Value = ResultErrNotFound
 		result.Data = fmt.Appendf(nil, "Component does not exist: %s", component.Name)

@@ -9,8 +9,8 @@ import (
 )
 
 // ComponentFindByName returns the component with the specified name or ok false if not found.
-func (fsm *State) ComponentFindByName(namespace, resource, name string) (s *pb.Component, ok bool) {
-	res, err := fsm.txn.First(`component`, `id`, namespace, resource, name)
+func (fsm *State) ComponentFindByName(namespace, resource, cluster, name string) (s *pb.Component, ok bool) {
+	res, err := fsm.txn.First(`component`, `id`, namespace, resource, cluster, name)
 	if err != nil {
 		panic(err)
 	}
@@ -23,12 +23,12 @@ func (fsm *State) ComponentFindByName(namespace, resource, name string) (s *pb.C
 
 // ComponentIterAll returns an iterator for every component ordered by component id ascending.
 func (fsm *State) ComponentIterAll() iter.Seq[*pb.Component] {
-	return componentIter(fsm.txn.LowerBound(`component`, `id`, "", "", ""))
+	return componentIter(fsm.txn.LowerBound(`component`, `id`, "", "", "", ""))
 }
 
-// ComponentIter executes a callback for component in a resource.
-func (fsm *State) ComponentIter(resourceID uint64) iter.Seq[*pb.Component] {
-	return componentIter(fsm.txn.Get(`component`, `ResourceID`, resourceID))
+// ServiceIter returns an iterator enumerating every service in a resource.
+func (fsm *State) ComponentIter(namespace, resource string) iter.Seq[*pb.Component] {
+	return componentIter(fsm.txn.Get(`component`, `Resource`, namespace, resource))
 }
 
 // ComponentIterByUri returns an iterator enumerating every component of a specific Uri.

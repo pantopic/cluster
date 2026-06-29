@@ -14,6 +14,18 @@ const (
 )
 
 const (
+	ResultSuccess uint64 = iota
+	ResultErrSyntactic
+	ResultErrSemantic
+	ResultErrAuthentication
+	ResultErrAuthorization
+	ResultErrNotFound
+	ResultErrConflict
+	ResultErrInternal
+	ResultErrExists
+)
+
+const (
 	CMD_UNKNOWN byte = iota
 	CMD_NAMESPACE_DELETE
 	CMD_NAMESPACE_PUT
@@ -42,7 +54,7 @@ const (
 )
 
 type (
-	Status string
+	Status = string
 
 	Entry  = zongzi.Entry
 	Logger = zongzi.Logger

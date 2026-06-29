@@ -125,38 +125,121 @@ func TestMain(t *testing.T) {
 		}
 	}()
 
-	conn, err := grpc.NewClient("localhost"+addr, []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}...)
-	grpcClient := pb.NewControlClient(conn)
+	// Load test model
+
+	conn, err := grpc.NewClient("localhost"+addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	ctrlClient := pb.NewControlClient(conn)
+	resource := &pb.Resource{
+		Namespace: "default",
+		Name:      "test",
+		Uri:       "github.com/pantopic/cluster/test",
+	}
+	service := &pb.Service{
+		Namespace: "default",
+		Resource:  resource.Name,
+		Cluster:   cfg.ClusterName,
+		Name:      "test",
+		Uri:       "github.com/pantopic/cluster/test/module/service-grpc",
+		Port:      19000,
+	}
+	component := &pb.Component{
+		Namespace: "default",
+		Resource:  resource.Name,
+		Cluster:   cfg.ClusterName,
+		Name:      "test",
+		Uri:       "github.com/pantopic/cluster/test/module/component",
+	}
 	t.Run(`resource`, func(t *testing.T) {
 		t.Run(`create`, func(t *testing.T) {
-			res, err := grpcClient.ResourcePut(ctx, &pb.ResourcePutRequest{
-				Item: &pb.Resource{
-					Namespace: "default",
-					Name:      "test",
-					Uri:       "github.com/pantopic/test",
-				},
+			putResp, err := ctrlClient.ResourcePut(ctx, &pb.ResourcePutRequest{
+				Item: resource,
 			})
-			require.Nil(t, err)
-			require.Equal(t, uint64(0), res.Code, res.Error)
-			require.Equal(t, "default", res.Item.Namespace)
-			require.Equal(t, "test", res.Item.Name)
-			// 10s - component is created
-			// 10s - shard is created
-			// 10s - shard is healthy
-			// 10s - component is healthy
-			// 10s - resource is healthy
+			require.Nil(t, err, err)
+			require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+			require.Equal(t, resource.Namespace, putResp.Item.Namespace)
+			require.Equal(t, resource.Name, putResp.Item.Name)
+			require.Equal(t, resource.Uri, putResp.Item.Uri)
 		})
-		t.Run(`delete`, func(t *testing.T) {
-			// gRPC Api Call to delete resource
-			// ensure resource status deleting
-			// 10s - component is deleting
-			// 10s - shard is deleting
-			// 10s - shard is deleted
-			// 10s - component is deleted
-			// 10s - resource is deleted
+	})
+	t.Run(`service`, func(t *testing.T) {
+		t.Run(`create`, func(t *testing.T) {
+			putResp, err := ctrlClient.ServicePut(ctx, &pb.ServicePutRequest{
+				Item: service,
+			})
+			require.Nil(t, err, err)
+			require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+			require.Equal(t, service.Namespace, putResp.Item.Namespace)
+			require.Equal(t, service.Name, putResp.Item.Name)
+			require.Equal(t, service.Cluster, putResp.Item.Cluster)
+			require.Equal(t, service.Uri, putResp.Item.Uri)
 		})
+		t.Run(`list`, func(t *testing.T) {
+			// 10s - service is created and healthy
+			svcListReq := &pb.ServiceListRequest{
+				Namespace: resource.Namespace,
+				Resource:  resource.Name,
+			}
+			var svcListResp *pb.ServiceListResponse
+			require.True(t, await(10, 100, func() bool {
+				svcListResp, err = ctrlClient.ServiceList(ctx, svcListReq)
+				return err == nil &&
+					svcListResp.Code == internal.ResultSuccess &&
+					len(svcListResp.Item) > 0
+			}), "%#v, %#v", svcListResp, err)
+			require.Equal(t, 1, len(svcListResp.Item))
+			require.Equal(t, `github.com/pantopic/cluster/test/module/service-grpc`, svcListResp.Item[0].Uri)
+			// require.Equal(t, internal.Status_Active, svcListResp.Item[0].Status)
+		})
+		t.Run(`query`, func(t *testing.T) {
+			// conn, err := grpc.NewClient("localhost:19000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+			// if err != nil {
+			// 	panic(err)
+			// }
+			// svcClient := testpb.NewTestClient(conn)
+			// res, err := svcClient.Ping(ctx, &testpb.PingRequest{})
+			// require.Nil(t, err, err)
+			// require.NotNil(t, res)
+		})
+	})
+	t.Run(`component`, func(t *testing.T) {
+		t.Run(`create`, func(t *testing.T) {
+			putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
+				Item: component,
+			})
+			require.Nil(t, err, err)
+			require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+			require.Equal(t, component.Namespace, putResp.Item.Namespace)
+			require.Equal(t, component.Name, putResp.Item.Name)
+			require.Equal(t, component.Resource, putResp.Item.Resource)
+			require.Equal(t, component.Uri, putResp.Item.Uri)
+		})
+		t.Run(`list`, func(t *testing.T) {
+			// 10s - component is created and healthy
+			compListReq := &pb.ComponentListRequest{
+				Namespace: resource.Namespace,
+				Resource:  resource.Name,
+			}
+			var compListResp *pb.ComponentListResponse
+			require.True(t, await(10, 100, func() bool {
+				compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+				return err == nil && compListResp.Code == internal.ResultSuccess && len(compListResp.Item) > 0
+			}), err)
+			require.Equal(t, 1, len(compListResp.Item))
+			require.Equal(t, `github.com/pantopic/cluster/test/module/component`, compListResp.Item[0].Uri)
+		})
+	})
+	// service set/get
+	t.Run(`delete`, func(t *testing.T) {
+		// gRPC Api Call to delete resource
+		// ensure resource status deleting
+		// 10s - component is deleting
+		// 10s - shard is deleting
+		// 10s - shard is deleted
+		// 10s - component is deleted
+		// 10s - resource is deleted
 	})
 	logger.Infof("Stopping")
 	for i := range len(peers) {

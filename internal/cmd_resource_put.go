@@ -1,42 +1,12 @@
 package internal
 
 import (
-	"context"
 	"fmt"
 
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pantopic/cluster/pb"
 )
-
-// Create a resource
-func (s *svcControl) ResourcePut(
-	ctx context.Context,
-	req *pb.ResourcePutRequest,
-) (res *pb.ResourcePutResponse, err error) {
-	data, err := proto.Marshal(req.Item)
-	if err != nil {
-		return
-	}
-	val, data, err := s.client.Apply(ctx, append(data, CMD_RESOURCE_PUT))
-	if err != nil {
-		return
-	}
-	res = &pb.ResourcePutResponse{
-		Code: val,
-	}
-	if val != ResultSuccess {
-		res.Error = string(data)
-		return
-	}
-	if err = proto.Unmarshal(data, req.Item); err != nil {
-		res.Code = ResultErrInternal
-		res.Error = err.Error()
-		return
-	}
-	res.Item = req.Item
-	return
-}
 
 func cmdResourcePut(entry *Entry, state *State, cmd []byte) (err error) {
 	var resource = &pb.Resource{}
@@ -52,19 +22,25 @@ func cmdResourcePut(entry *Entry, state *State, cmd []byte) (err error) {
 	) {
 		return
 	}
-	if existing, ok := state.ResourceFindByName(resource.Namespace, resource.Name); ok {
-		if resource.Version != existing.Version {
+	found, exists := state.ResourceFindByName(resource.Namespace, resource.Name)
+	if exists {
+		if resource.Version != found.Version {
 			entry.Result.Value = ResultErrConflict
-			entry.Result.Data = fmt.Appendf(nil, "Version mismatch: %s %d != %d", resource.Name, resource.Version, existing.Version)
+			entry.Result.Data = fmt.Appendf(nil, "Version mismatch: %s %d != %d", resource.Name, resource.Version, found.Version)
 			return
 		}
 	} else {
-		// TODO: Validate existence of namespace
+		if _, ok := state.NamespaceFindByName(resource.Namespace); !ok {
+			entry.Result.Value = ResultErrNotFound
+			entry.Result.Data = []byte("Namespace not found")
+			return
+		}
+		resource.Version = 0
 		resource.Created = entry.Index
 	}
 	resource.Version++
 	resource.Updated = entry.Index
-	state.resourcePut(resource, true)
+	state.resourcePut(resource, !exists)
 	entry.Result.Data, err = proto.Marshal(resource)
 	if err != nil {
 		entry.Result.Value = ResultErrInternal

@@ -41,10 +41,10 @@ func (fsm *stateMachine) Update(entries []Entry) []Entry {
 			continue
 		}
 		cmdType := entry.Cmd[len(entry.Cmd)-1]
-		cmdFunc, ok := commands[cmdType] // see command.go
+		cmdFunc, ok := commands[cmdType] // see cmd.go
 		if !ok {
 			entry.Result.Value = ResultErrSemantic
-			fsm.log.Errorf(`unrecognized command (%s): %s`, cmdType, string(entry.Cmd))
+			fsm.log.Errorf(`unrecognized command (%d): %s`, cmdType, string(entry.Cmd))
 			continue
 		}
 		err = cmdFunc(&entry, state, entry.Cmd[:len(entry.Cmd)-1])
@@ -66,7 +66,7 @@ func (fsm *stateMachine) Query(ctx context.Context, data []byte) (result *Result
 	queryFunc, ok := queries[qType] // see query.go
 	if !ok {
 		result.Value = ResultErrSemantic
-		fsm.log.Errorf(`unrecognized query (%s): %s`, qType, string(data))
+		fsm.log.Errorf(`unrecognized query (%d): %s`, qType, string(data))
 		return
 	}
 	queryFunc(result, fsm.state.withTxn(false), data[:len(data)-1])

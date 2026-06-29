@@ -143,6 +143,7 @@ func newState() *State {
 					Indexes: []memdb.Indexer{
 						&memdb.StringFieldIndex{Field: "Namespace"},
 						&memdb.StringFieldIndex{Field: "Resource"},
+						&memdb.StringFieldIndex{Field: "Cluster"},
 						&memdb.StringFieldIndex{Field: "Name"},
 					},
 				},
@@ -193,6 +194,7 @@ func newState() *State {
 					Indexes: []memdb.Indexer{
 						&memdb.StringFieldIndex{Field: "Namespace"},
 						&memdb.StringFieldIndex{Field: "Resource"},
+						&memdb.StringFieldIndex{Field: "Cluster"},
 						&memdb.StringFieldIndex{Field: "Name"},
 					},
 				},
@@ -262,7 +264,11 @@ func (fsm *State) abort() {
 func resultIterSeq[V any](iter memdb.ResultIterator) func(yield func(V) bool) {
 	return func(yield func(V) bool) {
 		for {
-			if !yield(iter.Next().(V)) {
+			val := iter.Next()
+			if val == nil {
+				break
+			}
+			if !yield(val.(V)) {
 				break
 			}
 		}

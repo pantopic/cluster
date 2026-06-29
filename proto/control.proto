@@ -60,13 +60,13 @@ message Resource {
 message Service {
   string namespace = 1;
   string resource = 2;
-  string name = 3;
-  uint64 version = 4;
-  uint64 created = 5;
-  uint64 updated = 6;
-  uint64 deleted = 7;
-  map<string, string> tags = 8;
-  string cluster = 9;
+  string cluster = 3;
+  string name = 4;
+  uint64 version = 5;
+  uint64 created = 6;
+  uint64 updated = 7;
+  uint64 deleted = 8;
+  map<string, string> tags = 9;
   string uri = 10;
   string status = 11;
   uint64 port = 12;
@@ -75,14 +75,14 @@ message Service {
 message Component {
   string namespace = 1;
   string resource = 2;
-  string name = 3;
-  uint64 version = 4;
-  uint64 created = 5;
-  uint64 updated = 6;
-  uint64 deleted = 7;
-  map<string, string> tags = 8;
-  string cluster = 9;
-  string uri = 10;  
+  string cluster = 3;
+  string name = 4;
+  uint64 version = 5;
+  uint64 created = 6;
+  uint64 updated = 7;
+  uint64 deleted = 8;
+  map<string, string> tags = 9;
+  string uri = 10;
   string status = 11;
 }
 
@@ -227,8 +227,10 @@ message ServicePutResponse {
 }
 
 message ServiceListRequest {
-  uint64 limit = 1;
-  uint64 offset = 2;
+  string namespace = 1;
+  string resource = 2;
+  uint64 limit = 3;
+  uint64 offset = 4;
 }
 message ServiceListResponse {
   uint64 code = 1;
@@ -265,8 +267,10 @@ message ComponentPutResponse {
 }
 
 message ComponentListRequest {
-  uint64 limit = 1;
-  uint64 offset = 2;
+  string namespace = 1;
+  string resource = 2;
+  uint64 limit = 3;
+  uint64 offset = 4;
 }
 message ComponentListResponse {
   uint64 code = 1;
