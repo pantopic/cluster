@@ -17,12 +17,6 @@ type State struct {
 	txn *memdb.Txn
 }
 
-type metaValue struct {
-	Key  string
-	Val  uint64
-	Data []byte
-}
-
 type fsmStateMetaHeader struct {
 	Clusters   uint64 `json:"clusters"`
 	Components uint64 `json:"components"`
@@ -38,227 +32,29 @@ var statePool = sync.Pool{New: func() any {
 }}
 
 func newState() *State {
-	schema := &memdb.DBSchema{
-		Tables: make(map[string]*memdb.TableSchema),
-	}
-	schema.Tables[`meta`] = &memdb.TableSchema{
-		Name: "meta",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.StringFieldIndex{Field: "Key"},
-			},
-		},
-	}
-	schema.Tables[`cluster`] = &memdb.TableSchema{
-		Name: "cluster",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.StringFieldIndex{Field: "Name"},
-			},
-			"Tags": {
-				Name:         "Tags",
-				AllowMissing: true,
-				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
-			},
-			"Created": {
-				Name:    "Created",
-				Indexer: &memdb.UintFieldIndex{Field: "Created"},
-			},
-			"Updated": {
-				Name:    "Updated",
-				Indexer: &memdb.UintFieldIndex{Field: "Updated"},
-			},
-		},
-	}
-	schema.Tables[`namespace`] = &memdb.TableSchema{
-		Name: "namespace",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:    "id",
-				Unique:  true,
-				Indexer: &memdb.StringFieldIndex{Field: "Name"},
-			},
-			"Tags": {
-				Name:         "Tags",
-				AllowMissing: true,
-				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
-			},
-			"Created": {
-				Name:    "Created",
-				Indexer: &memdb.UintFieldIndex{Field: "Created"},
-			},
-			"Updated": {
-				Name:    "Updated",
-				Indexer: &memdb.UintFieldIndex{Field: "Updated"},
-			},
-		},
-	}
-	schema.Tables[`resource`] = &memdb.TableSchema{
-		Name: "resource",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:   "id",
-				Unique: true,
-				Indexer: &memdb.CompoundIndex{
-					Indexes: []memdb.Indexer{
-						&memdb.StringFieldIndex{Field: "Namespace"},
-						&memdb.StringFieldIndex{Field: "Name"},
-					},
-				},
-			},
-			"Namespace": {
-				Name:    "Namespace",
-				Indexer: &memdb.StringFieldIndex{Field: "Namespace"},
-			},
-			"Tags": {
-				Name:         "Tags",
-				AllowMissing: true,
-				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
-			},
-			"Uri": {
-				Name:    "Uri",
-				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
-			},
-			"Created": {
-				Name:    "Created",
-				Indexer: &memdb.UintFieldIndex{Field: "Created"},
-			},
-			"Updated": {
-				Name:    "Updated",
-				Indexer: &memdb.UintFieldIndex{Field: "Updated"},
-			},
-		},
-	}
-	schema.Tables[`component`] = &memdb.TableSchema{
-		Name: "component",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:   "id",
-				Unique: true,
-				Indexer: &memdb.CompoundIndex{
-					Indexes: []memdb.Indexer{
-						&memdb.StringFieldIndex{Field: "Namespace"},
-						&memdb.StringFieldIndex{Field: "Resource"},
-						&memdb.StringFieldIndex{Field: "Cluster"},
-						&memdb.StringFieldIndex{Field: "Name"},
-					},
-				},
-			},
-			"Namespace": {
-				Name:    "Namespace",
-				Indexer: &memdb.StringFieldIndex{Field: "Namespace"},
-			},
-			"Resource": {
-				Name: "Resource",
-				Indexer: &memdb.CompoundIndex{
-					Indexes: []memdb.Indexer{
-						&memdb.StringFieldIndex{Field: "Namespace"},
-						&memdb.StringFieldIndex{Field: "Resource"},
-					},
-				},
-			},
-			"Cluster": {
-				Name:    "Cluster",
-				Indexer: &memdb.StringFieldIndex{Field: "Cluster"},
-			},
-			"Tags": {
-				Name:         "Tags",
-				AllowMissing: true,
-				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
-			},
-			"Uri": {
-				Name:    "Uri",
-				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
-			},
-			"Created": {
-				Name:    "Created",
-				Indexer: &memdb.UintFieldIndex{Field: "Created"},
-			},
-			"Updated": {
-				Name:    "Updated",
-				Indexer: &memdb.UintFieldIndex{Field: "Updated"},
-			},
-		},
-	}
-	schema.Tables[`service`] = &memdb.TableSchema{
-		Name: "service",
-		Indexes: map[string]*memdb.IndexSchema{
-			"id": {
-				Name:   "id",
-				Unique: true,
-				Indexer: &memdb.CompoundIndex{
-					Indexes: []memdb.Indexer{
-						&memdb.StringFieldIndex{Field: "Namespace"},
-						&memdb.StringFieldIndex{Field: "Resource"},
-						&memdb.StringFieldIndex{Field: "Cluster"},
-						&memdb.StringFieldIndex{Field: "Name"},
-					},
-				},
-			},
-			"Namespace": {
-				Name:    "Namespace",
-				Indexer: &memdb.StringFieldIndex{Field: "Namespace"},
-			},
-			"Resource": {
-				Name: "Resource",
-				Indexer: &memdb.CompoundIndex{
-					Indexes: []memdb.Indexer{
-						&memdb.StringFieldIndex{Field: "Namespace"},
-						&memdb.StringFieldIndex{Field: "Resource"},
-					},
-				},
-			},
-			"Cluster": {
-				Name:    "Cluster",
-				Indexer: &memdb.StringFieldIndex{Field: "Cluster"},
-			},
-			"Tags": {
-				Name:         "Tags",
-				AllowMissing: true,
-				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
-			},
-			"Uri": {
-				Name:    "Uri",
-				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
-			},
-			"Created": {
-				Name:    "Created",
-				Indexer: &memdb.UintFieldIndex{Field: "Created"},
-			},
-			"Updated": {
-				Name:    "Updated",
-				Indexer: &memdb.UintFieldIndex{Field: "Updated"},
-			},
-		},
-	}
+	schema := newSchema()
 	db, err := memdb.NewMemDB(schema)
 	if err != nil {
 		panic(err)
 	}
-	return &State{
-		db: db,
-	}
+	return &State{db: db}
 }
 
-func (fsm *State) withTxn(write bool) *State {
-	s := statePool.Get().(*State)
-	s.db = fsm.db
-	s.txn = fsm.db.Txn(write)
-	return s
+func (s *State) withTxn(write bool) *State {
+	s2 := statePool.Get().(*State)
+	s2.db = s.db
+	s2.txn = s.db.Txn(write)
+	return s2
 }
 
-func (fsm *State) commit() {
-	fsm.txn.Commit()
-	statePool.Put(fsm)
+func (s *State) commit() {
+	s.txn.Commit()
+	statePool.Put(s)
 }
 
-func (fsm *State) abort() {
-	fsm.txn.Abort()
-	statePool.Put(fsm)
+func (s *State) abort() {
+	s.txn.Abort()
+	statePool.Put(s)
 }
 
 func resultIterSeq[V any](iter memdb.ResultIterator) func(yield func(V) bool) {
@@ -275,8 +71,8 @@ func resultIterSeq[V any](iter memdb.ResultIterator) func(yield func(V) bool) {
 	}
 }
 
-func (fsm *State) Save(w io.Writer) error {
-	f := fsm.withTxn(false)
+func (s *State) Save(w io.Writer) error {
+	f := s.withTxn(false)
 	header := fsmStateMetaHeader{
 		Clusters:   f.metaGetVal(`clusters`),
 		Components: f.metaGetVal(`components`),
@@ -309,8 +105,8 @@ func (fsm *State) Save(w io.Writer) error {
 	}
 	return nil
 }
-func (fsm *State) recover(r io.Reader) (err error) {
-	f := fsm.withTxn(true)
+func (s *State) recover(r io.Reader) (err error) {
+	f := s.withTxn(true)
 	defer f.commit()
 	decoder := json.NewDecoder(r)
 	var header fsmStateMetaHeader

@@ -19,7 +19,7 @@ func main() {
 	ctx := context.Background()
 	cfg := getConfig()
 	logger := getLogger(cfg)
-	ctrl := internal.NewClusterController(logger)
+	ctrl := internal.NewControllerCluster(logger)
 	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","),
 		zongzi.WithDirRaft(cfg.DirRaft),
 		zongzi.WithDirWAL(cfg.DirWAL),

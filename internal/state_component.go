@@ -9,61 +9,61 @@ import (
 )
 
 // ComponentFindByName returns the component with the specified name or ok false if not found.
-func (fsm *State) ComponentFindByName(namespace, resource, cluster, name string) (s *pb.Component, ok bool) {
-	res, err := fsm.txn.First(`component`, `id`, namespace, resource, cluster, name)
+func (s *State) ComponentFindByName(namespace, resource, cluster, name string) (c *pb.Component, ok bool) {
+	res, err := s.txn.First(`component`, `id`, namespace, resource, cluster, name)
 	if err != nil {
 		panic(err)
 	}
 	if res != nil {
-		s = res.(*pb.Component)
+		c = res.(*pb.Component)
 		ok = true
 	}
 	return
 }
 
 // ComponentIterAll returns an iterator for every component ordered by component id ascending.
-func (fsm *State) ComponentIterAll() iter.Seq[*pb.Component] {
-	return componentIter(fsm.txn.LowerBound(`component`, `id`, "", "", "", ""))
+func (s *State) ComponentIterAll() iter.Seq[*pb.Component] {
+	return componentIter(s.txn.LowerBound(`component`, `id`, "", "", "", ""))
 }
 
 // ServiceIter returns an iterator enumerating every service in a resource.
-func (fsm *State) ComponentIter(namespace, resource string) iter.Seq[*pb.Component] {
-	return componentIter(fsm.txn.Get(`component`, `Resource`, namespace, resource))
+func (s *State) ComponentIter(namespace, resource string) iter.Seq[*pb.Component] {
+	return componentIter(s.txn.Get(`component`, `Resource`, namespace, resource))
 }
 
 // ComponentIterByUri returns an iterator enumerating every component of a specific Uri.
-func (fsm *State) ComponentIterByUri(uri string) iter.Seq[*pb.Component] {
-	return componentIter(fsm.txn.Get(`component`, `Uri`, uri))
+func (s *State) ComponentIterByUri(uri string) iter.Seq[*pb.Component] {
+	return componentIter(s.txn.Get(`component`, `Uri`, uri))
 }
 
 // ComponentIterByTag returns an iterator enumerating every component matching the specified tag,
 // ordered by component id ascending.
-func (fsm *State) ComponentIterByTag(tag string) iter.Seq[*pb.Component] {
-	return componentIter(fsm.txn.Get(`component`, `Tags`, tag))
+func (s *State) ComponentIterByTag(tag string) iter.Seq[*pb.Component] {
+	return componentIter(s.txn.Get(`component`, `Tags`, tag))
 }
 
 // ComponentIterateUpdatedAfter returns an iterator enumerating every component having an updated index
 // greater than the supplied index
-func (fsm *State) ComponentIterUpdatedAfter(index uint64) iter.Seq[*pb.Component] {
-	iter, err := fsm.txn.LowerBound(`component`, `Updated`, index+1)
+func (s *State) ComponentIterUpdatedAfter(index uint64) iter.Seq[*pb.Component] {
+	iter, err := s.txn.LowerBound(`component`, `Updated`, index+1)
 	if err != nil {
 		panic(err)
 	}
 	return resultIterSeq[*pb.Component](iter)
 }
 
-func (fsm *State) componentPut(s *pb.Component, create bool) {
-	err := fsm.txn.Insert(`component`, s)
+func (s *State) componentPut(c *pb.Component, create bool) {
+	err := s.txn.Insert(`component`, c)
 	if err != nil {
 		panic(err)
 	}
 	if create {
-		fsm.metaIncrVal(`components`)
+		s.metaIncrVal(`components`)
 	}
 }
 
-func (fsm *State) componentDelete(s *pb.Component) {
-	err := fsm.txn.Delete(`component`, s)
+func (s *State) componentDelete(c *pb.Component) {
+	err := s.txn.Delete(`component`, c)
 	if err != nil && err != memdb.ErrNotFound {
 		panic(err)
 	}

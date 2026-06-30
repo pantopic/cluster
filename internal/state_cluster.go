@@ -9,13 +9,13 @@ import (
 )
 
 // ClusterFindByName returns the cluster with the specified name or ok false if not found.
-func (fsm *State) ClusterFindByName(name string) (s *pb.Cluster, ok bool) {
-	res, err := fsm.txn.First(`cluster`, `id`, name)
+func (s *State) ClusterFindByName(name string) (c *pb.Cluster, ok bool) {
+	res, err := s.txn.First(`cluster`, `id`, name)
 	if err != nil {
 		panic(err)
 	}
 	if res != nil {
-		s = res.(*pb.Cluster)
+		c = res.(*pb.Cluster)
 		ok = true
 	}
 	return
@@ -23,34 +23,34 @@ func (fsm *State) ClusterFindByName(name string) (s *pb.Cluster, ok bool) {
 
 // ClusterIter executes a callback for every cluster ordered by id ascending.
 // Return true to continue iterating, false to stop.
-func (fsm *State) ClusterIter() iter.Seq[*pb.Cluster] {
-	return clusterIter(fsm.txn.LowerBound(`cluster`, `id`, ""))
+func (s *State) ClusterIter() iter.Seq[*pb.Cluster] {
+	return clusterIter(s.txn.LowerBound(`cluster`, `id`, ""))
 }
 
 // ClusterIterByTag executes a callback for every cluster in the cluster matching the specified tag,
 // ordered by cluster id ascending. Return true to continue iterating, false to stop.
-func (fsm *State) ClusterIterByTag(tag string) iter.Seq[*pb.Cluster] {
-	return clusterIter(fsm.txn.Get(`cluster`, `Tags`, tag))
+func (s *State) ClusterIterByTag(tag string) iter.Seq[*pb.Cluster] {
+	return clusterIter(s.txn.Get(`cluster`, `Tags`, tag))
 }
 
 // ClusterIterUpdatedAfter executes a callback for every cluster in the cluster having an updated index
 // greater than the supplied index
-func (fsm *State) ClusterIterUpdatedAfter(index uint64) iter.Seq[*pb.Cluster] {
-	return clusterIter(fsm.txn.LowerBound(`cluster`, `Updated`, index+1))
+func (s *State) ClusterIterUpdatedAfter(index uint64) iter.Seq[*pb.Cluster] {
+	return clusterIter(s.txn.LowerBound(`cluster`, `Updated`, index+1))
 }
 
-func (fsm *State) clusterPut(s *pb.Cluster, create bool) {
-	err := fsm.txn.Insert(`cluster`, s)
+func (s *State) clusterPut(c *pb.Cluster, create bool) {
+	err := s.txn.Insert(`cluster`, c)
 	if err != nil {
 		panic(err)
 	}
 	if create {
-		fsm.metaIncrVal(`clusters`)
+		s.metaIncrVal(`clusters`)
 	}
 }
 
-func (fsm *State) clusterDelete(s *pb.Cluster) {
-	err := fsm.txn.Delete(`cluster`, s)
+func (s *State) clusterDelete(c *pb.Cluster) {
+	err := s.txn.Delete(`cluster`, c)
 	if err != nil && err != memdb.ErrNotFound {
 		panic(err)
 	}

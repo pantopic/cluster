@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -33,20 +34,20 @@ func TestMain(t *testing.T) {
 		`127.0.0.1:18031`,
 	}
 	agents := make([]*zongzi.Agent, len(peers))
-	controllers := make([]internal.ClusterController, len(peers))
+	controllers := make([]internal.ControllerCluster, len(peers))
 	cfg := getConfig()
 	cfg.HostName = "127.0.0.1"
 	logger := getLogger(cfg)
 	start := func(t *testing.T, peers []string, class string, portSets ...[]uint16) {
 		for i, ports := range portSets {
-			controllers[i] = internal.NewClusterController(logger)
+			controllers[i] = internal.NewControllerCluster(logger)
 			if agents[i], err = zongzi.NewAgent(cfg.ClusterName, peers,
 				zongzi.WithDirRaft(fmt.Sprintf(basedir+`/%d/raft`, i)),
 				zongzi.WithDirWAL(fmt.Sprintf(basedir+`/%d/wal`, i)),
 				zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[0])),
 				zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[1])),
 				zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[2])),
-				zongzi.WithHostTags(`cluster:member`, `host:class=`+class),
+				zongzi.WithHostTags(`cluster:member`, `host:class=`+class, `host:id=`+strconv.Itoa(i)),
 				zongzi.WithRaftEventListener(controllers[i]),
 			); err != nil {
 				panic(err)
@@ -191,7 +192,7 @@ func TestMain(t *testing.T) {
 			}), "%#v, %#v", svcListResp, err)
 			require.Equal(t, 1, len(svcListResp.Item))
 			require.Equal(t, `github.com/pantopic/cluster/test/module/service-grpc`, svcListResp.Item[0].Uri)
-			// require.Equal(t, internal.Status_Active, svcListResp.Item[0].Status)
+			// require.Equal(t, internal.Status_Active, svcListResp.Item[0].Status)t
 		})
 		t.Run(`query`, func(t *testing.T) {
 			// conn, err := grpc.NewClient("localhost:19000", grpc.WithTransportCredentials(insecure.NewCredentials()))

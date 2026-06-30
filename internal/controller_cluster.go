@@ -15,13 +15,13 @@ import (
 
 var version = `1`
 
-type ClusterController interface {
+type ControllerCluster interface {
 	zongzi.RaftEventListener
 	Start(context.Context, *Agent) error
 	Stop()
 }
 
-type clusterController struct {
+type controllerCluster struct {
 	agent     *Agent
 	clock     clock.Clock
 	cluster   *pb.Cluster
@@ -30,22 +30,22 @@ type clusterController struct {
 	ctxCancel context.CancelFunc
 	index     uint64
 	isLeader  atomic.Bool
-	replicaID atomic.Uint64
 	log       Logger
 	mutex     sync.RWMutex
+	replicaID atomic.Uint64
 	wg        sync.WaitGroup
 }
 
-var _ ClusterController = new(clusterController)
+var _ ControllerCluster = new(controllerCluster)
 
-func NewClusterController(logger Logger) *clusterController {
-	return &clusterController{
+func NewControllerCluster(logger Logger) *controllerCluster {
+	return &controllerCluster{
 		clock: clock.New(),
 		log:   logger,
 	}
 }
 
-func (c *clusterController) Start(ctx context.Context, agent *Agent) (err error) {
+func (c *controllerCluster) Start(ctx context.Context, agent *Agent) (err error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.agent = agent
@@ -68,7 +68,7 @@ func (c *clusterController) Start(ctx context.Context, agent *Agent) (err error)
 	return
 }
 
-func (c *clusterController) shard() (shard Shard) {
+func (c *controllerCluster) shard() (shard Shard) {
 	shard, err := c.agent.ShardFind(c.ctx, ShardID)
 	if err != nil {
 		panic(err)
@@ -76,7 +76,7 @@ func (c *clusterController) shard() (shard Shard) {
 	return
 }
 
-func (c *clusterController) tick() {
+func (c *controllerCluster) tick() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	var err error
@@ -87,6 +87,8 @@ func (c *clusterController) tick() {
 			updated = false
 
 			// Connect to other clusters and elect lead cluster
+			// Run Service Controllers
+			// Run Component Controllers
 
 			if err != nil {
 				hadErr = true
@@ -98,7 +100,7 @@ func (c *clusterController) tick() {
 	}
 }
 
-func (c *clusterController) LeaderUpdated(info LeaderInfo) {
+func (c *controllerCluster) LeaderUpdated(info LeaderInfo) {
 	if info.ShardID == zongzi.ShardID && info.LeaderID == info.ReplicaID && c.shard().ID == 0 {
 		go c.createShard()
 	}
@@ -112,7 +114,7 @@ func (c *clusterController) LeaderUpdated(info LeaderInfo) {
 	}
 }
 
-func (c *clusterController) createShard() {
+func (c *controllerCluster) createShard() {
 	c.log.Infof(`Creating shard`)
 	if _, _, err := c.agent.ShardCreate(c.ctx, StateMachineUri,
 		zongzi.WithName("cluster"),
@@ -123,7 +125,7 @@ func (c *clusterController) createShard() {
 	}
 }
 
-func (c *clusterController) init() {
+func (c *controllerCluster) init() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	internal := c.controls.Namespace.FindByName(c.ctx, &pb.Namespace{Name: NAMESPACE_INTERNAL})
@@ -169,7 +171,7 @@ func (c *clusterController) init() {
 	c.cluster = c.controls.Cluster.Put(c.ctx, &pb.Cluster{Name: c.agent.ClusterName()})
 }
 
-func (c *clusterController) Stop() {
+func (c *controllerCluster) Stop() {
 	if c.ctxCancel == nil {
 		c.log.Infof(`Cluster controller not running`)
 		return

@@ -1,11 +1,17 @@
 package internal
 
-func (fsm *State) Index() (val uint64) {
-	return fsm.metaGetVal(`index`)
+type metaValue struct {
+	Key  string
+	Val  uint64
+	Data []byte
 }
 
-func (fsm *State) metaGet(key string) (val uint64, data []byte) {
-	res, _ := fsm.txn.First(`meta`, `id`, key)
+func (s *State) Index() (val uint64) {
+	return s.metaGetVal(`index`)
+}
+
+func (s *State) metaGet(key string) (val uint64, data []byte) {
+	res, _ := s.txn.First(`meta`, `id`, key)
 	if res != nil {
 		val = res.(metaValue).Val
 		data = res.(metaValue).Data
@@ -13,30 +19,30 @@ func (fsm *State) metaGet(key string) (val uint64, data []byte) {
 	return
 }
 
-func (fsm *State) metaSet(key string, val uint64, data []byte) {
-	err := fsm.txn.Insert(`meta`, metaValue{key, val, data})
+func (s *State) metaSet(key string, val uint64, data []byte) {
+	err := s.txn.Insert(`meta`, metaValue{key, val, data})
 	if err != nil {
 		panic(err)
 	}
 }
 
-func (fsm *State) metaSetIndex(val uint64) {
-	fsm.metaSet(`index`, val, nil)
+func (s *State) metaSetIndex(val uint64) {
+	s.metaSet(`index`, val, nil)
 }
 
-func (fsm *State) metaGetVal(key string) (val uint64) {
-	val, _ = fsm.metaGet(key)
+func (s *State) metaGetVal(key string) (val uint64) {
+	val, _ = s.metaGet(key)
 	return
 }
 
-func (fsm *State) metaIncrVal(key string) uint64 {
-	val := fsm.metaGetVal(key)
+func (s *State) metaIncrVal(key string) uint64 {
+	val := s.metaGetVal(key)
 	val++
-	fsm.metaSet(key, val, nil)
+	s.metaSet(key, val, nil)
 	return val
 }
 
-func (fsm *State) metaGetDataString(key string) string {
-	_, b := fsm.metaGet(key)
+func (s *State) metaGetDataString(key string) string {
+	_, b := s.metaGet(key)
 	return string(b)
 }
