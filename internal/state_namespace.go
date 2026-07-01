@@ -48,11 +48,8 @@ func (s *State) namespacePut(ns *pb.Namespace, create bool) {
 	}
 }
 
-func (s *State) namespaceDelete(ns *pb.Namespace) {
-	err := s.txn.Delete(`namespace`, ns)
-	if err != nil && err != memdb.ErrNotFound {
-		panic(err)
-	}
+func (s *State) namespaceDelete(item *pb.Namespace) uint64 {
+	return s.itemDelete(`namespace`, item)
 }
 
 func namespaceIter(iter memdb.ResultIterator, err error) iter.Seq[*pb.Namespace] {

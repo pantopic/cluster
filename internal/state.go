@@ -57,6 +57,17 @@ func (s *State) abort() {
 	statePool.Put(s)
 }
 
+func (s *State) itemDelete(name string, item any) uint64 {
+	err := s.txn.Delete(name, item)
+	if err == nil {
+		return ResultSuccess
+	}
+	if err == memdb.ErrNotFound {
+		return ResultErrNotFound
+	}
+	panic(err)
+}
+
 func resultIterSeq[V any](iter memdb.ResultIterator) func(yield func(V) bool) {
 	return func(yield func(V) bool) {
 		for {

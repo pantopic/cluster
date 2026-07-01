@@ -49,11 +49,8 @@ func (s *State) clusterPut(c *pb.Cluster, create bool) {
 	}
 }
 
-func (s *State) clusterDelete(c *pb.Cluster) {
-	err := s.txn.Delete(`cluster`, c)
-	if err != nil && err != memdb.ErrNotFound {
-		panic(err)
-	}
+func (s *State) clusterDelete(item *pb.Cluster) uint64 {
+	return s.itemDelete(`cluster`, item)
 }
 
 func clusterIter(iter memdb.ResultIterator, err error) iter.Seq[*pb.Cluster] {

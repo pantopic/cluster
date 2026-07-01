@@ -28,7 +28,7 @@ func (s *State) ResourceIterAll() iter.Seq[*pb.Resource] {
 }
 
 // ResourceIterByNamespace executes a callback for every child of a resource.
-func (s *State) ResourceIterByNamespace(namespace string) iter.Seq[*pb.Resource] {
+func (s *State) ResourceIter(namespace string) iter.Seq[*pb.Resource] {
 	return resourceIter(s.txn.Get(`resource`, `Namespace`, namespace))
 }
 
@@ -59,11 +59,8 @@ func (s *State) resourcePut(r *pb.Resource, create bool) {
 	}
 }
 
-func (s *State) resourceDelete(r *pb.Resource) {
-	err := s.txn.Delete(`resource`, r)
-	if err != nil && err != memdb.ErrNotFound {
-		panic(err)
-	}
+func (s *State) resourceDelete(item *pb.Resource) uint64 {
+	return s.itemDelete(`resource`, item)
 }
 
 func (s *State) resourceTouch(namespace, name string, index uint64) {

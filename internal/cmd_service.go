@@ -59,3 +59,26 @@ func cmdServicePut(entry *Entry, state *State, cmd []byte) (err error) {
 	}
 	return
 }
+
+func cmdServiceDelete(entry *Entry, state *State, cmd []byte) (err error) {
+	var svc = &pb.Service{}
+	err = proto.Unmarshal(cmd, svc)
+	if err != nil {
+		entry.Result.Value = ResultErrSyntactic
+		entry.Result.Data = []byte("Protobuf invalid")
+		return
+	}
+	if !validateFieldPresence(entry,
+		"Namespace", svc.Namespace,
+		"Resource", svc.Resource,
+		"Cluster", svc.Cluster,
+		"Name", svc.Name,
+	) {
+		return
+	}
+	entry.Result.Value = state.serviceDelete(svc)
+	if entry.Result.Value == ResultErrNotFound {
+		entry.Result.Data = []byte(`Service Not Found`)
+	}
+	return
+}

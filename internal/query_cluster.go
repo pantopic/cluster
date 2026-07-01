@@ -29,3 +29,22 @@ func queryClusterGet(result *Result, state *State, query []byte) {
 		return
 	}
 }
+
+func queryClusterList(result *Result, state *State, query []byte) {
+	var req = &pb.ClusterListRequest{}
+	err := proto.Unmarshal(query, req)
+	if err != nil {
+		result.Value = ResultErrSyntactic
+		result.Data = []byte("Cluster list request is invalid")
+		return
+	}
+	var resp = &pb.ClusterListResponse{}
+	for cluster := range state.ClusterIter() {
+		resp.Item = append(resp.Item, cluster)
+	}
+	if result.Data, err = proto.Marshal(resp); err != nil {
+		result.Value = ResultErrInternal
+		result.Data = []byte(err.Error())
+		return
+	}
+}

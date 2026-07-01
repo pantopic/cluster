@@ -59,3 +59,31 @@ func cmdComponentPut(entry *Entry, state *State, cmd []byte) (err error) {
 	}
 	return
 }
+
+func cmdComponentDelete(entry *Entry, state *State, cmd []byte) (err error) {
+	var item = &pb.Component{}
+	err = proto.Unmarshal(cmd, item)
+	if err != nil {
+		entry.Result.Value = ResultErrSyntactic
+		entry.Result.Data = []byte("Protobuf invalid")
+		return
+	}
+
+	// Validate that the component exists and is not empty
+	if !validateFieldPresence(entry,
+		"Namespace", item.Namespace,
+		"Resource", item.Resource,
+		"Cluster", item.Cluster,
+		"Name", item.Name,
+	) {
+		return
+	}
+
+	// For component deletion, we don't need to check if it's empty since components are just items
+	// We just need to delete the component by its full identifier
+	entry.Result.Value = state.componentDelete(item)
+	if entry.Result.Value == ResultErrNotFound {
+		entry.Result.Data = []byte(`Component Not Found`)
+	}
+	return
+}

@@ -49,3 +49,34 @@ func cmdResourcePut(entry *Entry, state *State, cmd []byte) (err error) {
 	}
 	return
 }
+
+func cmdResourceDelete(entry *Entry, state *State, cmd []byte) (err error) {
+	var item = &pb.Resource{}
+	err = proto.Unmarshal(cmd, item)
+	if err != nil {
+		entry.Result.Value = ResultErrSyntactic
+		entry.Result.Data = []byte("Protobuf invalid")
+		return
+	}
+	if !validateFieldPresence(entry,
+		"Namespace", item.Namespace,
+		"Name", item.Name,
+	) {
+		return
+	}
+	for range state.ServiceIter(item.Namespace, item.Name) {
+		entry.Result.Value = ResultErrConflict
+		entry.Result.Data = []byte(`Resource Not Empty`)
+		return
+	}
+	for range state.ComponentIter(item.Namespace, item.Name) {
+		entry.Result.Value = ResultErrConflict
+		entry.Result.Data = []byte(`Resource Not Empty`)
+		return
+	}
+	entry.Result.Value = state.resourceDelete(item)
+	if entry.Result.Value == ResultErrNotFound {
+		entry.Result.Data = []byte(`Resource Not Found`)
+	}
+	return
+}

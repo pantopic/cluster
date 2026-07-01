@@ -130,12 +130,14 @@ func (c *controllerCluster) init() {
 	defer c.mutex.Unlock()
 	internal := c.controls.Namespace.FindByName(c.ctx, &pb.Namespace{Name: NAMESPACE_INTERNAL})
 	if v, ok := internal.Tags[`version`]; ok && v == version {
-		// Internal namespace version presence indicates that cluster is already initialized
-		// In the future, outdated versions will be migrated to (for exmaple) add new internal resources
+		// Internal namespace version presence indicates that the deployment is already initialized
+		// In the future, outdated versions may require migration to (for exmaple) add new internal resources
 		return
 	}
 	if internal.Created == 0 {
-		internal = c.controls.Namespace.Put(c.ctx, &pb.Namespace{Name: NAMESPACE_INTERNAL})
+		internal = c.controls.Namespace.Put(c.ctx, &pb.Namespace{
+			Name: NAMESPACE_INTERNAL,
+		})
 	}
 	for _, name := range []string{
 		`model`,

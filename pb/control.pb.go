@@ -1419,7 +1419,7 @@ func (x *ResourceListResponse) GetItem() []*Resource {
 
 type ClusterDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1454,11 +1454,11 @@ func (*ClusterDeleteRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *ClusterDeleteRequest) GetId() uint64 {
+func (x *ClusterDeleteRequest) GetName() string {
 	if x != nil {
-		return x.Id
+		return x.Name
 	}
-	return 0
+	return ""
 }
 
 type ClusterDeleteResponse struct {
@@ -1835,7 +1835,10 @@ func (x *ClusterListResponse) GetItem() []*Cluster {
 
 type ServiceDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Cluster       string                 `protobuf:"bytes,3,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1870,11 +1873,32 @@ func (*ServiceDeleteRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *ServiceDeleteRequest) GetId() uint64 {
+func (x *ServiceDeleteRequest) GetNamespace() string {
 	if x != nil {
-		return x.Id
+		return x.Namespace
 	}
-	return 0
+	return ""
+}
+
+func (x *ServiceDeleteRequest) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *ServiceDeleteRequest) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
+func (x *ServiceDeleteRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 type ServiceDeleteResponse struct {
@@ -2283,7 +2307,10 @@ func (x *ServiceListResponse) GetItem() []*Service {
 
 type ComponentDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Component             `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Cluster       string                 `protobuf:"bytes,3,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2318,11 +2345,32 @@ func (*ComponentDeleteRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{37}
 }
 
-func (x *ComponentDeleteRequest) GetItem() *Component {
+func (x *ComponentDeleteRequest) GetNamespace() string {
 	if x != nil {
-		return x.Item
+		return x.Namespace
 	}
-	return nil
+	return ""
+}
+
+func (x *ComponentDeleteRequest) GetResource() string {
+	if x != nil {
+		return x.Resource
+	}
+	return ""
+}
+
+func (x *ComponentDeleteRequest) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
+func (x *ComponentDeleteRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
 }
 
 type ComponentDeleteResponse struct {
@@ -2851,9 +2899,9 @@ const file_control_proto_rawDesc = "" +
 	"\x14ResourceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12#\n" +
-	"\x04item\x18\x03 \x03(\v2\x0f.proto.ResourceR\x04item\"&\n" +
-	"\x14ClusterDeleteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"A\n" +
+	"\x04item\x18\x03 \x03(\v2\x0f.proto.ResourceR\x04item\"*\n" +
+	"\x14ClusterDeleteRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"A\n" +
 	"\x15ClusterDeleteResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\"'\n" +
@@ -2875,9 +2923,12 @@ const file_control_proto_rawDesc = "" +
 	"\x13ClusterListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x03(\v2\x0e.proto.ClusterR\x04item\"&\n" +
-	"\x14ServiceDeleteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"A\n" +
+	"\x04item\x18\x03 \x03(\v2\x0e.proto.ClusterR\x04item\"~\n" +
+	"\x14ServiceDeleteRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
+	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\"A\n" +
 	"\x15ServiceDeleteResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\"a\n" +
@@ -2903,9 +2954,12 @@ const file_control_proto_rawDesc = "" +
 	"\x13ServiceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x03(\v2\x0e.proto.ServiceR\x04item\">\n" +
-	"\x16ComponentDeleteRequest\x12$\n" +
-	"\x04item\x18\x01 \x01(\v2\x10.proto.ComponentR\x04item\"C\n" +
+	"\x04item\x18\x03 \x03(\v2\x0e.proto.ServiceR\x04item\"\x80\x01\n" +
+	"\x16ComponentDeleteRequest\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
+	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\"C\n" +
 	"\x17ComponentDeleteResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\"c\n" +
@@ -3045,56 +3099,55 @@ var file_control_proto_depIdxs = []int32{
 	3,  // 18: proto.ServicePutRequest.item:type_name -> proto.Service
 	3,  // 19: proto.ServicePutResponse.item:type_name -> proto.Service
 	3,  // 20: proto.ServiceListResponse.item:type_name -> proto.Service
-	4,  // 21: proto.ComponentDeleteRequest.item:type_name -> proto.Component
-	4,  // 22: proto.ComponentGetResponse.item:type_name -> proto.Component
-	4,  // 23: proto.ComponentPutRequest.item:type_name -> proto.Component
-	4,  // 24: proto.ComponentPutResponse.item:type_name -> proto.Component
-	4,  // 25: proto.ComponentListResponse.item:type_name -> proto.Component
-	5,  // 26: proto.Control.NamespaceDelete:input_type -> proto.NamespaceDeleteRequest
-	7,  // 27: proto.Control.NamespaceGet:input_type -> proto.NamespaceGetRequest
-	11, // 28: proto.Control.NamespaceList:input_type -> proto.NamespaceListRequest
-	9,  // 29: proto.Control.NamespacePut:input_type -> proto.NamespacePutRequest
-	13, // 30: proto.Control.ResourceDelete:input_type -> proto.ResourceDeleteRequest
-	15, // 31: proto.Control.ResourceGet:input_type -> proto.ResourceGetRequest
-	19, // 32: proto.Control.ResourceList:input_type -> proto.ResourceListRequest
-	17, // 33: proto.Control.ResourcePut:input_type -> proto.ResourcePutRequest
-	21, // 34: proto.Control.ClusterDelete:input_type -> proto.ClusterDeleteRequest
-	23, // 35: proto.Control.ClusterGet:input_type -> proto.ClusterGetRequest
-	27, // 36: proto.Control.ClusterList:input_type -> proto.ClusterListRequest
-	25, // 37: proto.Control.ClusterPut:input_type -> proto.ClusterPutRequest
-	29, // 38: proto.Control.ServiceDelete:input_type -> proto.ServiceDeleteRequest
-	31, // 39: proto.Control.ServiceGet:input_type -> proto.ServiceGetRequest
-	35, // 40: proto.Control.ServiceList:input_type -> proto.ServiceListRequest
-	33, // 41: proto.Control.ServicePut:input_type -> proto.ServicePutRequest
-	37, // 42: proto.Control.ComponentDelete:input_type -> proto.ComponentDeleteRequest
-	39, // 43: proto.Control.ComponentGet:input_type -> proto.ComponentGetRequest
-	43, // 44: proto.Control.ComponentList:input_type -> proto.ComponentListRequest
-	41, // 45: proto.Control.ComponentPut:input_type -> proto.ComponentPutRequest
-	6,  // 46: proto.Control.NamespaceDelete:output_type -> proto.NamespaceDeleteResponse
-	8,  // 47: proto.Control.NamespaceGet:output_type -> proto.NamespaceGetResponse
-	12, // 48: proto.Control.NamespaceList:output_type -> proto.NamespaceListResponse
-	10, // 49: proto.Control.NamespacePut:output_type -> proto.NamespacePutResponse
-	14, // 50: proto.Control.ResourceDelete:output_type -> proto.ResourceDeleteResponse
-	16, // 51: proto.Control.ResourceGet:output_type -> proto.ResourceGetResponse
-	20, // 52: proto.Control.ResourceList:output_type -> proto.ResourceListResponse
-	18, // 53: proto.Control.ResourcePut:output_type -> proto.ResourcePutResponse
-	22, // 54: proto.Control.ClusterDelete:output_type -> proto.ClusterDeleteResponse
-	24, // 55: proto.Control.ClusterGet:output_type -> proto.ClusterGetResponse
-	28, // 56: proto.Control.ClusterList:output_type -> proto.ClusterListResponse
-	26, // 57: proto.Control.ClusterPut:output_type -> proto.ClusterPutResponse
-	30, // 58: proto.Control.ServiceDelete:output_type -> proto.ServiceDeleteResponse
-	32, // 59: proto.Control.ServiceGet:output_type -> proto.ServiceGetResponse
-	36, // 60: proto.Control.ServiceList:output_type -> proto.ServiceListResponse
-	34, // 61: proto.Control.ServicePut:output_type -> proto.ServicePutResponse
-	38, // 62: proto.Control.ComponentDelete:output_type -> proto.ComponentDeleteResponse
-	40, // 63: proto.Control.ComponentGet:output_type -> proto.ComponentGetResponse
-	44, // 64: proto.Control.ComponentList:output_type -> proto.ComponentListResponse
-	42, // 65: proto.Control.ComponentPut:output_type -> proto.ComponentPutResponse
-	46, // [46:66] is the sub-list for method output_type
-	26, // [26:46] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	4,  // 21: proto.ComponentGetResponse.item:type_name -> proto.Component
+	4,  // 22: proto.ComponentPutRequest.item:type_name -> proto.Component
+	4,  // 23: proto.ComponentPutResponse.item:type_name -> proto.Component
+	4,  // 24: proto.ComponentListResponse.item:type_name -> proto.Component
+	5,  // 25: proto.Control.NamespaceDelete:input_type -> proto.NamespaceDeleteRequest
+	7,  // 26: proto.Control.NamespaceGet:input_type -> proto.NamespaceGetRequest
+	11, // 27: proto.Control.NamespaceList:input_type -> proto.NamespaceListRequest
+	9,  // 28: proto.Control.NamespacePut:input_type -> proto.NamespacePutRequest
+	13, // 29: proto.Control.ResourceDelete:input_type -> proto.ResourceDeleteRequest
+	15, // 30: proto.Control.ResourceGet:input_type -> proto.ResourceGetRequest
+	19, // 31: proto.Control.ResourceList:input_type -> proto.ResourceListRequest
+	17, // 32: proto.Control.ResourcePut:input_type -> proto.ResourcePutRequest
+	21, // 33: proto.Control.ClusterDelete:input_type -> proto.ClusterDeleteRequest
+	23, // 34: proto.Control.ClusterGet:input_type -> proto.ClusterGetRequest
+	27, // 35: proto.Control.ClusterList:input_type -> proto.ClusterListRequest
+	25, // 36: proto.Control.ClusterPut:input_type -> proto.ClusterPutRequest
+	29, // 37: proto.Control.ServiceDelete:input_type -> proto.ServiceDeleteRequest
+	31, // 38: proto.Control.ServiceGet:input_type -> proto.ServiceGetRequest
+	35, // 39: proto.Control.ServiceList:input_type -> proto.ServiceListRequest
+	33, // 40: proto.Control.ServicePut:input_type -> proto.ServicePutRequest
+	37, // 41: proto.Control.ComponentDelete:input_type -> proto.ComponentDeleteRequest
+	39, // 42: proto.Control.ComponentGet:input_type -> proto.ComponentGetRequest
+	43, // 43: proto.Control.ComponentList:input_type -> proto.ComponentListRequest
+	41, // 44: proto.Control.ComponentPut:input_type -> proto.ComponentPutRequest
+	6,  // 45: proto.Control.NamespaceDelete:output_type -> proto.NamespaceDeleteResponse
+	8,  // 46: proto.Control.NamespaceGet:output_type -> proto.NamespaceGetResponse
+	12, // 47: proto.Control.NamespaceList:output_type -> proto.NamespaceListResponse
+	10, // 48: proto.Control.NamespacePut:output_type -> proto.NamespacePutResponse
+	14, // 49: proto.Control.ResourceDelete:output_type -> proto.ResourceDeleteResponse
+	16, // 50: proto.Control.ResourceGet:output_type -> proto.ResourceGetResponse
+	20, // 51: proto.Control.ResourceList:output_type -> proto.ResourceListResponse
+	18, // 52: proto.Control.ResourcePut:output_type -> proto.ResourcePutResponse
+	22, // 53: proto.Control.ClusterDelete:output_type -> proto.ClusterDeleteResponse
+	24, // 54: proto.Control.ClusterGet:output_type -> proto.ClusterGetResponse
+	28, // 55: proto.Control.ClusterList:output_type -> proto.ClusterListResponse
+	26, // 56: proto.Control.ClusterPut:output_type -> proto.ClusterPutResponse
+	30, // 57: proto.Control.ServiceDelete:output_type -> proto.ServiceDeleteResponse
+	32, // 58: proto.Control.ServiceGet:output_type -> proto.ServiceGetResponse
+	36, // 59: proto.Control.ServiceList:output_type -> proto.ServiceListResponse
+	34, // 60: proto.Control.ServicePut:output_type -> proto.ServicePutResponse
+	38, // 61: proto.Control.ComponentDelete:output_type -> proto.ComponentDeleteResponse
+	40, // 62: proto.Control.ComponentGet:output_type -> proto.ComponentGetResponse
+	44, // 63: proto.Control.ComponentList:output_type -> proto.ComponentListResponse
+	42, // 64: proto.Control.ComponentPut:output_type -> proto.ComponentPutResponse
+	45, // [45:65] is the sub-list for method output_type
+	25, // [25:45] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_control_proto_init() }

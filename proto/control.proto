@@ -163,7 +163,7 @@ message ResourceListResponse {
 }
 
 message ClusterDeleteRequest {
-  uint64 id = 1;
+  string name = 1;
 }
 message ClusterDeleteResponse {
   uint64 code = 1;
@@ -199,7 +199,10 @@ message ClusterListResponse {
 }
 
 message ServiceDeleteRequest {
-  uint64 id = 1;
+  string namespace = 1;
+  string resource = 2;
+  string cluster = 3;
+  string name = 4;
 }
 message ServiceDeleteResponse {
   uint64 code = 1;
@@ -239,7 +242,10 @@ message ServiceListResponse {
 }
 
 message ComponentDeleteRequest {
-  Component item = 1;
+  string namespace = 1;
+  string resource = 2;
+  string cluster = 3;
+  string name = 4;
 }
 message ComponentDeleteResponse {
   uint64 code = 1;

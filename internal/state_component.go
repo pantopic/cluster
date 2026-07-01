@@ -62,11 +62,15 @@ func (s *State) componentPut(c *pb.Component, create bool) {
 	}
 }
 
-func (s *State) componentDelete(c *pb.Component) {
-	err := s.txn.Delete(`component`, c)
-	if err != nil && err != memdb.ErrNotFound {
-		panic(err)
+func (s *State) componentDelete(item *pb.Component) uint64 {
+	err := s.txn.Delete(`component`, item)
+	if err == nil {
+		return ResultSuccess
 	}
+	if err == memdb.ErrNotFound {
+		return ResultErrNotFound
+	}
+	panic(err)
 }
 
 func componentIter(iter memdb.ResultIterator, err error) iter.Seq[*pb.Component] {

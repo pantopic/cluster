@@ -29,3 +29,22 @@ func queryNamespaceGet(result *Result, state *State, query []byte) {
 		return
 	}
 }
+
+func queryNamespaceList(result *Result, state *State, query []byte) {
+	var req = &pb.NamespaceListRequest{}
+	err := proto.Unmarshal(query, req)
+	if err != nil {
+		result.Value = ResultErrSyntactic
+		result.Data = []byte("Namespace list request is invalid")
+		return
+	}
+	var resp = &pb.NamespaceListResponse{}
+	for namespace := range state.NamespaceIter() {
+		resp.Item = append(resp.Item, namespace)
+	}
+	if result.Data, err = proto.Marshal(resp); err != nil {
+		result.Value = ResultErrInternal
+		result.Data = []byte(err.Error())
+		return
+	}
+}

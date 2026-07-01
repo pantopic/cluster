@@ -29,3 +29,28 @@ func queryResourceGet(result *Result, state *State, query []byte) {
 		return
 	}
 }
+
+func queryResourceList(result *Result, state *State, query []byte) {
+	var req = &pb.ResourceListRequest{}
+	err := proto.Unmarshal(query, req)
+	if err != nil {
+		result.Value = ResultErrSyntactic
+		result.Data = []byte("Resource list request is invalid")
+		return
+	}
+	var resp = &pb.ResourceListResponse{}
+	if req.Namespace == "" {
+		for resource := range state.ResourceIterAll() {
+			resp.Item = append(resp.Item, resource)
+		}
+	} else {
+		for resource := range state.ResourceIter(req.Namespace) {
+			resp.Item = append(resp.Item, resource)
+		}
+	}
+	if result.Data, err = proto.Marshal(resp); err != nil {
+		result.Value = ResultErrInternal
+		result.Data = []byte(err.Error())
+		return
+	}
+}

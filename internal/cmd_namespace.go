@@ -41,3 +41,27 @@ func cmdNamespacePut(entry *Entry, state *State, cmd []byte) (err error) {
 	}
 	return
 }
+
+func cmdNamespaceDelete(entry *Entry, state *State, cmd []byte) (err error) {
+	var item = &pb.Namespace{}
+	err = proto.Unmarshal(cmd, item)
+	if err != nil {
+		entry.Result.Value = ResultErrSyntactic
+		entry.Result.Data = []byte("Protobuf invalid")
+		return
+	}
+	if !validateFieldPresence(entry, "Name", item.Name) {
+		return
+	}
+	for range state.ResourceIter(item.Name) {
+		entry.Result.Value = ResultErrConflict
+		entry.Result.Data = []byte(`Namespace Not Empty`)
+		return
+	}
+	// TODO - Coordinate deletion with all clusters
+	entry.Result.Value = state.namespaceDelete(item)
+	if entry.Result.Value == ResultErrNotFound {
+		entry.Result.Data = []byte(`Namespace Not Found`)
+	}
+	return
+}

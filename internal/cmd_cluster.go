@@ -39,3 +39,26 @@ func cmdClusterPut(entry *Entry, state *State, cmd []byte) (err error) {
 	}
 	return
 }
+
+func cmdClusterDelete(entry *Entry, state *State, cmd []byte) (err error) {
+	var item = &pb.Cluster{}
+	err = proto.Unmarshal(cmd, item)
+	if err != nil {
+		entry.Result.Value = ResultErrSyntactic
+		entry.Result.Data = []byte("Protobuf invalid")
+		return
+	}
+	if !validateFieldPresence(entry, "Name", item.Name) {
+		return
+	}
+	for range state.ResourceIter(item.Name) {
+		entry.Result.Value = ResultErrConflict
+		entry.Result.Data = []byte(`Cluster Not Empty`)
+		return
+	}
+	entry.Result.Value = state.clusterDelete(item)
+	if entry.Result.Value == ResultErrNotFound {
+		entry.Result.Data = []byte(`Cluster Not Found`)
+	}
+	return
+}

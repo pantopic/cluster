@@ -19,9 +19,7 @@ type controllerService struct {
 }
 
 func NewControllerService(a *Agent) *controllerService {
-	return &controllerService{
-		agent: a,
-	}
+	return &controllerService{agent: a}
 }
 
 func (c *controllerService) Start() (err error) {

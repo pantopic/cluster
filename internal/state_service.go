@@ -62,11 +62,8 @@ func (s *State) servicePut(svc *pb.Service, create bool) {
 	}
 }
 
-func (s *State) serviceDelete(svc *pb.Service) {
-	err := s.txn.Delete(`service`, svc)
-	if err != nil && err != memdb.ErrNotFound {
-		panic(err)
-	}
+func (s *State) serviceDelete(item *pb.Service) uint64 {
+	return s.itemDelete(`service`, item)
 }
 
 func serviceIter(iter memdb.ResultIterator, err error) iter.Seq[*pb.Service] {

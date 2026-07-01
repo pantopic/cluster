@@ -119,14 +119,14 @@ func TestMain(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	pb.RegisterControlServer(grpcServer, internal.NewServiceControl(shardClient))
+	pb.RegisterControlServer(grpcServer, internal.NewGrpcServiceControl(shardClient))
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
 			panic(err)
 		}
 	}()
 
-	// Load test model
+	// Register test model
 
 	conn, err := grpc.NewClient("localhost"+addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -192,7 +192,7 @@ func TestMain(t *testing.T) {
 			}), "%#v, %#v", svcListResp, err)
 			require.Equal(t, 1, len(svcListResp.Item))
 			require.Equal(t, `github.com/pantopic/cluster/test/module/service-grpc`, svcListResp.Item[0].Uri)
-			// require.Equal(t, internal.Status_Active, svcListResp.Item[0].Status)t
+			// require.Equal(t, internal.Status_Active, svcListResp.Item[0].Status)
 		})
 		t.Run(`query`, func(t *testing.T) {
 			// conn, err := grpc.NewClient("localhost:19000", grpc.WithTransportCredentials(insecure.NewCredentials()))
