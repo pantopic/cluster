@@ -69,10 +69,13 @@ func TestMain(t *testing.T) {
 		}), `%#v`, agents)
 	}
 	t.Run(`start`, func(t *testing.T) {
-		start(t, peers, `default`,
+		start(t, peers, `storage`,
 			[]uint16{18011, 18012, 18013},
 			[]uint16{18021, 18022, 18023},
 			[]uint16{18031, 18032, 18033},
+		)
+		start(t, peers, `service`,
+			[]uint16{18111, 18112, 18113},
 		)
 	})
 	shardClient := agents[0].Client(internal.ShardID)
@@ -145,6 +148,9 @@ func TestMain(t *testing.T) {
 		Name:      "test",
 		Uri:       "github.com/pantopic/cluster/test/module/service-grpc",
 		Port:      19000,
+		Tags: map[string]string{
+			"placement:cover": "host:group=service",
+		},
 	}
 	component := &pb.Component{
 		Namespace: "default",
@@ -152,6 +158,10 @@ func TestMain(t *testing.T) {
 		Cluster:   cfg.ClusterName,
 		Name:      "test",
 		Uri:       "github.com/pantopic/cluster/test/module/component",
+		Tags: map[string]string{
+			"placement:cover": "host:group=storage",
+			"placement:vary":  "geo:zone",
+		},
 	}
 	t.Run(`resource`, func(t *testing.T) {
 		t.Run(`create`, func(t *testing.T) {

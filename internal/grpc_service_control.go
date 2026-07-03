@@ -306,6 +306,48 @@ func (s *svcControl) ClusterList(
 	return
 }
 
+func (s *svcControl) ServicePut(
+	ctx context.Context,
+	req *pb.ServicePutRequest,
+) (res *pb.ServicePutResponse, err error) {
+	if req.Item.Tags == nil {
+		res = &pb.ServicePutResponse{
+			Code:  ResultErrSemantic,
+			Error: "Service requires placement tags",
+		}
+		return
+	}
+	if _, ok := req.Item.Tags["placement:cover"]; !ok {
+		res = &pb.ServicePutResponse{
+			Code:  ResultErrSemantic,
+			Error: "Service requires tag placement:cover",
+		}
+		return
+	}
+	data, err := proto.Marshal(req.Item)
+	if err != nil {
+		return
+	}
+	val, data, err := s.client.Apply(ctx, append(data, CMD_SERVICE_PUT))
+	if err != nil {
+		return
+	}
+	res = &pb.ServicePutResponse{
+		Code: val,
+	}
+	if val != ResultSuccess {
+		res.Error = string(data)
+		return
+	}
+	if err = proto.Unmarshal(data, req.Item); err != nil {
+		res.Code = ResultErrInternal
+		res.Error = err.Error()
+		return
+	}
+	res.Item = req.Item
+	return
+}
+
 func (s *svcControl) ServiceDelete(
 	ctx context.Context,
 	req *pb.ServiceDeleteRequest,
@@ -370,6 +412,41 @@ func (s *svcControl) ServiceList(
 		return
 	}
 	res.Code = val
+	return
+}
+
+func (s *svcControl) ComponentPut(
+	ctx context.Context,
+	req *pb.ComponentPutRequest,
+) (res *pb.ComponentPutResponse, err error) {
+	if req.Item.Tags == nil {
+		res = &pb.ComponentPutResponse{
+			Code:  ResultErrSemantic,
+			Error: "Component requires placement tags",
+		}
+		return
+	}
+	data, err := proto.Marshal(req.Item)
+	if err != nil {
+		return
+	}
+	val, data, err := s.client.Apply(ctx, append(data, CMD_COMPONENT_PUT))
+	if err != nil {
+		return
+	}
+	res = &pb.ComponentPutResponse{
+		Code: val,
+	}
+	if val != ResultSuccess {
+		res.Error = string(data)
+		return
+	}
+	if err = proto.Unmarshal(data, req.Item); err != nil {
+		res.Code = ResultErrInternal
+		res.Error = err.Error()
+		return
+	}
+	res.Item = req.Item
 	return
 }
 
