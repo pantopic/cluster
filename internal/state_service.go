@@ -9,8 +9,8 @@ import (
 )
 
 // ServiceFindByName returns the service with the specified name or ok false if not found.
-func (s *State) ServiceFindByName(namespace, resource, cluster, name string) (svc *pb.Service, ok bool) {
-	res, err := s.txn.First(`service`, `id`, namespace, resource, cluster, name)
+func (s *State) ServiceFindByName(namespace, resource, name string) (svc *pb.Service, ok bool) {
+	res, err := s.txn.First(`service`, `id`, namespace, resource, name)
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +23,7 @@ func (s *State) ServiceFindByName(namespace, resource, cluster, name string) (sv
 
 // ServiceIterAll returns an iterator for every service ordered by service id ascending.
 func (s *State) ServiceIterAll() iter.Seq[*pb.Service] {
-	return serviceIter(s.txn.LowerBound(`service`, `id`, "", "", "", ""))
+	return serviceIter(s.txn.LowerBound(`service`, `id`, "", "", ""))
 }
 
 // ServiceIter returns an iterator enumerating every service in a resource.

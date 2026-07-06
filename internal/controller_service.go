@@ -59,10 +59,6 @@ func (c *controllerService) tick() (err error) {
 	defer c.mutex.Unlock()
 	state := c.state.withTxn(false)
 	for svc := range state.ServiceIterUpdatedAfter(c.index) {
-		if svc.Cluster != c.agent.ClusterName() {
-			c.index = svc.Updated
-			continue
-		}
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {
 				if err = c.svcUpdate(svc); err != nil {
@@ -86,10 +82,6 @@ func (c *controllerService) tick() (err error) {
 		c.index = svc.Updated
 	}
 	return
-}
-
-func svcId(svc *pb.Service) string {
-	return fmt.Sprintf("%s.%s.%s", svc.Namespace, svc.Resource, svc.Name)
 }
 
 func (c *controllerService) svcStop(svc *pb.Service) (err error) {
@@ -151,4 +143,8 @@ func (c *controllerService) Stop() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.index = 0
+}
+
+func svcId(svc *pb.Service) string {
+	return fmt.Sprintf("%s.%s.%s", svc.Namespace, svc.Resource, svc.Name)
 }

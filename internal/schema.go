@@ -161,7 +161,6 @@ func newSchema() *memdb.DBSchema {
 					Indexes: []memdb.Indexer{
 						&memdb.StringFieldIndex{Field: "Namespace"},
 						&memdb.StringFieldIndex{Field: "Resource"},
-						&memdb.StringFieldIndex{Field: "Cluster"},
 						&memdb.StringFieldIndex{Field: "Name"},
 					},
 				},
@@ -178,10 +177,6 @@ func newSchema() *memdb.DBSchema {
 						&memdb.StringFieldIndex{Field: "Resource"},
 					},
 				},
-			},
-			"Cluster": {
-				Name:    "Cluster",
-				Indexer: &memdb.StringFieldIndex{Field: "Cluster"},
 			},
 			"Tags": {
 				Name:         "Tags",

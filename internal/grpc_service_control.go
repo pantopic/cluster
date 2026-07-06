@@ -355,7 +355,6 @@ func (s *svcControl) ServiceDelete(
 	data, err := proto.Marshal(&pb.Service{
 		Namespace: req.Namespace,
 		Resource:  req.Resource,
-		Cluster:   req.Cluster,
 		Name:      req.Name,
 	})
 	if err != nil {

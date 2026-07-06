@@ -16,7 +16,7 @@ func queryServiceGet(result *Result, state *State, query []byte) {
 		result.Data = []byte("Service get request is invalid")
 		return
 	}
-	found, ok := state.ServiceFindByName(service.Namespace, service.Resource, service.Cluster, service.Name)
+	found, ok := state.ServiceFindByName(service.Namespace, service.Resource, service.Name)
 	if !ok {
 		result.Value = ResultErrNotFound
 		result.Data = fmt.Appendf(nil, "Service does not exist: %s", service.Name)

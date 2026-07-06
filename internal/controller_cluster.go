@@ -149,13 +149,13 @@ func (c *controllerCluster) init() {
 		if c.controls.Resource.FindByName(c.ctx, &pb.Resource{
 			Namespace: internal.Name,
 			Name:      name,
-			Uri:       modulestore.ResourceUri,
+			Type:      modulestore.ResourceUri,
 		}).Created == 0 {
 			c.log.Infof(`Creating internal %s store`, name)
 			c.controls.Resource.Put(c.ctx, &pb.Resource{
 				Namespace: internal.Name,
 				Name:      name,
-				Uri:       modulestore.ResourceUri,
+				Type:      modulestore.ResourceUri,
 			})
 		}
 	}

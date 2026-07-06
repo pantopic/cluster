@@ -17,12 +17,11 @@ func cmdServicePut(entry *Entry, state *State, cmd []byte) (err error) {
 	if !validateFieldPresence(entry,
 		"Namespace", service.Namespace,
 		"Resource", service.Resource,
-		"Cluster", service.Cluster,
 		"Name", service.Name,
 	) {
 		return
 	}
-	found, exists := state.ServiceFindByName(service.Namespace, service.Resource, service.Cluster, service.Name)
+	found, exists := state.ServiceFindByName(service.Namespace, service.Resource, service.Name)
 	if exists {
 		if service.Version != found.Version {
 			entry.Result.Value = ResultErrConflict
@@ -38,11 +37,6 @@ func cmdServicePut(entry *Entry, state *State, cmd []byte) (err error) {
 		if _, ok := state.ResourceFindByName(service.Namespace, service.Resource); !ok {
 			entry.Result.Value = ResultErrNotFound
 			entry.Result.Data = []byte("Resource not found")
-			return
-		}
-		if _, ok := state.ClusterFindByName(service.Cluster); !ok {
-			entry.Result.Value = ResultErrNotFound
-			entry.Result.Data = []byte("Cluster not found")
 			return
 		}
 		service.Version = 0
@@ -71,7 +65,6 @@ func cmdServiceDelete(entry *Entry, state *State, cmd []byte) (err error) {
 	if !validateFieldPresence(entry,
 		"Namespace", svc.Namespace,
 		"Resource", svc.Resource,
-		"Cluster", svc.Cluster,
 		"Name", svc.Name,
 	) {
 		return

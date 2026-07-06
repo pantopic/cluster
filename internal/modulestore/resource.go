@@ -1,5 +1,5 @@
 package modulestore
 
 const (
-	ResourceUri = "pantopic://internal/modulestore"
+	ResourceUri = "pantopic/modulestore"
 )

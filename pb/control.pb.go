@@ -198,7 +198,7 @@ type Resource struct {
 	Updated       uint64                 `protobuf:"varint,5,opt,name=updated,proto3" json:"updated,omitempty"`
 	Deleted       uint64                 `protobuf:"varint,6,opt,name=deleted,proto3" json:"deleted,omitempty"`
 	Tags          map[string]string      `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Uri           string                 `protobuf:"bytes,8,opt,name=uri,proto3" json:"uri,omitempty"`
+	Type          string                 `protobuf:"bytes,8,opt,name=type,proto3" json:"type,omitempty"`
 	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -283,9 +283,9 @@ func (x *Resource) GetTags() map[string]string {
 	return nil
 }
 
-func (x *Resource) GetUri() string {
+func (x *Resource) GetType() string {
 	if x != nil {
-		return x.Uri
+		return x.Type
 	}
 	return ""
 }
@@ -301,16 +301,15 @@ type Service struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
-	Cluster       string                 `protobuf:"bytes,3,opt,name=cluster,proto3" json:"cluster,omitempty"`
-	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
-	Version       uint64                 `protobuf:"varint,5,opt,name=version,proto3" json:"version,omitempty"`
-	Created       uint64                 `protobuf:"varint,6,opt,name=created,proto3" json:"created,omitempty"`
-	Updated       uint64                 `protobuf:"varint,7,opt,name=updated,proto3" json:"updated,omitempty"`
-	Deleted       uint64                 `protobuf:"varint,8,opt,name=deleted,proto3" json:"deleted,omitempty"`
-	Tags          map[string]string      `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Uri           string                 `protobuf:"bytes,10,opt,name=uri,proto3" json:"uri,omitempty"`
-	Status        string                 `protobuf:"bytes,11,opt,name=status,proto3" json:"status,omitempty"`
-	Port          uint64                 `protobuf:"varint,12,opt,name=port,proto3" json:"port,omitempty"`
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Version       uint64                 `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
+	Created       uint64                 `protobuf:"varint,5,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       uint64                 `protobuf:"varint,6,opt,name=updated,proto3" json:"updated,omitempty"`
+	Deleted       uint64                 `protobuf:"varint,7,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,8,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Type          string                 `protobuf:"bytes,9,opt,name=type,proto3" json:"type,omitempty"`
+	Status        string                 `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
+	Port          uint64                 `protobuf:"varint,11,opt,name=port,proto3" json:"port,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -359,13 +358,6 @@ func (x *Service) GetResource() string {
 	return ""
 }
 
-func (x *Service) GetCluster() string {
-	if x != nil {
-		return x.Cluster
-	}
-	return ""
-}
-
 func (x *Service) GetName() string {
 	if x != nil {
 		return x.Name
@@ -408,9 +400,9 @@ func (x *Service) GetTags() map[string]string {
 	return nil
 }
 
-func (x *Service) GetUri() string {
+func (x *Service) GetType() string {
 	if x != nil {
-		return x.Uri
+		return x.Type
 	}
 	return ""
 }
@@ -440,7 +432,7 @@ type Component struct {
 	Updated       uint64                 `protobuf:"varint,7,opt,name=updated,proto3" json:"updated,omitempty"`
 	Deleted       uint64                 `protobuf:"varint,8,opt,name=deleted,proto3" json:"deleted,omitempty"`
 	Tags          map[string]string      `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Uri           string                 `protobuf:"bytes,10,opt,name=uri,proto3" json:"uri,omitempty"`
+	Type          string                 `protobuf:"bytes,10,opt,name=type,proto3" json:"type,omitempty"`
 	Status        string                 `protobuf:"bytes,11,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -539,9 +531,9 @@ func (x *Component) GetTags() map[string]string {
 	return nil
 }
 
-func (x *Component) GetUri() string {
+func (x *Component) GetType() string {
 	if x != nil {
-		return x.Uri
+		return x.Type
 	}
 	return ""
 }
@@ -2801,7 +2793,7 @@ const file_control_proto_rawDesc = "" +
 	"\x04tags\x18\x06 \x03(\v2\x18.proto.Cluster.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x02\n" +
 	"\bResource\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -2809,29 +2801,28 @@ const file_control_proto_rawDesc = "" +
 	"\acreated\x18\x04 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\x05 \x01(\x04R\aupdated\x12\x18\n" +
 	"\adeleted\x18\x06 \x01(\x04R\adeleted\x12-\n" +
-	"\x04tags\x18\a \x03(\v2\x19.proto.Resource.TagsEntryR\x04tags\x12\x10\n" +
-	"\x03uri\x18\b \x01(\tR\x03uri\x12\x16\n" +
+	"\x04tags\x18\a \x03(\v2\x19.proto.Resource.TagsEntryR\x04tags\x12\x12\n" +
+	"\x04type\x18\b \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\t \x01(\tR\x06status\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfe\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe6\x02\n" +
 	"\aService\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
-	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
-	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\x12\x18\n" +
-	"\aversion\x18\x05 \x01(\x04R\aversion\x12\x18\n" +
-	"\acreated\x18\x06 \x01(\x04R\acreated\x12\x18\n" +
-	"\aupdated\x18\a \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\b \x01(\x04R\adeleted\x12,\n" +
-	"\x04tags\x18\t \x03(\v2\x18.proto.Service.TagsEntryR\x04tags\x12\x10\n" +
-	"\x03uri\x18\n" +
-	" \x01(\tR\x03uri\x12\x16\n" +
-	"\x06status\x18\v \x01(\tR\x06status\x12\x12\n" +
-	"\x04port\x18\f \x01(\x04R\x04port\x1a7\n" +
+	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
+	"\aversion\x18\x04 \x01(\x04R\aversion\x12\x18\n" +
+	"\acreated\x18\x05 \x01(\x04R\acreated\x12\x18\n" +
+	"\aupdated\x18\x06 \x01(\x04R\aupdated\x12\x18\n" +
+	"\adeleted\x18\a \x01(\x04R\adeleted\x12,\n" +
+	"\x04tags\x18\b \x03(\v2\x18.proto.Service.TagsEntryR\x04tags\x12\x12\n" +
+	"\x04type\x18\t \x01(\tR\x04type\x12\x16\n" +
+	"\x06status\x18\n" +
+	" \x01(\tR\x06status\x12\x12\n" +
+	"\x04port\x18\v \x01(\x04R\x04port\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xee\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf0\x02\n" +
 	"\tComponent\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
@@ -2841,9 +2832,9 @@ const file_control_proto_rawDesc = "" +
 	"\acreated\x18\x06 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\a \x01(\x04R\aupdated\x12\x18\n" +
 	"\adeleted\x18\b \x01(\x04R\adeleted\x12.\n" +
-	"\x04tags\x18\t \x03(\v2\x1a.proto.Component.TagsEntryR\x04tags\x12\x10\n" +
-	"\x03uri\x18\n" +
-	" \x01(\tR\x03uri\x12\x16\n" +
+	"\x04tags\x18\t \x03(\v2\x1a.proto.Component.TagsEntryR\x04tags\x12\x12\n" +
+	"\x04type\x18\n" +
+	" \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\v \x01(\tR\x06status\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
