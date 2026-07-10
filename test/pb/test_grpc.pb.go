@@ -4,7 +4,7 @@
 // - protoc             v3.12.4
 // source: test.proto
 
-package pb
+package testpb
 
 import (
 	context "context"
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Test_Ping_FullMethodName = "/pb.Test/Ping"
+	Test_Ping_FullMethodName = "/testpb.Test/Ping"
 )
 
 // TestClient is the client API for Test service.
@@ -108,7 +108,7 @@ func _Test_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Test_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.Test",
+	ServiceName: "testpb.Test",
 	HandlerType: (*TestServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -4,7 +4,7 @@
 // 	protoc        v3.12.4
 // source: test.proto
 
-package pb
+package testpb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -98,11 +98,11 @@ var File_test_proto protoreflect.FileDescriptor
 const file_test_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"test.proto\x12\x02pb\"\r\n" +
+	"test.proto\x12\x06testpb\"\r\n" +
 	"\vPingRequest\"\x0e\n" +
-	"\fPingResponse23\n" +
-	"\x04Test\x12+\n" +
-	"\x04Ping\x12\x0f.pb.PingRequest\x1a\x10.pb.PingResponse\"\x00B%Z#github.com/pantopic/cluster/test/pbb\x06proto3"
+	"\fPingResponse2;\n" +
+	"\x04Test\x123\n" +
+	"\x04Ping\x12\x13.testpb.PingRequest\x1a\x14.testpb.PingResponse\"\x00B)Z'github.com/pantopic/cluster/test/testpbb\x06proto3"
 
 var (
 	file_test_proto_rawDescOnce sync.Once
@@ -118,12 +118,12 @@ func file_test_proto_rawDescGZIP() []byte {
 
 var file_test_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_test_proto_goTypes = []any{
-	(*PingRequest)(nil),  // 0: pb.PingRequest
-	(*PingResponse)(nil), // 1: pb.PingResponse
+	(*PingRequest)(nil),  // 0: testpb.PingRequest
+	(*PingResponse)(nil), // 1: testpb.PingResponse
 }
 var file_test_proto_depIdxs = []int32{
-	0, // 0: pb.Test.Ping:input_type -> pb.PingRequest
-	1, // 1: pb.Test.Ping:output_type -> pb.PingResponse
+	0, // 0: testpb.Test.Ping:input_type -> testpb.PingRequest
+	1, // 1: testpb.Test.Ping:output_type -> testpb.PingResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

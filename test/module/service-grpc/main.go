@@ -8,7 +8,7 @@ func init() {
 	grpc_server.Init(
 		grpc_server.WithBufferCap(64, 1<<16),
 	)
-	grpc_server.NewService(`test.Test`).
+	grpc_server.NewService(`testpb.Test`).
 		Unary(`Ping`, ping)
 }
 

@@ -86,9 +86,9 @@ func newSchema() *memdb.DBSchema {
 				AllowMissing: true,
 				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
 			},
-			"Uri": {
-				Name:    "Uri",
-				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
+			"Type": {
+				Name:    "Type",
+				Indexer: &memdb.StringFieldIndex{Field: "Type"},
 			},
 			"Created": {
 				Name:    "Created",
@@ -137,9 +137,9 @@ func newSchema() *memdb.DBSchema {
 				AllowMissing: true,
 				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
 			},
-			"Uri": {
-				Name:    "Uri",
-				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
+			"Type": {
+				Name:    "Type",
+				Indexer: &memdb.StringFieldIndex{Field: "Type"},
 			},
 			"Created": {
 				Name:    "Created",
@@ -183,9 +183,9 @@ func newSchema() *memdb.DBSchema {
 				AllowMissing: true,
 				Indexer:      &memdb.StringMapFieldIndex{Field: "Tags"},
 			},
-			"Uri": {
-				Name:    "Uri",
-				Indexer: &memdb.StringFieldIndex{Field: "Uri"},
+			"Type": {
+				Name:    "Type",
+				Indexer: &memdb.StringFieldIndex{Field: "Type"},
 			},
 			"Created": {
 				Name:    "Created",

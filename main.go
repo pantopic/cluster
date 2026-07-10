@@ -13,6 +13,8 @@ import (
 	"github.com/pantopic/cluster/internal"
 	"github.com/pantopic/cluster/internal/modulestore"
 	// "github.com/pantopic/wazero-state-machine/host"
+
+	"github.com/pantopic/config-bus/embed"
 )
 
 func main() {
@@ -32,7 +34,10 @@ func main() {
 	}
 	ctrl.Start(ctx, agent)
 
-	run(ctx, agent, logger)
+	ctrlService := internal.NewControllerService(ctx, agent, logger)
+	run(ctx, agent, logger, ctrlService)
+	ctrlService.Runtime().Register(turbokube.NameServiceGrpc, turbokube.WasmServiceGrpc)
+	ctrlService.Start()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -43,10 +48,10 @@ func main() {
 	agent.Stop()
 }
 
-func run(ctx context.Context, agent *zongzi.Agent, logger zongzi.Logger) {
+func run(ctx context.Context, agent *zongzi.Agent, logger zongzi.Logger, ctrlService internal.ControllerService) {
 	agent.StateMachineRegister(
 		internal.StateMachineUri,
-		internal.StateMachineFactory(logger))
+		internal.StateMachineFactory(logger, ctrlService))
 	agent.StateMachineRegister(
 		modulestore.StateMachinePersistentUri,
 		modulestore.StateMachinePersistentFactory(logger))

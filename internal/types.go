@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/logbn/zongzi"
@@ -72,6 +73,7 @@ var (
 	Status_Unavailable = Status("unavailable")
 	Status_Stopped     = Status("stopped")
 	Status_Gone        = Status("gone")
+
 )
 
 var (
@@ -81,3 +83,7 @@ var (
 	ErrIndexNotMatch       = fmt.Errorf("Index does not match")
 	ErrNotFound            = fmt.Errorf("Not Found")
 )
+
+type ContextCopier interface {
+	ContextCopy(dst, src context.Context) context.Context
+}

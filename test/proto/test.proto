@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package pb;
+package testpb;
 
-option go_package = "github.com/pantopic/cluster/test/pb";
+option go_package = "github.com/pantopic/cluster/test/testpb";
 
 service Test {
   rpc Ping(PingRequest) returns (PingResponse) {}

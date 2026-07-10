@@ -7,14 +7,22 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pantopic/cluster/pb"
-
 	"github.com/logbn/zongzi"
+	"google.golang.org/protobuf/proto"
+
+	"github.com/pantopic/cluster/pb"
 )
+
+type ControllerService interface {
+	SetState(*State)
+	Start() error
+	Stop()
+}
 
 // controllerService starts and stops services.
 type controllerService struct {
 	agent     *Agent
+	client    zongzi.ShardClient
 	cluster   string
 	ctx       context.Context
 	ctxCancel context.CancelFunc
@@ -23,11 +31,29 @@ type controllerService struct {
 	log       Logger
 	mutex     sync.RWMutex
 	running   map[string]*pb.Service
+	runtime   *runtimeService
 	state     *State
 }
 
-func NewControllerService(a *Agent) *controllerService {
-	return &controllerService{agent: a}
+var _ ControllerService = new(controllerService)
+
+func NewControllerService(ctx context.Context, a *Agent, log Logger) *controllerService {
+	return &controllerService{
+		agent:   a,
+		client:  a.Client(ShardID),
+		ctx:     ctx,
+		log:     log,
+		runtime: NewRuntimeService(ctx, a),
+		running: make(map[string]*pb.Service),
+	}
+}
+
+func (c *controllerService) Runtime() *runtimeService {
+	return c.runtime
+}
+
+func (c *controllerService) SetState(s *State) {
+	c.state = s
 }
 
 func (c *controllerService) Start() (err error) {
@@ -55,10 +81,14 @@ func (c *controllerService) Start() (err error) {
 }
 
 func (c *controllerService) tick() (err error) {
+	if c.state == nil {
+		return
+	}
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	state := c.state.withTxn(false)
 	for svc := range state.ServiceIterUpdatedAfter(c.index) {
+		res, _ := state.ResourceFindByName(svc.Namespace, svc.Resource)
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {
 				if err = c.svcUpdate(svc); err != nil {
@@ -73,10 +103,12 @@ func (c *controllerService) tick() (err error) {
 			}
 		} else if c.svcMatch(svc) {
 			if svc.Status == Status_Active {
-				if err = c.svcStart(svc); err != nil {
-					err = fmt.Errorf(`Failed to Start:  %s (%d): %w`, svcId(svc), svc.Port, err)
+				c.log.Infof(`[%s] Starting Service: %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				if err = c.svcStart(res, svc); err != nil {
+					err = fmt.Errorf(`Failed to Start: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
 				}
+				c.running[svcId(svc)] = svc
 			}
 		}
 		c.index = svc.Updated
@@ -85,12 +117,21 @@ func (c *controllerService) tick() (err error) {
 }
 
 func (c *controllerService) svcStop(svc *pb.Service) (err error) {
-
+	// err = c.runtime.Stop(svc)
 	return
 }
 
-func (c *controllerService) svcStart(svc *pb.Service) (err error) {
-
+func (c *controllerService) svcStart(res *pb.Resource, svc *pb.Service) (err error) {
+	err = c.runtime.Start(res, svc)
+	if err != nil {
+		return
+	}
+	svc.Status = Status_Active
+	data, err := proto.Marshal(svc)
+	if err != nil {
+		return
+	}
+	_, _, err = c.client.Apply(c.ctx, append(data, CMD_SERVICE_PUT))
 	return
 }
 
@@ -110,7 +151,7 @@ func (c *controllerService) svcMatch(svc *pb.Service) bool {
 	} else if !ok {
 		c.log.Panicf(`[%s] Host not found`, c.agent.HostID())
 	}
-	c.log.Infof(`[%s] Matching Service: %s (%d)`, c.agent.HostID(), id, svc.Port)
+	c.log.Debugf(`[%s] Matching Service: %s (%d)`, c.agent.HostID(), id, svc.Port)
 	tagCover, ok := svc.Tags["placement:cover"]
 	if !ok || len(tagCover) < 1 {
 		return false

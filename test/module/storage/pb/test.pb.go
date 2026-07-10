@@ -2,7 +2,7 @@
 // protoc-gen-go-lite version: v0.9.1
 // source: test.proto
 
-package pb
+package testpb
 
 import (
 	fmt "fmt"
