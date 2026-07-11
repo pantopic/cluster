@@ -1,13 +1,14 @@
 package internal
 
+// Index returns the last committed index of the statemachine.
+func (s *State) Index() (val uint64) {
+	return s.metaGetVal(`index`)
+}
+
 type metaValue struct {
 	Key  string
 	Val  uint64
 	Data []byte
-}
-
-func (s *State) Index() (val uint64) {
-	return s.metaGetVal(`index`)
 }
 
 func (s *State) metaGet(key string) (val uint64, data []byte) {

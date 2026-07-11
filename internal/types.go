@@ -73,7 +73,6 @@ var (
 	Status_Unavailable = Status("unavailable")
 	Status_Stopped     = Status("stopped")
 	Status_Gone        = Status("gone")
-
 )
 
 var (

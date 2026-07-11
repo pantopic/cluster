@@ -21,29 +21,34 @@ func (s *State) ResourceFindByName(namespace, name string) (r *pb.Resource, ok b
 	return
 }
 
-// ResourceIterAll executes a callback for every resource in the resource ordered by resource id ascending.
+// ResourceIterAll returns an iterator enumerating every resource in the resource ordered by resource id ascending.
 // Return true to continue iterating, false to stop.
 func (s *State) ResourceIterAll() iter.Seq[*pb.Resource] {
 	return resourceIter(s.txn.LowerBound(`resource`, `id`, "", "", ""))
 }
 
-// ResourceIterByNamespace executes a callback for every child of a resource.
+// ResourceIterByNamespace returns an iterator enumerating every child of a resource.
 func (s *State) ResourceIter(namespace string) iter.Seq[*pb.Resource] {
 	return resourceIter(s.txn.Get(`resource`, `Namespace`, namespace))
 }
 
-// ResourceIterByUri executes a callback for every resource of a specific type.
+// ResourceIterByCluster returns an iterator enumerating every child of a resource.
+func (s *State) ResourceIterByCluster(cluster string) iter.Seq[*pb.Resource] {
+	return resourceIter(s.txn.Get(`resource`, `Cluster`, cluster))
+}
+
+// ResourceIterByUri returns an iterator enumerating every resource of a specific type.
 func (s *State) ResourceIterByUri(uri string) iter.Seq[*pb.Resource] {
 	return resourceIter(s.txn.Get(`resource`, `Uri`, uri))
 }
 
-// ResourceIterByTag executes a callback for every resource in the resource matching the specified tag,
+// ResourceIterByTag returns an iterator enumerating every resource in the resource matching the specified tag,
 // ordered by resource id ascending. Return true to continue iterating, false to stop.
 func (s *State) ResourceIterByTag(tag string) iter.Seq[*pb.Resource] {
 	return resourceIter(s.txn.Get(`resource`, `Tags`, tag))
 }
 
-// ResourceIterUpdatedAfter executes a callback for every resource in the resource having an updated index
+// ResourceIterUpdatedAfter returns an iterator enumerating every resource in the resource having an updated index
 // greater than the supplied index
 func (s *State) ResourceIterUpdatedAfter(index uint64) iter.Seq[*pb.Resource] {
 	return resourceIter(s.txn.LowerBound(`resource`, `Updated`, index+1))

@@ -116,6 +116,7 @@ func (s *State) Save(w io.Writer) error {
 	}
 	return nil
 }
+
 func (s *State) recover(r io.Reader) (err error) {
 	f := s.withTxn(true)
 	defer f.commit()

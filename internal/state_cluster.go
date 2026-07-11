@@ -21,19 +21,19 @@ func (s *State) ClusterFindByName(name string) (c *pb.Cluster, ok bool) {
 	return
 }
 
-// ClusterIter executes a callback for every cluster ordered by id ascending.
+// ClusterIter returns an iterator enumerating every cluster ordered by id ascending.
 // Return true to continue iterating, false to stop.
 func (s *State) ClusterIter() iter.Seq[*pb.Cluster] {
 	return clusterIter(s.txn.LowerBound(`cluster`, `id`, ""))
 }
 
-// ClusterIterByTag executes a callback for every cluster in the cluster matching the specified tag,
+// ClusterIterByTag returns an iterator enumerating every cluster in the cluster matching the specified tag,
 // ordered by cluster id ascending. Return true to continue iterating, false to stop.
 func (s *State) ClusterIterByTag(tag string) iter.Seq[*pb.Cluster] {
 	return clusterIter(s.txn.Get(`cluster`, `Tags`, tag))
 }
 
-// ClusterIterUpdatedAfter executes a callback for every cluster in the cluster having an updated index
+// ClusterIterUpdatedAfter returns an iterator enumerating every cluster in the cluster having an updated index
 // greater than the supplied index
 func (s *State) ClusterIterUpdatedAfter(index uint64) iter.Seq[*pb.Cluster] {
 	return clusterIter(s.txn.LowerBound(`cluster`, `Updated`, index+1))
