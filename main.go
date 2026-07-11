@@ -22,13 +22,18 @@ func main() {
 	cfg := getConfig()
 	logger := getLogger(cfg)
 	ctrl := internal.NewControllerCluster(logger)
-	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","),
+	opts := []zongzi.AgentOption{
 		zongzi.WithDirRaft(cfg.DirRaft),
 		zongzi.WithDirWAL(cfg.DirWAL),
 		zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortGossip)),
 		zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortRaft)),
 		zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortZongzi)),
-		zongzi.WithRaftEventListener(ctrl))
+		zongzi.WithRaftEventListener(ctrl),
+	}
+	if s := os.Getenv("PANTOPIC_HOST_TAGS"); s != "" {
+		opts = append(opts, zongzi.WithHostTags(strings.Split(s, "|")...))
+	}
+	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","), opts...)
 	if err != nil {
 		panic(err)
 	}
