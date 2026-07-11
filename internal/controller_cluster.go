@@ -9,7 +9,6 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/logbn/zongzi"
 
-	"github.com/pantopic/cluster/internal/modulestore"
 	"github.com/pantopic/cluster/pb"
 )
 
@@ -137,38 +136,20 @@ func (c *controllerCluster) init() {
 	if internal.Created == 0 {
 		internal = c.controls.Namespace.Put(c.ctx, &pb.Namespace{
 			Name: NAMESPACE_INTERNAL,
+			Tags: map[string]string{`version`: version},
 		})
-	}
-	for _, name := range []string{
-		`model`,
-		`module`,
-		`log`,
-		`metric`,
-		`policy`,
-	} {
-		if c.controls.Resource.FindByName(c.ctx, &pb.Resource{
-			Namespace: internal.Name,
-			Name:      name,
-			Type:      modulestore.ResourceUri,
-		}).Created == 0 {
-			c.log.Infof(`Creating internal %s store`, name)
-			c.controls.Resource.Put(c.ctx, &pb.Resource{
-				Namespace: internal.Name,
-				Name:      name,
-				Type:      modulestore.ResourceUri,
-			})
+	} else {
+		if internal.Tags == nil {
+			internal.Tags = make(map[string]string)
+		}
+		if internal.Tags[`version`] != version {
+			internal.Tags[`version`] = version
+			internal = c.controls.Namespace.Put(c.ctx, internal)
 		}
 	}
 	ns := c.controls.Namespace.FindByName(c.ctx, &pb.Namespace{Name: NAMESPACE_DEFAULT})
 	if ns.Created == 0 {
 		ns = c.controls.Namespace.Put(c.ctx, &pb.Namespace{Name: NAMESPACE_DEFAULT})
-	}
-	if ns.Tags == nil {
-		ns.Tags = make(map[string]string)
-	}
-	if ns.Tags[`version`] != version {
-		ns.Tags[`version`] = version
-		ns = c.controls.Namespace.Put(c.ctx, ns)
 	}
 	c.cluster = c.controls.Cluster.Put(c.ctx, &pb.Cluster{Name: c.agent.ClusterName()})
 }

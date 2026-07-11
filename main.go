@@ -11,7 +11,6 @@ import (
 	"github.com/logbn/zongzi"
 
 	"github.com/pantopic/cluster/internal"
-	"github.com/pantopic/cluster/internal/modulestore"
 	// "github.com/pantopic/wazero-state-machine/host"
 
 	"github.com/pantopic/turbokube/embed"
@@ -57,9 +56,6 @@ func run(ctx context.Context, agent *zongzi.Agent, logger zongzi.Logger, ctrlSer
 	agent.StateMachineRegister(
 		internal.StateMachineUri,
 		internal.StateMachineFactory(logger, ctrlService))
-	agent.StateMachineRegister(
-		modulestore.StateMachinePersistentUri,
-		modulestore.StateMachinePersistentFactory(logger))
 	// agent.StateMachineRegister(
 	// 	wazero_state_machine.Uri,
 	// 	wazero_state_machine.Factory(ctx, logger))
