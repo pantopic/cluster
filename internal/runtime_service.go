@@ -36,7 +36,7 @@ type extService interface {
 type runtimeService struct {
 	agent   *zongzi.Agent
 	ctx     context.Context
-	ctxCopy []wazero_grpc_server.ContextCopier
+	ctxCopy []wazero_cluster.ContextCopier
 	ext     map[string]extService
 	pools   map[string]wazeropool.Instance
 	wasm    map[string][]byte
@@ -96,6 +96,9 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 	if !ok {
 		return fmt.Errorf(`Unrecognized service %s`, name)
 	}
+	ctxCopy := append(r.ctxCopy, wazero_cluster.NewResolver(res.Namespace, res.Name))
+	// TODO - Move grpc server start to wazero-grpc-server/host
+	// r.ext["grpc"].ServiceStart(r.ctx, res, svc, pool, ctxCopy...)
 	var opts = []grpc.ServerOption{
 		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
 			MinTime:             5 * time.Second,
@@ -106,8 +109,6 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 			Timeout: 20 * time.Second,
 		}),
 	}
-	// TODO: Replace expicit resolver with hook or common context wrapper like wazero-cluster
-	ctxCopy := append(r.ctxCopy, wazero_cluster.NewResolver(res.Namespace, res.Name))
 	var grpcServer = grpc.NewServer(opts...)
 	err = r.ext["grpc"].(wazero_grpc_server.ServiceRegistry).RegisterServices(r.ctx, grpcServer, pool, ctxCopy...)
 	if err != nil {
