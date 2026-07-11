@@ -14,7 +14,7 @@ import (
 	"github.com/pantopic/cluster/internal/modulestore"
 	// "github.com/pantopic/wazero-state-machine/host"
 
-	"github.com/pantopic/config-bus/embed"
+	"github.com/pantopic/turbokube/embed"
 )
 
 func main() {
