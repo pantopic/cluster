@@ -28,15 +28,15 @@ import (
 )
 
 type extService interface {
-	wazero_grpc_server.ContextCopier
 	Register(context.Context, wazero.Runtime) error
 	InitContext(context.Context, api.Module) (context.Context, error)
+	ContextCopy(dst, src context.Context) context.Context
 }
 
 type runtimeService struct {
 	agent   *zongzi.Agent
 	ctx     context.Context
-	ctxCopy []wazero_cluster.ContextCopier
+	ctxCopy []ContextCopy
 	ext     map[string]extService
 	pools   map[string]wazeropool.Instance
 	wasm    map[string][]byte
@@ -66,7 +66,7 @@ func NewRuntimeService(ctx context.Context, agent *zongzi.Agent) (r *runtimeServ
 		if err := m.ext.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
 		}
-		r.ctxCopy = append(r.ctxCopy, wazero_grpc_server.ContextCopier(m.ext))
+		r.ctxCopy = append(r.ctxCopy, m.ext.ContextCopy)
 	}
 	return
 }
