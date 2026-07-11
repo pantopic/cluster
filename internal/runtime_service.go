@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 
 	"github.com/pantopic/wazero-buffer-pool/host"
+	"github.com/pantopic/wazero-cluster/host"
 	"github.com/pantopic/wazero-global/host"
 	"github.com/pantopic/wazero-grpc-server/host"
 	"github.com/pantopic/wazero-pool"
@@ -105,9 +106,10 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 			Timeout: 20 * time.Second,
 		}),
 	}
+	// TODO: Replace expicit resolver with hook or common context wrapper like wazero-cluster
+	ctxCopy := append(r.ctxCopy, wazero_cluster.NewResolver(res.Namespace, res.Name))
 	var grpcServer = grpc.NewServer(opts...)
-	err = r.ext["grpc"].(wazero_grpc_server.ServiceRegistry).RegisterServices(r.ctx, grpcServer, pool,
-		append(r.ctxCopy, wazero_shard_client.NewResolver(res.Namespace, res.Name))...)
+	err = r.ext["grpc"].(wazero_grpc_server.ServiceRegistry).RegisterServices(r.ctx, grpcServer, pool, ctxCopy...)
 	if err != nil {
 		panic(err)
 	}
