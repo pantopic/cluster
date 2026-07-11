@@ -33,6 +33,32 @@ type stateMachine struct {
 	state     *State
 }
 
+var commands = map[byte]func(*Entry, *State, []byte) error{
+	CMD_CLUSTER_DELETE:   cmdClusterDelete,
+	CMD_CLUSTER_PUT:      cmdClusterPut,
+	CMD_COMPONENT_DELETE: cmdComponentDelete,
+	CMD_COMPONENT_PUT:    cmdComponentPut,
+	CMD_NAMESPACE_DELETE: cmdNamespaceDelete,
+	CMD_NAMESPACE_PUT:    cmdNamespacePut,
+	CMD_RESOURCE_DELETE:  cmdResourceDelete,
+	CMD_RESOURCE_PUT:     cmdResourcePut,
+	CMD_SERVICE_DELETE:   cmdServiceDelete,
+	CMD_SERVICE_PUT:      cmdServicePut,
+}
+
+var queries = map[byte]func(*Result, *State, []byte){
+	QUERY_CLUSTER_GET:    queryClusterGet,
+	QUERY_CLUSTER_LIST:   queryClusterList,
+	QUERY_COMPONENT_GET:  queryComponentGet,
+	QUERY_COMPONENT_LIST: queryComponentList,
+	QUERY_NAMESPACE_GET:  queryNamespaceGet,
+	QUERY_NAMESPACE_LIST: queryNamespaceList,
+	QUERY_RESOURCE_GET:   queryResourceGet,
+	QUERY_RESOURCE_LIST:  queryResourceList,
+	QUERY_SERVICE_GET:    queryServiceGet,
+	QUERY_SERVICE_LIST:   queryServiceList,
+}
+
 func (fsm *stateMachine) Update(entries []Entry) []Entry {
 	var state *State
 	var err error
@@ -44,7 +70,7 @@ func (fsm *stateMachine) Update(entries []Entry) []Entry {
 			continue
 		}
 		cmdType := entry.Cmd[len(entry.Cmd)-1]
-		cmdFunc, ok := commands[cmdType] // see cmd.go
+		cmdFunc, ok := commands[cmdType]
 		if !ok {
 			state.abort()
 			entry.Result.Value = ResultErrSemantic
@@ -67,7 +93,7 @@ func (fsm *stateMachine) Update(entries []Entry) []Entry {
 func (fsm *stateMachine) Query(ctx context.Context, data []byte) (result *Result) {
 	result = &Result{}
 	qType := data[len(data)-1]
-	queryFunc, ok := queries[qType] // see query.go
+	queryFunc, ok := queries[qType]
 	if !ok {
 		result.Value = ResultErrSemantic
 		fsm.log.Errorf(`unrecognized query (%d): %s`, qType, string(data))
