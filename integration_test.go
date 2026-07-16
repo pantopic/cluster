@@ -18,6 +18,18 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/pantopic/wazero-atomic/host"
+	"github.com/pantopic/wazero-buffer-pool/host"
+	"github.com/pantopic/wazero-global/host"
+	"github.com/pantopic/wazero-grpc-server/host"
+	"github.com/pantopic/wazero-lmdb/host"
+	"github.com/pantopic/wazero-range-watch/host"
+	"github.com/pantopic/wazero-shard-client/host"
+	"github.com/pantopic/wazero-small-cache/host"
+	"github.com/pantopic/wazero-state-machine/host"
+
+	"github.com/pantopic/turbokube/embed"
+
 	"github.com/pantopic/cluster/internal"
 	"github.com/pantopic/cluster/pb"
 	"github.com/pantopic/cluster/test/pb"
@@ -62,7 +74,25 @@ func TestMain(t *testing.T) {
 				panic(err)
 			}
 			ctrlCluster.Start(ctx, agent)
-			ctrlService := internal.NewControllerService(ctx, agent, logger)
+
+			runtimeSvc := internal.NewRuntimeService(ctx, []internal.Extension{
+				wazero_global.New(),
+				wazero_grpc_server.New(),
+				wazero_buffer_pool.New(),
+				wazero_shard_client.New(agent),
+			}...)
+			ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
+
+			runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
+				wazero_lmdb.New(),
+				wazero_global.New(),
+				wazero_atomic.New(),
+				wazero_range_watch.New(),
+				wazero_small_cache.New(),
+				wazero_state_machine.New(),
+			}...)
+			runtimeStorage.Register(agent, turbokube.StorageKvName, turbokube.StorageKvWasm)
+
 			go run(ctx, agent, logger, ctrlService)
 			ctrlService.Runtime().Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
 			ctrlService.Start()

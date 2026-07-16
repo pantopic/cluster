@@ -4,69 +4,50 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"net/http"
 	"os"
 	"runtime"
-	"time"
 
-	"github.com/logbn/zongzi"
-	"github.com/soheilhy/cmux"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 
-	"github.com/pantopic/wazero-buffer-pool/host"
 	"github.com/pantopic/wazero-cluster/host"
-	"github.com/pantopic/wazero-global/host"
-	"github.com/pantopic/wazero-grpc-server/host"
 	"github.com/pantopic/wazero-pool"
-	"github.com/pantopic/wazero-shard-client/host"
 
 	"github.com/pantopic/cluster/pb"
 )
 
-type extService interface {
-	Register(context.Context, wazero.Runtime) error
-	InitContext(context.Context, api.Module) (context.Context, error)
-	ContextCopy(dst, src context.Context) context.Context
-}
-
 type runtimeService struct {
-	agent   *zongzi.Agent
 	ctx     context.Context
 	ctxCopy []ContextCopy
-	ext     map[string]extService
+	ext     map[string]Extension
+	lis     map[string]net.Listener
 	pools   map[string]wazeropool.Instance
+	svc     map[string]ServiceProvider
 	wasm    map[string][]byte
 	wazero  wazero.Runtime
 }
 
-func NewRuntimeService(ctx context.Context, agent *zongzi.Agent) (r *runtimeService) {
+func NewRuntimeService(ctx context.Context, ext ...Extension) (r *runtimeService) {
 	r = &runtimeService{
-		agent: agent,
 		ctx:   ctx,
-		ext:   make(map[string]extService),
+		ext:   make(map[string]Extension),
+		lis:   make(map[string]net.Listener),
 		pools: make(map[string]wazeropool.Instance),
+		svc:   make(map[string]ServiceProvider),
+		wasm:  make(map[string][]byte),
 	}
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
-	ext := []struct {
-		name string
-		ext  extService
-	}{
-		{"global", wazero_global.New()},
-		{"grpc", wazero_grpc_server.New()},
-		{"buffer_pool", wazero_buffer_pool.New()},
-		{"shard_client", wazero_shard_client.New(r.agent)},
-	}
-	for _, m := range ext {
-		r.ext[m.name] = m.ext
-		if err := m.ext.Register(r.ctx, r.wazero); err != nil {
+	for _, e := range ext {
+		r.ext[e.Name()] = e
+		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
 		}
-		r.ctxCopy = append(r.ctxCopy, m.ext.ContextCopy)
+		if sp, ok := e.(ServiceProvider); ok {
+			r.svc[sp.ServiceType()] = sp
+		}
+		r.ctxCopy = append(r.ctxCopy, e.ContextCopy)
 	}
 	return
 }
@@ -91,53 +72,41 @@ func (r *runtimeService) Register(name string, wasm []byte) {
 }
 
 func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
-	name := fmt.Sprintf("%s/service/%s", res.Type, svc.Type)
-	pool, ok := r.pools[name]
+	modName := fmt.Sprintf("%s/service/%s", res.Type, svc.Type)
+	pool, ok := r.pools[modName]
 	if !ok {
-		return fmt.Errorf(`Unrecognized service %s`, name)
+		return fmt.Errorf(`Unrecognized service module %s`, modName)
 	}
+	sp, ok := r.svc[svc.Type]
+	if !ok {
+		return
+	}
+	svcName := fmt.Sprintf("%s.%s.%s", res.Namespace, res.Name, svc.Name)
 	ctxCopy := append(r.ctxCopy, wazero_cluster.NewResolver(res.Namespace, res.Name))
-	// TODO - Move grpc server start to wazero-grpc-server/host
-	// r.ext["grpc"].ServiceStart(r.ctx, res, svc, pool, ctxCopy...)
-	var opts = []grpc.ServerOption{
-		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
-			MinTime:             5 * time.Second,
-			PermitWithoutStream: false,
-		}),
-		grpc.KeepaliveParams(keepalive.ServerParameters{
-			Time:    2 * time.Hour,
-			Timeout: 20 * time.Second,
-		}),
-	}
-	var grpcServer = grpc.NewServer(opts...)
-	err = r.ext["grpc"].(wazero_grpc_server.ServiceRegistry).RegisterServices(r.ctx, grpcServer, pool, ctxCopy...)
-	if err != nil {
-		panic(err)
-	}
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", svc.Port))
 	if err != nil {
-		panic(err)
+		return fmt.Errorf(`Unable to start listener for service %s: %w`, svcName, err)
 	}
-	m := cmux.New(lis)
-	grpcListener := m.Match(cmux.HTTP2())
-	httpListener := m.Match(cmux.Any())
-	go func() {
-		if err = grpcServer.Serve(grpcListener); err != nil {
-			panic(err)
-		}
-	}()
-	httpServer := &http.Server{
-		Handler: grpcServer,
+	r.lis[svcName] = lis
+	err = sp.ServerStart(r.ctx, lis, pool, ctxCopy...)
+	return
+}
+
+func (r *runtimeService) Stop(res *pb.Resource, svc *pb.Service) (err error) {
+	sp, ok := r.svc[svc.Type]
+	if !ok {
+		return
 	}
-	go func() {
-		if err = httpServer.Serve(httpListener); err != nil {
-			panic(err)
-		}
-	}()
-	go func() {
-		if err := m.Serve(); err != nil {
-			panic(err)
-		}
-	}()
+	svcName := fmt.Sprintf("%s.%s.%s", res.Namespace, res.Name, svc.Name)
+	lis, ok := r.lis[svcName]
+	if !ok {
+		return
+	}
+	err = sp.ServerStop(r.ctx, lis)
+	if err != nil {
+		return
+	}
+	err = lis.Close()
+	delete(r.lis, svcName)
 	return
 }

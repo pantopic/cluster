@@ -21,13 +21,13 @@ func cmdNamespacePut(entry *Entry, state *State, cmd []byte) (err error) {
 	) {
 		return
 	}
-	if item.Name == NAMESPACE_INTERNAL {
-		entry.Result.Value = ResultErrConflict
-		entry.Result.Data = []byte("Internal namespace cannot be modified")
-		return
-	}
 	found, exists := state.NamespaceFindByName(item.Name)
 	if exists {
+		if item.Name == NAMESPACE_INTERNAL {
+			entry.Result.Value = ResultErrConflict
+			entry.Result.Data = []byte("Internal namespace cannot be modified")
+			return
+		}
 		if item.Version != found.Version {
 			entry.Result.Value = ResultErrConflict
 			entry.Result.Data = []byte("Version mismatch")
@@ -83,7 +83,7 @@ func queryNamespaceGet(result *Result, state *State, query []byte) {
 	err := proto.Unmarshal(query, namespace)
 	if err != nil {
 		result.Value = ResultErrSyntactic
-		result.Data = []byte("Cluster get request is invalid")
+		result.Data = []byte("Namespace get request is invalid")
 		return
 	}
 	found, ok := state.NamespaceFindByName(namespace.Name)

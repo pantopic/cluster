@@ -37,13 +37,13 @@ type controllerService struct {
 
 var _ ControllerService = new(controllerService)
 
-func NewControllerService(ctx context.Context, a *Agent, log Logger) *controllerService {
+func NewControllerService(ctx context.Context, a *Agent, log Logger, runtime *runtimeService) *controllerService {
 	return &controllerService{
 		agent:   a,
 		client:  a.Client(ShardID),
 		ctx:     ctx,
 		log:     log,
-		runtime: NewRuntimeService(ctx, a),
+		runtime: runtime,
 		running: make(map[string]*pb.Service),
 	}
 }
@@ -72,7 +72,7 @@ func (c *controllerService) Start() (err error) {
 				return
 			}
 			if err != nil {
-				c.log.Errorf("[%s] Controller Service: %v", c.agent.HostID(), err)
+				c.log.Errorf("[%s] Service Controller: %v", c.agent.HostID(), err)
 			}
 		}
 	}()
@@ -91,19 +91,21 @@ func (c *controllerService) tick() (err error) {
 		res, _ := state.ResourceFindByName(svc.Namespace, svc.Resource)
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {
+				c.log.Infof(`[%s] Service Controller: Updating %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcUpdate(svc); err != nil {
 					err = fmt.Errorf(`Failed to Update: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
 				}
 			} else {
-				if err = c.svcStop(svc); err != nil {
+				c.log.Infof(`[%s] Service Controller: Stopping %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				if err = c.svcStop(res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Stop: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
 				}
 			}
 		} else if c.svcMatch(svc) {
 			if svc.Status == Status_Active {
-				c.log.Infof(`[%s] Starting Service: %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				c.log.Infof(`[%s] Service Controller: Starting %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcStart(res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Start: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
@@ -116,8 +118,8 @@ func (c *controllerService) tick() (err error) {
 	return
 }
 
-func (c *controllerService) svcStop(svc *pb.Service) (err error) {
-	// err = c.runtime.Stop(svc)
+func (c *controllerService) svcStop(res *pb.Resource, svc *pb.Service) (err error) {
+	err = c.runtime.Stop(res, svc)
 	return
 }
 

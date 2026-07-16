@@ -86,7 +86,6 @@ func (c *controllerCluster) tick() {
 			updated = false
 
 			// Connect to other clusters and elect lead cluster
-			// Run Service Controllers
 			// Run Component Controllers
 
 			if err != nil {
@@ -139,9 +138,6 @@ func (c *controllerCluster) init() {
 			Tags: map[string]string{`version`: version},
 		})
 	} else {
-		if internal.Tags == nil {
-			internal.Tags = make(map[string]string)
-		}
 		if internal.Tags[`version`] != version {
 			internal.Tags[`version`] = version
 			internal = c.controls.Namespace.Put(c.ctx, internal)

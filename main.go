@@ -9,9 +9,17 @@ import (
 	"syscall"
 
 	"github.com/logbn/zongzi"
-
 	"github.com/pantopic/cluster/internal"
-	// "github.com/pantopic/wazero-state-machine/host"
+
+	"github.com/pantopic/wazero-atomic/host"
+	"github.com/pantopic/wazero-buffer-pool/host"
+	"github.com/pantopic/wazero-global/host"
+	"github.com/pantopic/wazero-grpc-server/host"
+	"github.com/pantopic/wazero-lmdb/host"
+	"github.com/pantopic/wazero-range-watch/host"
+	"github.com/pantopic/wazero-shard-client/host"
+	"github.com/pantopic/wazero-small-cache/host"
+	"github.com/pantopic/wazero-state-machine/host"
 
 	"github.com/pantopic/turbokube/embed"
 )
@@ -38,9 +46,26 @@ func main() {
 	}
 	ctrl.Start(ctx, agent)
 
-	ctrlService := internal.NewControllerService(ctx, agent, logger)
+	runtimeSvc := internal.NewRuntimeService(ctx, []internal.Extension{
+		wazero_global.New(),
+		wazero_grpc_server.New(),
+		wazero_buffer_pool.New(),
+		wazero_shard_client.New(agent),
+	}...)
+	runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
+	ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
+
+	runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
+		wazero_lmdb.New(),
+		wazero_global.New(),
+		wazero_atomic.New(),
+		wazero_range_watch.New(),
+		wazero_small_cache.New(),
+		wazero_state_machine.New(),
+	}...)
+	runtimeStorage.Register(agent, turbokube.StorageKvName, turbokube.StorageKvWasm)
+
 	run(ctx, agent, logger, ctrlService)
-	ctrlService.Runtime().Register(turbokube.NameServiceGrpc, turbokube.WasmServiceGrpc)
 	ctrlService.Start()
 
 	stop := make(chan os.Signal, 1)
@@ -56,18 +81,7 @@ func run(ctx context.Context, agent *zongzi.Agent, logger zongzi.Logger, ctrlSer
 	agent.StateMachineRegister(
 		internal.StateMachineUri,
 		internal.StateMachineFactory(logger, ctrlService))
-	// agent.StateMachineRegister(
-	// 	wazero_state_machine.Uri,
-	// 	wazero_state_machine.Factory(ctx, logger))
-	// agent.StateMachineRegister(
-	// 	wazero_state_machine.UriPersistent,
-	// 	wazero_state_machine.FactoryPersistent(ctx, logger))
 	if err := agent.Start(ctx); err != nil {
 		panic(err)
 	}
-
-	// Start gRPC API Server
-	// Load extensions
-	// Start interfaces (ie. table http api)
-	// Report ready
 }

@@ -17,6 +17,7 @@ x-variables:
           memory: 1G
   env: &env
     PANTOPIC_HOST_PEERS: pantopic-0,pantopic-1,pantopic-2
+    PANTOPIC_HOST_TAGS: cluster:member
     PANTOPIC_LOG_LEVEL: warn # (info, debug)
 
 services:
@@ -26,24 +27,27 @@ services:
       <<: *env
       PANTOPIC_HOST_NAME: pantopic-0
     ports:
-      - 8000:8000
+      - 7091:7091
       - 9090:9090
+      - 19000:19000
   pantopic-1:
     <<: *common
     environment:
       <<: *env
       PANTOPIC_HOST_NAME: pantopic-1
     ports:
-      - 8001:8000
+      - 7092:7091
       - 9091:9090
+      - 19001:19000
   pantopic-2:
     <<: *common
     environment:
       <<: *env
       PANTOPIC_HOST_NAME: pantopic-2
     ports:
-      - 8002:8000
+      - 7093:7091
       - 9092:9090
+      - 19002:19000
 
 networks:
   pantopic:

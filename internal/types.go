@@ -3,8 +3,13 @@ package internal
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"github.com/logbn/zongzi"
+	"github.com/tetratelabs/wazero"
+	"github.com/tetratelabs/wazero/api"
+
+	"github.com/pantopic/wazero-pool"
 )
 
 const (
@@ -83,6 +88,17 @@ var (
 	ErrNotFound            = fmt.Errorf("Not Found")
 )
 
-type ContextCopier interface {
+type ContextCopy = func(dst, src context.Context) context.Context
+
+type Extension interface {
+	Name() string
+	Register(context.Context, wazero.Runtime) error
+	InitContext(context.Context, api.Module) (context.Context, error)
 	ContextCopy(dst, src context.Context) context.Context
+}
+
+type ServiceProvider interface {
+	ServiceType() string
+	ServerStart(ctx context.Context, lis net.Listener, pool wazeropool.Instance, ctxCopy ...ContextCopy) (err error)
+	ServerStop(ctx context.Context, lis net.Listener) (err error)
 }
