@@ -53,18 +53,21 @@ func main() {
 		wazero_shard_client.New(agent),
 	}...)
 	runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
-	ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
 
+	extLmdb := wazero_lmdb.New()
 	runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
-		wazero_lmdb.New(),
+		extLmdb,
 		wazero_global.New(),
 		wazero_atomic.New(),
 		wazero_range_watch.New(),
 		wazero_small_cache.New(),
-		wazero_state_machine.New(),
+		wazero_state_machine.New(
+			wazero_state_machine.WithStorageExtensionPersistent(extLmdb),
+		),
 	}...)
 	runtimeStorage.Register(agent, turbokube.StorageKvName, turbokube.StorageKvWasm)
 
+	ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
 	run(ctx, agent, logger, ctrlService)
 	ctrlService.Start()
 

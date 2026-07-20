@@ -18,14 +18,13 @@ import (
 )
 
 type runtimeStorage struct {
-	agent   *Agent
-	ctx     context.Context
-	ctxCopy []ContextCopy
-	dir     string
-	ext     map[string]Extension
-	pools   map[string]wazeropool.Instance
-	wasm    map[string][]byte
-	wazero  wazero.Runtime
+	agent  *Agent
+	ctx    context.Context
+	dir    string
+	ext    map[string]Extension
+	pools  map[string]wazeropool.Instance
+	wasm   map[string][]byte
+	wazero wazero.Runtime
 }
 
 func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runtimeStorage) {
@@ -38,19 +37,24 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 	}
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
+	var ctxCopy []ContextCopy
+	var extStorage []wazero_state_machine.StorageExtensionPersistent
 	for _, e := range ext {
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
 		}
-		r.ctxCopy = append(r.ctxCopy, e.ContextCopy)
+		ctxCopy = append(ctxCopy, e.ContextCopy)
+		if esp, ok := e.(wazero_state_machine.StorageExtensionPersistent); ok {
+			extStorage = append(extStorage, esp)
+		}
 	}
 	ctxInit := func(ctx context.Context, shardID, replicaID uint64) context.Context {
 		dir := fmt.Sprintf("%s/data/%d/%d", r.dir, shardID, replicaID)
-		return wazero_lmdb.EnvRegister(ctx, wazero_lmdb.EnvCreate(dir))
+		return wazero_lmdb.EnvRegisterDir(ctx, dir)
 	}
 	logger := zongzi.GetLogger(`statemachine`)
-	fsm := wazero_state_machine.FactoryPersistent(ctx, logger, r.poolFactoryStorage, ctxInit, r.ctxCopy...)
+	fsm := wazero_state_machine.FactoryPersistent(ctx, ctxInit, ctxCopy, logger, r.poolFactoryStorage, extStorage...)
 	a.StateMachineRegister(wazero_state_machine.UriPersistent, fsm)
 	return
 }
