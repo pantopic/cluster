@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/pantopic/wazero-state-machine/sdk-go"
+	"github.com/pantopic/ext-raft/sdk-go"
 )
 
 var (
@@ -9,7 +9,7 @@ var (
 )
 
 func init() {
-	statemachine.Concurrent(update, finish, read)
+	raft.Concurrent(update, finish, read)
 }
 
 func main() {}

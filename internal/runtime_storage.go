@@ -13,8 +13,8 @@ import (
 	"github.com/logbn/zongzi"
 	"github.com/pantopic/wazero-pool"
 
-	"github.com/pantopic/wazero-lmdb/host"
-	"github.com/pantopic/wazero-state-machine/host"
+	"github.com/pantopic/ext-mdb/host-wazero-lmdb"
+	"github.com/pantopic/ext-raft/host-wazero"
 )
 
 type runtimeStorage struct {
@@ -38,14 +38,14 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
 	var ctxCopy []ContextCopy
-	var extStorage []wazero_state_machine.StorageExtensionPersistent
+	var extStorage []wazero_raft.StorageExtensionPersistent
 	for _, e := range ext {
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
 		}
 		ctxCopy = append(ctxCopy, e.ContextCopy)
-		if esp, ok := e.(wazero_state_machine.StorageExtensionPersistent); ok {
+		if esp, ok := e.(wazero_raft.StorageExtensionPersistent); ok {
 			extStorage = append(extStorage, esp)
 		}
 	}
@@ -54,8 +54,8 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 		return wazero_lmdb.EnvRegisterDir(ctx, dir)
 	}
 	logger := zongzi.GetLogger(`statemachine`)
-	fsm := wazero_state_machine.FactoryPersistent(ctx, ctxInit, ctxCopy, logger, r.poolFactoryStorage, extStorage...)
-	a.StateMachineRegister(wazero_state_machine.UriPersistent, fsm)
+	fsm := wazero_raft.FactoryPersistent(ctx, ctxInit, ctxCopy, logger, r.poolFactoryStorage, extStorage...)
+	a.StateMachineRegister(wazero_raft.UriPersistent, fsm)
 	return
 }
 

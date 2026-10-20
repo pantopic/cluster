@@ -1,6 +1,4 @@
-github.com/aperturerobotics/protobuf-go-lite v0.11.0 h1:IAaZISqrEpodqECYxk0yKWgROEbZtMhs7bErP+Zma9o=
-github.com/aperturerobotics/protobuf-go-lite v0.11.0/go.mod h1:c4kGy7Dkfz6B1m0t4QBIMQoNeQ7m+nYj3Qxxnlwhygo=
-github.com/pantopic/wazero-grpc-server/sdk-go v0.0.13 h1:mJlf+zkc27J56XEpCMaGu8By04jL1Ts7aJC3foPdZt4=
-github.com/pantopic/wazero-grpc-server/sdk-go v0.0.13/go.mod h1:hGD7Xh7atAX5dKKcJ0YX97RapK8WlXzw8ViLiIMtNtI=
-github.com/pantopic/wazero-shard-client/sdk-go v0.0.1 h1:xJhDEJwvZpYk3p8GJiQFZEZ+nHqi2595I4rgIlJsOyw=
-github.com/pantopic/wazero-shard-client/sdk-go v0.0.1/go.mod h1:bAwjgvpHsSnfjRNbxgI/dg3aAhUzQ0Que8B71UCLQfc=
+github.com/aperturerobotics/protobuf-go-lite v0.17.0 h1:paEC3KNvw+JnIyKAQZlMLh2h4nY6P/Hm0oc20eubYe4=
+github.com/aperturerobotics/protobuf-go-lite v0.17.0/go.mod h1:3Ay/E7iaw2KWLirK3+dDdNJZHK0hu8Y1/kKeYeUa+8s=
+github.com/pantopic/ext-grpc-server/sdk-go v0.0.17 h1:zBzGEINrF/2qelZeuE5NdoWOKwGSjyWMMYZFLP8ykQ4=
+github.com/pantopic/ext-grpc-server/sdk-go v0.0.17/go.mod h1:80sYV0H/vv9updbQp1sY8HQDjIEYk9U8SfizwJP4bQo=

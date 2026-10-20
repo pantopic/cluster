@@ -1,4 +1,4 @@
 github.com/aperturerobotics/protobuf-go-lite v0.14.0 h1:6YhovtoUZtXgXLHZ2VV2GCYUzFfi8UN6172Vl2flNlE=
 github.com/aperturerobotics/protobuf-go-lite v0.14.0/go.mod h1:lGH3s5ArCTXKI4wJdlNpaybUtwSjfAG0vdWjxOfMcF8=
-github.com/pantopic/wazero-state-machine/sdk-go v0.0.1 h1:6E7XCR+Gb6x/fuo6vCUZwokZPctRYdR6z/Sm9jnjy9o=
-github.com/pantopic/wazero-state-machine/sdk-go v0.0.1/go.mod h1:NP9GvVIm9pTT5By8S/H0gx8ZUQAyxmZFlYu7EVxB2Yg=
+github.com/pantopic/ext-raft/sdk-go v0.0.3 h1:ca7D0ZA0pArandabz8CAMtvpdjZKcXuHdBjgG5QE6Vk=
+github.com/pantopic/ext-raft/sdk-go v0.0.3/go.mod h1:0M9h4aTiRIk9LAF1bMb/yoWPVN8BpbfLFT6e5YY+04Q=

@@ -86,7 +86,8 @@ func (c *controllerCluster) tick() {
 			updated = false
 
 			// Connect to other clusters and elect lead cluster
-			// Run Component Controllers
+			// Run Resource Controller Manager
+			// Run Component Controller Manager
 
 			if err != nil {
 				hadErr = true
@@ -158,5 +159,5 @@ func (c *controllerCluster) Stop() {
 	c.ctxCancel()
 	c.wg.Wait()
 	c.index = 0
-	c.log.Infof(`Cluster controller stopped`)
+	c.log.Infof(`[%s] Cluster controller stopped`, c.agent.HostID())
 }

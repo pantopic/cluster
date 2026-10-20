@@ -99,6 +99,6 @@ type Extension interface {
 
 type ServiceProvider interface {
 	ServiceType() string
-	ServerStart(ctx context.Context, lis net.Listener, pool wazeropool.Instance, ctxCopy ...ContextCopy) (err error)
+	ServerStart(ctx context.Context, lis net.Listener, tlsCrt, tlsKey string, pool wazeropool.Instance, ctxCopy ...ContextCopy) (err error)
 	ServerStop(ctx context.Context, lis net.Listener) (err error)
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 
-	"github.com/pantopic/wazero-cluster/host"
+	"github.com/pantopic/ext-cluster/host-wazero"
 	"github.com/pantopic/wazero-pool"
 
 	"github.com/pantopic/cluster/pb"
@@ -79,7 +79,7 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 	}
 	sp, ok := r.svc[svc.Type]
 	if !ok {
-		return
+		return fmt.Errorf(`Unrecognized service provider %s`, svc.Type)
 	}
 	svcName := fmt.Sprintf("%s.%s.%s", res.Namespace, res.Name, svc.Name)
 	ctxCopy := append(r.ctxCopy, wazero_cluster.NewResolver(res.Namespace, res.Name))
@@ -88,19 +88,19 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 		return fmt.Errorf(`Unable to start listener for service %s: %w`, svcName, err)
 	}
 	r.lis[svcName] = lis
-	err = sp.ServerStart(r.ctx, lis, pool, ctxCopy...)
+	err = sp.ServerStart(r.ctx, lis, "", "", pool, ctxCopy...)
 	return
 }
 
 func (r *runtimeService) Stop(res *pb.Resource, svc *pb.Service) (err error) {
 	sp, ok := r.svc[svc.Type]
 	if !ok {
-		return
+		return fmt.Errorf(`Unrecognized service provider %s`, svc.Type)
 	}
 	svcName := fmt.Sprintf("%s.%s.%s", res.Namespace, res.Name, svc.Name)
 	lis, ok := r.lis[svcName]
 	if !ok {
-		return
+		return fmt.Errorf(`Unrecognized listener for service %s`, svcName)
 	}
 	err = sp.ServerStop(r.ctx, lis)
 	if err != nil {

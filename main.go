@@ -11,15 +11,15 @@ import (
 	"github.com/logbn/zongzi"
 	"github.com/pantopic/cluster/internal"
 
-	"github.com/pantopic/wazero-atomic/host"
-	"github.com/pantopic/wazero-buffer-pool/host"
-	"github.com/pantopic/wazero-global/host"
-	"github.com/pantopic/wazero-grpc-server/host"
-	"github.com/pantopic/wazero-lmdb/host"
-	"github.com/pantopic/wazero-range-watch/host"
-	"github.com/pantopic/wazero-shard-client/host"
-	"github.com/pantopic/wazero-small-cache/host"
-	"github.com/pantopic/wazero-state-machine/host"
+	"github.com/pantopic/ext-atomic/host-wazero"
+	"github.com/pantopic/ext-buffer/host-wazero"
+	"github.com/pantopic/ext-global/host-wazero"
+	"github.com/pantopic/ext-grpc-server/host-wazero"
+	"github.com/pantopic/ext-mdb/host-wazero-lmdb"
+	"github.com/pantopic/ext-raft/host-wazero"
+	"github.com/pantopic/ext-range-watch/host-wazero"
+	"github.com/pantopic/ext-shard-client/host-wazero"
+	"github.com/pantopic/ext-small-cache/host-wazero"
 
 	"github.com/pantopic/turbokube/embed"
 )
@@ -49,7 +49,7 @@ func main() {
 	runtimeSvc := internal.NewRuntimeService(ctx, []internal.Extension{
 		wazero_global.New(),
 		wazero_grpc_server.New(),
-		wazero_buffer_pool.New(),
+		wazero_buffer.New(),
 		wazero_shard_client.New(agent),
 	}...)
 	runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
@@ -61,8 +61,8 @@ func main() {
 		wazero_atomic.New(),
 		wazero_range_watch.New(),
 		wazero_small_cache.New(),
-		wazero_state_machine.New(
-			wazero_state_machine.WithStorageExtensionPersistent(extLmdb),
+		wazero_raft.New(
+			wazero_raft.WithStorageExtensionPersistent(extLmdb),
 		),
 	}...)
 	runtimeStorage.Register(agent, turbokube.StorageKvName, turbokube.StorageKvWasm)
