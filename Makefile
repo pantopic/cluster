@@ -50,10 +50,6 @@ gen-lite-install:
 cloc:
 	@cloc . --exclude-dir=_example,_dist,internal,cmd --exclude-ext=pb.go
 
-wasm-control:
-	@cd test/module/control && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/control.wasm -no-debug
-wasm-control-dev:
-	@cd test/module/control && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=conservative -scheduler=none -o ../../../_dist/control.dev.wasm
 wasm-storage:
 	@cd test/module/storage && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/storage.wasm -no-debug
 wasm-storage-dev:
@@ -62,6 +58,10 @@ wasm-service-grpc:
 	@cd test/module/service-grpc && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/service-grpc.wasm -no-debug
 wasm-service-grpc-dev:
 	@cd test/module/service-grpc && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=conservative -scheduler=none -o ../../../_dist/service-grpc.dev.wasm
+wasm-control:
+	@cd test/module/control && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/control.wasm -no-debug
+wasm-control-dev:
+	@cd test/module/control && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=conservative -scheduler=none -o ../../../_dist/control.dev.wasm
 wasm-dev: wasm-storage-dev wasm-service-grpc-dev wasm-control-dev
 wasm-prod: wasm-storage wasm-service-grpc wasm-control
 wasm: wasm-dev wasm-prod

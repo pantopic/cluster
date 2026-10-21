@@ -11,13 +11,13 @@ require (
 	github.com/pantopic/ext-buffer/host-wazero v0.0.4
 	github.com/pantopic/ext-cluster/host-wazero v0.0.1
 	github.com/pantopic/ext-global/host-wazero v0.0.3
-	github.com/pantopic/ext-grpc-server/host-wazero v0.0.0-20260825184516-817255fbbbd9
+	github.com/pantopic/ext-grpc-server/host-wazero v0.0.17
 	github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10
 	github.com/pantopic/ext-raft/host-wazero v0.0.3
 	github.com/pantopic/ext-range-watch/host-wazero v0.0.7
 	github.com/pantopic/ext-shard-client/host-wazero v0.0.3
 	github.com/pantopic/ext-small-cache/host-wazero v0.0.3
-	github.com/pantopic/turbokube v0.0.3
+	github.com/pantopic/turbokube v0.0.4
 	github.com/pantopic/wazero-pool v0.0.7
 	github.com/stretchr/testify v1.11.1
 	github.com/tetratelabs/wazero v1.12.0

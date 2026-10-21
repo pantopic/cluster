@@ -271,8 +271,8 @@ github.com/pantopic/ext-cluster/host-wazero v0.0.1 h1:aCJOISjjW9jUXM0m4vV81Gsfg0
 github.com/pantopic/ext-cluster/host-wazero v0.0.1/go.mod h1:gpRuT9u5chSDaOJuuzDpHhGND5ROzOP0HZt1p09chi4=
 github.com/pantopic/ext-global/host-wazero v0.0.3 h1:RHzVw1nVXz7yUxKHaw7pUtghbrBlmdPGzPfWK/YLVd0=
 github.com/pantopic/ext-global/host-wazero v0.0.3/go.mod h1:n5iyH0OqBQMGz5386pnns831s6FVzVXkVCwlYw1NG3A=
-github.com/pantopic/ext-grpc-server/host-wazero v0.0.0-20260825184516-817255fbbbd9 h1:TwqGpoLM75MwMOX9aKcDsEnnTrxg1YC8DcZpE0Lcaew=
-github.com/pantopic/ext-grpc-server/host-wazero v0.0.0-20260825184516-817255fbbbd9/go.mod h1:yDN3sG1LR0HS8DQxhYfYuzB7/BgCswh8zggrNYw8zlk=
+github.com/pantopic/ext-grpc-server/host-wazero v0.0.17 h1:aTYTGK1g14YwCc53okthVozwj8n7YLSBtXm1eRoIH3A=
+github.com/pantopic/ext-grpc-server/host-wazero v0.0.17/go.mod h1:WDTtzPU4ZlwZb3hUvP5RiEGx7tnY6CxfFRxWy3eWI3Y=
 github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10 h1:I1bMqTvPpRqJVc2bIQQmQVv+OBoaYlqR+ZYuCcPW0hE=
 github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10/go.mod h1:NkH1T12zRexz98Xi5fR+V8e7uenBqDPbOdKQ2TNbOZ8=
 github.com/pantopic/ext-raft/host-wazero v0.0.3 h1:JcT3vBtxTUbpX7cbMNXAIYz+EN1qwunICN2q/QUGYkg=
@@ -283,10 +283,8 @@ github.com/pantopic/ext-shard-client/host-wazero v0.0.3 h1:8OvJhEDcVoeXcxSHeOdjC
 github.com/pantopic/ext-shard-client/host-wazero v0.0.3/go.mod h1:BjhO9up8jbOwy9JekQgoK5rESo4p7fdt18/tzuXVNIw=
 github.com/pantopic/ext-small-cache/host-wazero v0.0.3 h1:SXY7Y8rruhm1UBe+KzOCO4SFvluJqdzolaDvXUmrhO0=
 github.com/pantopic/ext-small-cache/host-wazero v0.0.3/go.mod h1:oz1nHEKPPr4SqgE1BxXGV66Yg/MjOTUqZPCPbu0PJdQ=
-github.com/pantopic/turbokube v0.0.3 h1:9DZUKqhvf88Y+B/YjCQHvLBNEezsDHAHBz39ohBM2pA=
-github.com/pantopic/turbokube v0.0.3/go.mod h1:J6EGhFC/xwsrQRx8vKTW/Y0ueDVj9kJCG0tB4n0hROc=
-github.com/pantopic/wazero-atomic/host v0.0.3 h1:2AIGN2XdFGmXIeCJvtk9H3wBon42pUgv/yGunIZ0Iz0=
-github.com/pantopic/wazero-atomic/host v0.0.3/go.mod h1:zQwA7GIrf1Ixj9EqvhfQ4cuw/MpllNaqJ0KOUN5+6X0=
+github.com/pantopic/turbokube v0.0.4 h1:et6NqMNDEgckagRK/W2Gt6DozHRhw9CXaROUUoSjJks=
+github.com/pantopic/turbokube v0.0.4/go.mod h1:0Zn4sjHpqRwDzRxE3BzRUa9Mvzy5cUTDVaqG+pOpKWo=
 github.com/pantopic/wazero-cluster/host v0.0.0-20260711151336-9bd8f3a69a34 h1:Z33IfAIu6rSsi6A3PeNet85B1wiQ/8KGm2KokWmTHWo=
 github.com/pantopic/wazero-cluster/host v0.0.0-20260711151336-9bd8f3a69a34/go.mod h1:jzKOOZXDZXYTg5xXmyFBS6RJ5ueaaLMwVRfYPfzUfS4=
 github.com/pantopic/wazero-pool v0.0.7 h1:ySBZ7vDOqrFeV9EGn70SbGN2LOO8ySePym5zgWoKOCw=
