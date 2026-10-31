@@ -82,6 +82,7 @@ func TestMain(t *testing.T) {
 				wazero_buffer.New(),
 				wazero_shard_client.New(agent),
 			}...)
+			runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
 			ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
 
 			runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
@@ -92,7 +93,7 @@ func TestMain(t *testing.T) {
 				wazero_small_cache.New(),
 				wazero_raft.New(),
 			}...)
-			runtimeStorage.Register(agent, turbokube.StorageKvName, turbokube.StorageKvWasm)
+			runtimeStorage.Register(turbokube.StorageKvName, turbokube.StorageKvWasm)
 
 			go run(ctx, agent, logger, ctrlService)
 			ctrlService.Runtime().Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)

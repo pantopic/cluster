@@ -21,6 +21,7 @@ import (
 	"github.com/pantopic/ext-shard-client/host-wazero"
 	"github.com/pantopic/ext-small-cache/host-wazero"
 
+	"github.com/pantopic/kitsune/embed"
 	"github.com/pantopic/turbokube/embed"
 )
 
@@ -53,6 +54,7 @@ func main() {
 		wazero_shard_client.New(agent),
 	}...)
 	runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
+	runtimeSvc.Register(kitsune.ServiceGrpcName, kitsune.ServiceGrpcWasm)
 
 	extLmdb := wazero_lmdb.New()
 	runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
@@ -65,7 +67,8 @@ func main() {
 			wazero_raft.WithStorageExtensionPersistent(extLmdb),
 		),
 	}...)
-	runtimeStorage.Register(agent, turbokube.StorageKvName, turbokube.StorageKvWasm)
+	runtimeStorage.Register(turbokube.StorageKvName, turbokube.StorageKvWasm)
+	runtimeStorage.Register(kitsune.StorageQueueName, kitsune.StorageQueueWasm)
 
 	ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
 	run(ctx, agent, logger, ctrlService)

@@ -59,7 +59,7 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 	return
 }
 
-func (r *runtimeStorage) Register(agent *Agent, name string, wasm []byte) {
+func (r *runtimeStorage) Register(name string, wasm []byte) {
 	cfg := wazero.NewModuleConfig().WithStdout(os.Stdout)
 	pool, err := wazeropool.New(r.ctx, r.wazero, wasm,
 		wazeropool.WithModuleConfig(cfg),
