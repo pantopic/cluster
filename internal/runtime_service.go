@@ -23,6 +23,7 @@ type runtimeService struct {
 	ext     map[string]Extension
 	lis     map[string]net.Listener
 	pools   map[string]wazeropool.Instance
+	poolCtx map[string]context.Context
 	svc     map[string]ServiceProvider
 	wasm    map[string][]byte
 	wazero  wazero.Runtime
@@ -30,12 +31,13 @@ type runtimeService struct {
 
 func NewRuntimeService(ctx context.Context, ext ...Extension) (r *runtimeService) {
 	r = &runtimeService{
-		ctx:   ctx,
-		ext:   make(map[string]Extension),
-		lis:   make(map[string]net.Listener),
-		pools: make(map[string]wazeropool.Instance),
-		svc:   make(map[string]ServiceProvider),
-		wasm:  make(map[string][]byte),
+		ctx:     ctx,
+		ext:     make(map[string]Extension),
+		lis:     make(map[string]net.Listener),
+		pools:   make(map[string]wazeropool.Instance),
+		poolCtx: make(map[string]context.Context),
+		svc:     make(map[string]ServiceProvider),
+		wasm:    make(map[string][]byte),
 	}
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
@@ -60,20 +62,25 @@ func (r *runtimeService) Register(name string, wasm []byte) {
 	if err != nil {
 		panic(err)
 	}
-	r.ctx = wazeropool.ContextSet(r.ctx, pool)
+	ctx := wazeropool.ContextSet(r.ctx, pool)
 	pool.Run(func(mod api.Module) {
 		for _, m := range r.ext {
-			if r.ctx, err = m.InitContext(r.ctx, mod); err != nil {
+			if ctx, err = m.InitContext(ctx, mod); err != nil {
 				panic(err)
 			}
 		}
 	})
 	r.pools[name] = pool
+	r.poolCtx[name] = ctx
 }
 
 func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 	modName := fmt.Sprintf("%s/service/%s", res.Type, svc.Type)
 	pool, ok := r.pools[modName]
+	if !ok {
+		return fmt.Errorf(`Unrecognized service module %s`, modName)
+	}
+	ctx, ok := r.poolCtx[modName]
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, modName)
 	}
@@ -88,7 +95,7 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 		return fmt.Errorf(`Unable to start listener for service %s: %w`, svcName, err)
 	}
 	r.lis[svcName] = lis
-	err = sp.ServerStart(r.ctx, lis, "", "", pool, ctxCopy...)
+	err = sp.ServerStart(ctx, lis, "", "", pool, ctxCopy...)
 	return
 }
 

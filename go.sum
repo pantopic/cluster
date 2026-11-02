@@ -269,10 +269,12 @@ github.com/pantopic/ext-buffer/host-wazero v0.0.4 h1:zmyDqgluTuwgiLTLGkPCZtcXUC+
 github.com/pantopic/ext-buffer/host-wazero v0.0.4/go.mod h1:Izah+BbEZCdkG0wC1J8yMbeVfu4F26SQE+3304IkrQY=
 github.com/pantopic/ext-cluster/host-wazero v0.0.1 h1:aCJOISjjW9jUXM0m4vV81Gsfg0ncZBPOfG6a7fqkax0=
 github.com/pantopic/ext-cluster/host-wazero v0.0.1/go.mod h1:gpRuT9u5chSDaOJuuzDpHhGND5ROzOP0HZt1p09chi4=
-github.com/pantopic/ext-global/host-wazero v0.0.3 h1:RHzVw1nVXz7yUxKHaw7pUtghbrBlmdPGzPfWK/YLVd0=
-github.com/pantopic/ext-global/host-wazero v0.0.3/go.mod h1:n5iyH0OqBQMGz5386pnns831s6FVzVXkVCwlYw1NG3A=
+github.com/pantopic/ext-global/host-wazero v0.0.4 h1:J37aeasNDFlNPpa7ZLlY/Ml247lG86MK9yG/nR5nmI0=
+github.com/pantopic/ext-global/host-wazero v0.0.4/go.mod h1:exmLgl79QCYtbPmN8y3SqoCfxRzqi+Tqme9G4tLZSOM=
 github.com/pantopic/ext-grpc-server/host-wazero v0.0.17 h1:aTYTGK1g14YwCc53okthVozwj8n7YLSBtXm1eRoIH3A=
 github.com/pantopic/ext-grpc-server/host-wazero v0.0.17/go.mod h1:WDTtzPU4ZlwZb3hUvP5RiEGx7tnY6CxfFRxWy3eWI3Y=
+github.com/pantopic/ext-http-server/host-wazero v0.0.0-20261101143411-fd185e609bcd h1:y4VlAnZyVyOgSRZZ5Y39U1n+zOJUql3wZOUCq9AqHZ0=
+github.com/pantopic/ext-http-server/host-wazero v0.0.0-20261101143411-fd185e609bcd/go.mod h1:+qkSDTAccfGZ+oN+DUsvTaR2y8rU28Cm2XzoLwhfMJY=
 github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10 h1:I1bMqTvPpRqJVc2bIQQmQVv+OBoaYlqR+ZYuCcPW0hE=
 github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10/go.mod h1:NkH1T12zRexz98Xi5fR+V8e7uenBqDPbOdKQ2TNbOZ8=
 github.com/pantopic/ext-raft/host-wazero v0.0.4 h1:DYskCRakfT9awV1nYhm21rSWK9E4tKlBpcGKz5KrUaI=
@@ -283,6 +285,10 @@ github.com/pantopic/ext-shard-client/host-wazero v0.0.4 h1:wCox4KDin3OTYwKCXDFDk
 github.com/pantopic/ext-shard-client/host-wazero v0.0.4/go.mod h1:GXwW7b2EBAZ20lffzJtDgPEBluL5sXhX/r8Wescoy0k=
 github.com/pantopic/ext-small-cache/host-wazero v0.0.3 h1:SXY7Y8rruhm1UBe+KzOCO4SFvluJqdzolaDvXUmrhO0=
 github.com/pantopic/ext-small-cache/host-wazero v0.0.3/go.mod h1:oz1nHEKPPr4SqgE1BxXGV66Yg/MjOTUqZPCPbu0PJdQ=
+github.com/pantopic/kitsune/embed v0.0.1 h1:/EH5i5ITJnyV4vmEvXTc1ZqigrrcR+RUl27p6icXdSc=
+github.com/pantopic/kitsune/embed v0.0.1/go.mod h1:+A5u+sgPlSXrjKIb8Vm6HIU5WfKPpRwzSXDky6QhtDM=
+github.com/pantopic/kitsune/test v0.0.0-20261102173909-47dd4eaf50c9 h1:07DNvzRRVdXURjZmYugKwWMpZNLCegBvo3o+4+I6jU8=
+github.com/pantopic/kitsune/test v0.0.0-20261102173909-47dd4eaf50c9/go.mod h1:cM6z9yhQDWx8qiOx5gz27rGBqXzCoLhBdTEGuCjG/W4=
 github.com/pantopic/turbokube v0.0.4 h1:et6NqMNDEgckagRK/W2Gt6DozHRhw9CXaROUUoSjJks=
 github.com/pantopic/turbokube v0.0.4/go.mod h1:0Zn4sjHpqRwDzRxE3BzRUa9Mvzy5cUTDVaqG+pOpKWo=
 github.com/pantopic/wazero-pool v0.0.7 h1:ySBZ7vDOqrFeV9EGn70SbGN2LOO8ySePym5zgWoKOCw=

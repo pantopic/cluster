@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 	"testing"
@@ -22,12 +23,15 @@ import (
 	"github.com/pantopic/ext-buffer/host-wazero"
 	"github.com/pantopic/ext-global/host-wazero"
 	"github.com/pantopic/ext-grpc-server/host-wazero"
+	"github.com/pantopic/ext-http-server/host-wazero"
 	"github.com/pantopic/ext-mdb/host-wazero-lmdb"
 	"github.com/pantopic/ext-raft/host-wazero"
 	"github.com/pantopic/ext-range-watch/host-wazero"
 	"github.com/pantopic/ext-shard-client/host-wazero"
 	"github.com/pantopic/ext-small-cache/host-wazero"
 
+	"github.com/pantopic/kitsune/embed"
+	"github.com/pantopic/kitsune/test"
 	"github.com/pantopic/turbokube/embed"
 
 	"github.com/pantopic/cluster/internal"
@@ -79,10 +83,12 @@ func TestMain(t *testing.T) {
 			runtimeSvc := internal.NewRuntimeService(ctx, []internal.Extension{
 				wazero_global.New(),
 				wazero_grpc_server.New(),
+				wazero_http_server.New(),
 				wazero_buffer.New(),
 				wazero_shard_client.New(agent),
 			}...)
-			runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
+			runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcDevWasm)
+			runtimeSvc.Register(kitsune.ServiceHttpName, kitsune.ServiceHttpDevWasm)
 			ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
 
 			runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
@@ -93,7 +99,8 @@ func TestMain(t *testing.T) {
 				wazero_small_cache.New(),
 				wazero_raft.New(),
 			}...)
-			runtimeStorage.Register(turbokube.StorageKvName, turbokube.StorageKvWasm)
+			runtimeStorage.Register(turbokube.StorageKvName, turbokube.StorageKvDevWasm)
+			runtimeStorage.Register(kitsune.StorageQueueName, kitsune.StorageQueueDevWasm)
 
 			go run(ctx, agent, logger, ctrlService)
 			ctrlService.Runtime().Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
@@ -300,6 +307,85 @@ func TestMain(t *testing.T) {
 		// 10s - shard is deleted
 		// 10s - component is deleted
 		// 10s - resource is deleted
+	})
+	t.Run(`kitsune`, func(t *testing.T) {
+		port := 19100
+		addr := fmt.Sprintf("localhost:%d", port)
+		resource := &pb.Resource{
+			Namespace: "default",
+			Name:      "kitsune-test",
+			Type:      "pantopic/kitsune",
+		}
+		service := &pb.Service{
+			Namespace: "default",
+			Resource:  resource.Name,
+			Name:      "kitsune-test",
+			Type:      "http",
+			Port:      uint64(port),
+			Status:    internal.Status_Active,
+			Tags: map[string]string{
+				"placement:cover": "host:class=service",
+			},
+		}
+		component := &pb.Component{
+			Namespace: "default",
+			Resource:  resource.Name,
+			Cluster:   cfg.ClusterName,
+			Name:      "kitsune-test",
+			Type:      "component",
+			Tags: map[string]string{
+				"placement:cover": "host:class=storage",
+				"placement:vary":  "geo:zone",
+			},
+		}
+		t.Run(`resource`, func(t *testing.T) {
+			t.Run(`create`, func(t *testing.T) {
+				putResp, err := ctrlClient.ResourcePut(ctx, &pb.ResourcePutRequest{
+					Item: resource,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, resource.Namespace, putResp.Item.Namespace)
+				require.Equal(t, resource.Name, putResp.Item.Name)
+				require.Equal(t, resource.Type, putResp.Item.Type)
+			})
+		})
+		t.Run(`service`, func(t *testing.T) {
+			t.Run(`create`, func(t *testing.T) {
+				putResp, err := ctrlClient.ServicePut(ctx, &pb.ServicePutRequest{
+					Item: service,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, service.Namespace, putResp.Item.Namespace)
+				require.Equal(t, service.Name, putResp.Item.Name)
+				require.Equal(t, service.Type, putResp.Item.Type)
+			})
+		})
+		t.Run(`component`, func(t *testing.T) {
+			t.Run(`create`, func(t *testing.T) {
+				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
+					Item: component,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, component.Namespace, putResp.Item.Namespace)
+				require.Equal(t, component.Name, putResp.Item.Name)
+				require.Equal(t, component.Resource, putResp.Item.Resource)
+				require.Equal(t, component.Type, putResp.Item.Type)
+			})
+		})
+		var c = &http.Client{}
+		var res *http.Response
+		t.Run(`healthcheck`, func(t *testing.T) {
+			require.True(t, await(10, 100, func() bool {
+				res, err = c.Get(fmt.Sprintf("http://%s/health", addr))
+				return err == nil
+			}), "%s", err)
+			require.Nil(t, err, err)
+			require.NotNil(t, res)
+		})
+		kitsune_test.All(t, c, addr)
 	})
 	logger.Infof("Stopping")
 	for i := range len(crtlClusters) {

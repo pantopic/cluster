@@ -54,7 +54,7 @@ func main() {
 		wazero_shard_client.New(agent),
 	}...)
 	runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcWasm)
-	runtimeSvc.Register(kitsune.ServiceGrpcName, kitsune.ServiceGrpcWasm)
+	runtimeSvc.Register(kitsune.ServiceHttpName, kitsune.ServiceHttpWasm)
 
 	extLmdb := wazero_lmdb.New()
 	runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
