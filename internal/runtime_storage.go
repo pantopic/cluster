@@ -18,22 +18,24 @@ import (
 )
 
 type runtimeStorage struct {
-	agent  *Agent
-	ctx    context.Context
-	dir    string
-	ext    map[string]Extension
-	pools  map[string]wazeropool.Instance
-	wasm   map[string][]byte
-	wazero wazero.Runtime
+	agent   *Agent
+	ctx     context.Context
+	dir     string
+	ext     map[string]Extension
+	poolCtx map[string]context.Context
+	pools   map[string]wazeropool.Instance
+	wasm    map[string][]byte
+	wazero  wazero.Runtime
 }
 
 func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runtimeStorage) {
 	r = &runtimeStorage{
-		agent: a,
-		ctx:   ctx,
-		ext:   make(map[string]Extension),
-		pools: make(map[string]wazeropool.Instance),
-		wasm:  make(map[string][]byte),
+		agent:   a,
+		ctx:     ctx,
+		ext:     make(map[string]Extension),
+		poolCtx: make(map[string]context.Context),
+		pools:   make(map[string]wazeropool.Instance),
+		wasm:    make(map[string][]byte),
 	}
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
@@ -54,8 +56,23 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 		return wazero_lmdb.EnvRegisterDir(ctx, dir)
 	}
 	logger := zongzi.GetLogger(`statemachine`)
-	fsm := wazero_raft.FactoryPersistent(ctx, ctxInit, ctxCopy, logger, r.poolFactoryStorage, extStorage...)
-	a.StateMachineRegister(wazero_raft.UriPersistent, fsm)
+	a.StateMachineRegister(wazero_raft.UriPersistent, wazero_raft.FactoryPersistent(
+		ctx,
+		ctxInit,
+		ctxCopy,
+		logger,
+		r.poolFactoryStorage,
+		extStorage...,
+	))
+	a.StateMachineRegister(wazero_raft.Uri, wazero_raft.Factory(
+		ctx,
+		func(ctx context.Context, shardID, replicaID uint64) context.Context {
+			return ctx
+		},
+		ctxCopy,
+		logger,
+		r.poolFactoryStorage,
+	))
 	return
 }
 
@@ -67,17 +84,19 @@ func (r *runtimeStorage) Register(name string, wasm []byte) {
 	if err != nil {
 		panic(err)
 	}
+	ctx := wazeropool.ContextSet(r.ctx, pool)
 	pool.Run(func(mod api.Module) {
 		for _, m := range r.ext {
-			if r.ctx, err = m.InitContext(r.ctx, mod); err != nil {
+			if ctx, err = m.InitContext(ctx, mod); err != nil {
 				panic(err)
 			}
 		}
 	})
 	r.pools[name] = pool
+	r.poolCtx[name] = ctx
 
 }
-func (r *runtimeStorage) poolFactoryStorage(shardID uint64) wazeropool.Instance {
+func (r *runtimeStorage) poolFactoryStorage(shardID uint64) (wazeropool.Instance, context.Context) {
 	var ok bool
 	var shard Shard
 	r.agent.StateLocal(func(s *zongzi.State) {
@@ -86,11 +105,17 @@ func (r *runtimeStorage) poolFactoryStorage(shardID uint64) wazeropool.Instance 
 		}
 	})
 	if !ok {
-		return nil
+		return nil, nil
 	}
-	pool, ok := r.pools[shard.Type]
+	modName := shard.Tags[`pantopic:module`]
+	pool, ok := r.pools[modName]
 	if !ok {
-		return nil
+		println(`no pool found for module ` + modName)
+		return nil, nil
 	}
-	return pool
+	poolCtx, ok := r.poolCtx[modName]
+	if !ok {
+		return nil, nil
+	}
+	return pool, poolCtx
 }

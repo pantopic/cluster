@@ -281,8 +281,8 @@ github.com/pantopic/ext-raft/host-wazero v0.0.4 h1:DYskCRakfT9awV1nYhm21rSWK9E4t
 github.com/pantopic/ext-raft/host-wazero v0.0.4/go.mod h1:Cz9s+dQo42p5qJfKEQf9juz4uYbUt0iBUI+NnmzS61Q=
 github.com/pantopic/ext-range-watch/host-wazero v0.0.7 h1:ByQuEghtaEK9oiXP5IIkfCwFOPegwxt0hkIg74kOe4A=
 github.com/pantopic/ext-range-watch/host-wazero v0.0.7/go.mod h1:aKlbwUVwnHxaE2nuAnY1uHrFGJmqhiP7MoiNkWW3wxU=
-github.com/pantopic/ext-shard-client/host-wazero v0.0.4 h1:wCox4KDin3OTYwKCXDFDkkTXgl4rdiL0d7vZi0xrTok=
-github.com/pantopic/ext-shard-client/host-wazero v0.0.4/go.mod h1:GXwW7b2EBAZ20lffzJtDgPEBluL5sXhX/r8Wescoy0k=
+github.com/pantopic/ext-shard-client/host-wazero v0.0.3 h1:8OvJhEDcVoeXcxSHeOdjCgmFmrJDVwbqu0v/e8dd21w=
+github.com/pantopic/ext-shard-client/host-wazero v0.0.3/go.mod h1:BjhO9up8jbOwy9JekQgoK5rESo4p7fdt18/tzuXVNIw=
 github.com/pantopic/ext-small-cache/host-wazero v0.0.3 h1:SXY7Y8rruhm1UBe+KzOCO4SFvluJqdzolaDvXUmrhO0=
 github.com/pantopic/ext-small-cache/host-wazero v0.0.3/go.mod h1:oz1nHEKPPr4SqgE1BxXGV66Yg/MjOTUqZPCPbu0PJdQ=
 github.com/pantopic/kitsune/embed v0.0.1 h1:/EH5i5ITJnyV4vmEvXTc1ZqigrrcR+RUl27p6icXdSc=
@@ -291,6 +291,8 @@ github.com/pantopic/kitsune/test v0.0.0-20261102173909-47dd4eaf50c9 h1:07DNvzRRV
 github.com/pantopic/kitsune/test v0.0.0-20261102173909-47dd4eaf50c9/go.mod h1:cM6z9yhQDWx8qiOx5gz27rGBqXzCoLhBdTEGuCjG/W4=
 github.com/pantopic/turbokube v0.0.4 h1:et6NqMNDEgckagRK/W2Gt6DozHRhw9CXaROUUoSjJks=
 github.com/pantopic/turbokube v0.0.4/go.mod h1:0Zn4sjHpqRwDzRxE3BzRUa9Mvzy5cUTDVaqG+pOpKWo=
+github.com/pantopic/wazero-cluster/host v0.0.0-20260711151336-9bd8f3a69a34 h1:Z33IfAIu6rSsi6A3PeNet85B1wiQ/8KGm2KokWmTHWo=
+github.com/pantopic/wazero-cluster/host v0.0.0-20260711151336-9bd8f3a69a34/go.mod h1:jzKOOZXDZXYTg5xXmyFBS6RJ5ueaaLMwVRfYPfzUfS4=
 github.com/pantopic/wazero-pool v0.0.7 h1:ySBZ7vDOqrFeV9EGn70SbGN2LOO8ySePym5zgWoKOCw=
 github.com/pantopic/wazero-pool v0.0.7/go.mod h1:TbKQxNtJkDI5FDlV3yiXOOFSlxwkEZpXsIr48BbiBAc=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=

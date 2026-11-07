@@ -20,7 +20,6 @@ type State struct {
 type fsmStateMetaHeader struct {
 	Clusters   uint64 `json:"clusters"`
 	Components uint64 `json:"components"`
-	Endpoints  uint64 `json:"endpoints"`
 	Index      uint64 `json:"index"`
 	Namespaces uint64 `json:"namespaces"`
 	Resources  uint64 `json:"resources"`

@@ -15,19 +15,21 @@ type ClusterControls struct {
 	Namespace *clusterItemControls[*pb.Namespace]
 	Resource  *clusterItemControls[*pb.Resource]
 	Service   *clusterItemControls[*pb.Service]
+	updated   bool
 }
 
 func NewClusterControls(client zongzi.ShardClient) *ClusterControls {
-	return &ClusterControls{
-		Cluster:   &clusterItemControls[*pb.Cluster]{client},
-		Component: &clusterItemControls[*pb.Component]{client},
-		Namespace: &clusterItemControls[*pb.Namespace]{client},
-		Resource:  &clusterItemControls[*pb.Resource]{client},
-		Service:   &clusterItemControls[*pb.Service]{client},
-	}
+	c := &ClusterControls{}
+	c.Cluster = &clusterItemControls[*pb.Cluster]{c, client}
+	c.Component = &clusterItemControls[*pb.Component]{c, client}
+	c.Namespace = &clusterItemControls[*pb.Namespace]{c, client}
+	c.Resource = &clusterItemControls[*pb.Resource]{c, client}
+	c.Service = &clusterItemControls[*pb.Service]{c, client}
+	return c
 }
 
 type clusterItemControls[T proto.Message] struct {
+	ctrl   *ClusterControls
 	client zongzi.ShardClient
 }
 
@@ -57,6 +59,7 @@ func (c *clusterItemControls[T]) Put(ctx context.Context, item T) T {
 	if err := proto.Unmarshal(b, item); err != nil {
 		panic(err.Error())
 	}
+	c.ctrl.updated = true
 	return item
 }
 

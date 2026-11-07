@@ -418,6 +418,7 @@ func (s *svcControl) ComponentPut(
 	ctx context.Context,
 	req *pb.ComponentPutRequest,
 ) (res *pb.ComponentPutResponse, err error) {
+	// Protected fields
 	if req.Item.Tags == nil {
 		res = &pb.ComponentPutResponse{
 			Code:  ResultErrSemantic,
@@ -425,6 +426,7 @@ func (s *svcControl) ComponentPut(
 		}
 		return
 	}
+	req.Item.Status = ""
 	data, err := proto.Marshal(req.Item)
 	if err != nil {
 		return

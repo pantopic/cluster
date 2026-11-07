@@ -19,26 +19,26 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Control_NamespaceDelete_FullMethodName = "/proto.Control/NamespaceDelete"
-	Control_NamespaceGet_FullMethodName    = "/proto.Control/NamespaceGet"
-	Control_NamespaceList_FullMethodName   = "/proto.Control/NamespaceList"
-	Control_NamespacePut_FullMethodName    = "/proto.Control/NamespacePut"
-	Control_ResourceDelete_FullMethodName  = "/proto.Control/ResourceDelete"
-	Control_ResourceGet_FullMethodName     = "/proto.Control/ResourceGet"
-	Control_ResourceList_FullMethodName    = "/proto.Control/ResourceList"
-	Control_ResourcePut_FullMethodName     = "/proto.Control/ResourcePut"
-	Control_ClusterDelete_FullMethodName   = "/proto.Control/ClusterDelete"
-	Control_ClusterGet_FullMethodName      = "/proto.Control/ClusterGet"
-	Control_ClusterList_FullMethodName     = "/proto.Control/ClusterList"
-	Control_ClusterPut_FullMethodName      = "/proto.Control/ClusterPut"
-	Control_ServiceDelete_FullMethodName   = "/proto.Control/ServiceDelete"
-	Control_ServiceGet_FullMethodName      = "/proto.Control/ServiceGet"
-	Control_ServiceList_FullMethodName     = "/proto.Control/ServiceList"
-	Control_ServicePut_FullMethodName      = "/proto.Control/ServicePut"
-	Control_ComponentDelete_FullMethodName = "/proto.Control/ComponentDelete"
-	Control_ComponentGet_FullMethodName    = "/proto.Control/ComponentGet"
-	Control_ComponentList_FullMethodName   = "/proto.Control/ComponentList"
-	Control_ComponentPut_FullMethodName    = "/proto.Control/ComponentPut"
+	Control_NamespaceDelete_FullMethodName = "/pb.Control/NamespaceDelete"
+	Control_NamespaceGet_FullMethodName    = "/pb.Control/NamespaceGet"
+	Control_NamespaceList_FullMethodName   = "/pb.Control/NamespaceList"
+	Control_NamespacePut_FullMethodName    = "/pb.Control/NamespacePut"
+	Control_ResourceDelete_FullMethodName  = "/pb.Control/ResourceDelete"
+	Control_ResourceGet_FullMethodName     = "/pb.Control/ResourceGet"
+	Control_ResourceList_FullMethodName    = "/pb.Control/ResourceList"
+	Control_ResourcePut_FullMethodName     = "/pb.Control/ResourcePut"
+	Control_ClusterDelete_FullMethodName   = "/pb.Control/ClusterDelete"
+	Control_ClusterGet_FullMethodName      = "/pb.Control/ClusterGet"
+	Control_ClusterList_FullMethodName     = "/pb.Control/ClusterList"
+	Control_ClusterPut_FullMethodName      = "/pb.Control/ClusterPut"
+	Control_ServiceDelete_FullMethodName   = "/pb.Control/ServiceDelete"
+	Control_ServiceGet_FullMethodName      = "/pb.Control/ServiceGet"
+	Control_ServiceList_FullMethodName     = "/pb.Control/ServiceList"
+	Control_ServicePut_FullMethodName      = "/pb.Control/ServicePut"
+	Control_ComponentDelete_FullMethodName = "/pb.Control/ComponentDelete"
+	Control_ComponentGet_FullMethodName    = "/pb.Control/ComponentGet"
+	Control_ComponentList_FullMethodName   = "/pb.Control/ComponentList"
+	Control_ComponentPut_FullMethodName    = "/pb.Control/ComponentPut"
 )
 
 // ControlClient is the client API for Control service.
@@ -754,7 +754,7 @@ func _Control_ComponentPut_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Control_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Control",
+	ServiceName: "pb.Control",
 	HandlerType: (*ControlServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -30,6 +30,10 @@ gen:
 		-I proto
 
 gen-test:
+	@mkdir -p test/pb
+	@mkdir -p test/module/service-grpc/pb
+	@mkdir -p test/module/storage/pb
+	@mkdir -p test/module/control/pb
 	@protoc test/proto/*.proto \
 		--go_out=test/pb \
 		--go_opt=paths=source_relative \
@@ -43,6 +47,7 @@ gen-test:
 		--go-lite_opt=features=marshal+unmarshal+size \
 		-I test/proto
 	@cp test/module/service-grpc/pb/* test/module/storage/pb
+	@cp test/module/service-grpc/pb/* test/module/control/pb
 
 gen-lite-install:
 	go install github.com/aperturerobotics/protobuf-go-lite/cmd/protoc-gen-go-lite@latest

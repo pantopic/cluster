@@ -545,6 +545,322 @@ func (x *Component) GetStatus() string {
 	return ""
 }
 
+type Host struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Created       uint64                 `protobuf:"varint,2,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       uint64                 `protobuf:"varint,3,opt,name=updated,proto3" json:"updated,omitempty"`
+	ApiAddress    string                 `protobuf:"bytes,4,opt,name=api_address,json=apiAddress,proto3" json:"api_address,omitempty"`
+	RaftAddress   string                 `protobuf:"bytes,5,opt,name=raft_address,json=raftAddress,proto3" json:"raft_address,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ShardTypes    []string               `protobuf:"bytes,7,rep,name=shard_types,json=shardTypes,proto3" json:"shard_types,omitempty"`
+	Status        string                 `protobuf:"bytes,8,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Host) Reset() {
+	*x = Host{}
+	mi := &file_control_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Host) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Host) ProtoMessage() {}
+
+func (x *Host) ProtoReflect() protoreflect.Message {
+	mi := &file_control_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Host.ProtoReflect.Descriptor instead.
+func (*Host) Descriptor() ([]byte, []int) {
+	return file_control_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Host) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Host) GetCreated() uint64 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+func (x *Host) GetUpdated() uint64 {
+	if x != nil {
+		return x.Updated
+	}
+	return 0
+}
+
+func (x *Host) GetApiAddress() string {
+	if x != nil {
+		return x.ApiAddress
+	}
+	return ""
+}
+
+func (x *Host) GetRaftAddress() string {
+	if x != nil {
+		return x.RaftAddress
+	}
+	return ""
+}
+
+func (x *Host) GetTags() map[string]string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *Host) GetShardTypes() []string {
+	if x != nil {
+		return x.ShardTypes
+	}
+	return nil
+}
+
+func (x *Host) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type Shard struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Created       uint64                 `protobuf:"varint,2,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       uint64                 `protobuf:"varint,3,opt,name=updated,proto3" json:"updated,omitempty"`
+	Leader        uint64                 `protobuf:"varint,4,opt,name=leader,proto3" json:"leader,omitempty"`
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Term          uint64                 `protobuf:"varint,6,opt,name=term,proto3" json:"term,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Type          string                 `protobuf:"bytes,8,opt,name=type,proto3" json:"type,omitempty"`
+	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Shard) Reset() {
+	*x = Shard{}
+	mi := &file_control_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Shard) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Shard) ProtoMessage() {}
+
+func (x *Shard) ProtoReflect() protoreflect.Message {
+	mi := &file_control_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Shard.ProtoReflect.Descriptor instead.
+func (*Shard) Descriptor() ([]byte, []int) {
+	return file_control_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Shard) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Shard) GetCreated() uint64 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+func (x *Shard) GetUpdated() uint64 {
+	if x != nil {
+		return x.Updated
+	}
+	return 0
+}
+
+func (x *Shard) GetLeader() uint64 {
+	if x != nil {
+		return x.Leader
+	}
+	return 0
+}
+
+func (x *Shard) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Shard) GetTerm() uint64 {
+	if x != nil {
+		return x.Term
+	}
+	return 0
+}
+
+func (x *Shard) GetTags() map[string]string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *Shard) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *Shard) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type Replica struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Created       uint64                 `protobuf:"varint,2,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       uint64                 `protobuf:"varint,3,opt,name=updated,proto3" json:"updated,omitempty"`
+	HostId        string                 `protobuf:"bytes,4,opt,name=host_id,json=hostId,proto3" json:"host_id,omitempty"`
+	IsNonVoting   bool                   `protobuf:"varint,5,opt,name=is_non_voting,json=isNonVoting,proto3" json:"is_non_voting,omitempty"`
+	IsWitness     bool                   `protobuf:"varint,6,opt,name=is_witness,json=isWitness,proto3" json:"is_witness,omitempty"`
+	ShardId       uint64                 `protobuf:"varint,7,opt,name=shard_id,json=shardId,proto3" json:"shard_id,omitempty"`
+	Tags          map[string]string      `protobuf:"bytes,8,rep,name=tags,proto3" json:"tags,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Replica) Reset() {
+	*x = Replica{}
+	mi := &file_control_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Replica) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Replica) ProtoMessage() {}
+
+func (x *Replica) ProtoReflect() protoreflect.Message {
+	mi := &file_control_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Replica.ProtoReflect.Descriptor instead.
+func (*Replica) Descriptor() ([]byte, []int) {
+	return file_control_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Replica) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Replica) GetCreated() uint64 {
+	if x != nil {
+		return x.Created
+	}
+	return 0
+}
+
+func (x *Replica) GetUpdated() uint64 {
+	if x != nil {
+		return x.Updated
+	}
+	return 0
+}
+
+func (x *Replica) GetHostId() string {
+	if x != nil {
+		return x.HostId
+	}
+	return ""
+}
+
+func (x *Replica) GetIsNonVoting() bool {
+	if x != nil {
+		return x.IsNonVoting
+	}
+	return false
+}
+
+func (x *Replica) GetIsWitness() bool {
+	if x != nil {
+		return x.IsWitness
+	}
+	return false
+}
+
+func (x *Replica) GetShardId() uint64 {
+	if x != nil {
+		return x.ShardId
+	}
+	return 0
+}
+
+func (x *Replica) GetTags() map[string]string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *Replica) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
 type NamespaceDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -554,7 +870,7 @@ type NamespaceDeleteRequest struct {
 
 func (x *NamespaceDeleteRequest) Reset() {
 	*x = NamespaceDeleteRequest{}
-	mi := &file_control_proto_msgTypes[5]
+	mi := &file_control_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -566,7 +882,7 @@ func (x *NamespaceDeleteRequest) String() string {
 func (*NamespaceDeleteRequest) ProtoMessage() {}
 
 func (x *NamespaceDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[5]
+	mi := &file_control_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -579,7 +895,7 @@ func (x *NamespaceDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceDeleteRequest.ProtoReflect.Descriptor instead.
 func (*NamespaceDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{5}
+	return file_control_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *NamespaceDeleteRequest) GetName() string {
@@ -599,7 +915,7 @@ type NamespaceDeleteResponse struct {
 
 func (x *NamespaceDeleteResponse) Reset() {
 	*x = NamespaceDeleteResponse{}
-	mi := &file_control_proto_msgTypes[6]
+	mi := &file_control_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +927,7 @@ func (x *NamespaceDeleteResponse) String() string {
 func (*NamespaceDeleteResponse) ProtoMessage() {}
 
 func (x *NamespaceDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[6]
+	mi := &file_control_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -624,7 +940,7 @@ func (x *NamespaceDeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceDeleteResponse.ProtoReflect.Descriptor instead.
 func (*NamespaceDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{6}
+	return file_control_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *NamespaceDeleteResponse) GetCode() uint64 {
@@ -650,7 +966,7 @@ type NamespaceGetRequest struct {
 
 func (x *NamespaceGetRequest) Reset() {
 	*x = NamespaceGetRequest{}
-	mi := &file_control_proto_msgTypes[7]
+	mi := &file_control_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -662,7 +978,7 @@ func (x *NamespaceGetRequest) String() string {
 func (*NamespaceGetRequest) ProtoMessage() {}
 
 func (x *NamespaceGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[7]
+	mi := &file_control_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +991,7 @@ func (x *NamespaceGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceGetRequest.ProtoReflect.Descriptor instead.
 func (*NamespaceGetRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{7}
+	return file_control_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *NamespaceGetRequest) GetName() string {
@@ -696,7 +1012,7 @@ type NamespaceGetResponse struct {
 
 func (x *NamespaceGetResponse) Reset() {
 	*x = NamespaceGetResponse{}
-	mi := &file_control_proto_msgTypes[8]
+	mi := &file_control_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -708,7 +1024,7 @@ func (x *NamespaceGetResponse) String() string {
 func (*NamespaceGetResponse) ProtoMessage() {}
 
 func (x *NamespaceGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[8]
+	mi := &file_control_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -721,7 +1037,7 @@ func (x *NamespaceGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceGetResponse.ProtoReflect.Descriptor instead.
 func (*NamespaceGetResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{8}
+	return file_control_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *NamespaceGetResponse) GetCode() uint64 {
@@ -754,7 +1070,7 @@ type NamespacePutRequest struct {
 
 func (x *NamespacePutRequest) Reset() {
 	*x = NamespacePutRequest{}
-	mi := &file_control_proto_msgTypes[9]
+	mi := &file_control_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +1082,7 @@ func (x *NamespacePutRequest) String() string {
 func (*NamespacePutRequest) ProtoMessage() {}
 
 func (x *NamespacePutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[9]
+	mi := &file_control_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +1095,7 @@ func (x *NamespacePutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespacePutRequest.ProtoReflect.Descriptor instead.
 func (*NamespacePutRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{9}
+	return file_control_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *NamespacePutRequest) GetItem() *Namespace {
@@ -800,7 +1116,7 @@ type NamespacePutResponse struct {
 
 func (x *NamespacePutResponse) Reset() {
 	*x = NamespacePutResponse{}
-	mi := &file_control_proto_msgTypes[10]
+	mi := &file_control_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -812,7 +1128,7 @@ func (x *NamespacePutResponse) String() string {
 func (*NamespacePutResponse) ProtoMessage() {}
 
 func (x *NamespacePutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[10]
+	mi := &file_control_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -825,7 +1141,7 @@ func (x *NamespacePutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespacePutResponse.ProtoReflect.Descriptor instead.
 func (*NamespacePutResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{10}
+	return file_control_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *NamespacePutResponse) GetCode() uint64 {
@@ -859,7 +1175,7 @@ type NamespaceListRequest struct {
 
 func (x *NamespaceListRequest) Reset() {
 	*x = NamespaceListRequest{}
-	mi := &file_control_proto_msgTypes[11]
+	mi := &file_control_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -871,7 +1187,7 @@ func (x *NamespaceListRequest) String() string {
 func (*NamespaceListRequest) ProtoMessage() {}
 
 func (x *NamespaceListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[11]
+	mi := &file_control_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -884,7 +1200,7 @@ func (x *NamespaceListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceListRequest.ProtoReflect.Descriptor instead.
 func (*NamespaceListRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{11}
+	return file_control_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *NamespaceListRequest) GetLimit() uint64 {
@@ -912,7 +1228,7 @@ type NamespaceListResponse struct {
 
 func (x *NamespaceListResponse) Reset() {
 	*x = NamespaceListResponse{}
-	mi := &file_control_proto_msgTypes[12]
+	mi := &file_control_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -924,7 +1240,7 @@ func (x *NamespaceListResponse) String() string {
 func (*NamespaceListResponse) ProtoMessage() {}
 
 func (x *NamespaceListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[12]
+	mi := &file_control_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -937,7 +1253,7 @@ func (x *NamespaceListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NamespaceListResponse.ProtoReflect.Descriptor instead.
 func (*NamespaceListResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{12}
+	return file_control_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *NamespaceListResponse) GetCode() uint64 {
@@ -971,7 +1287,7 @@ type ResourceDeleteRequest struct {
 
 func (x *ResourceDeleteRequest) Reset() {
 	*x = ResourceDeleteRequest{}
-	mi := &file_control_proto_msgTypes[13]
+	mi := &file_control_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -983,7 +1299,7 @@ func (x *ResourceDeleteRequest) String() string {
 func (*ResourceDeleteRequest) ProtoMessage() {}
 
 func (x *ResourceDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[13]
+	mi := &file_control_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -996,7 +1312,7 @@ func (x *ResourceDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceDeleteRequest.ProtoReflect.Descriptor instead.
 func (*ResourceDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{13}
+	return file_control_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ResourceDeleteRequest) GetNamespace() string {
@@ -1023,7 +1339,7 @@ type ResourceDeleteResponse struct {
 
 func (x *ResourceDeleteResponse) Reset() {
 	*x = ResourceDeleteResponse{}
-	mi := &file_control_proto_msgTypes[14]
+	mi := &file_control_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1035,7 +1351,7 @@ func (x *ResourceDeleteResponse) String() string {
 func (*ResourceDeleteResponse) ProtoMessage() {}
 
 func (x *ResourceDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[14]
+	mi := &file_control_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1048,7 +1364,7 @@ func (x *ResourceDeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceDeleteResponse.ProtoReflect.Descriptor instead.
 func (*ResourceDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{14}
+	return file_control_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ResourceDeleteResponse) GetCode() uint64 {
@@ -1075,7 +1391,7 @@ type ResourceGetRequest struct {
 
 func (x *ResourceGetRequest) Reset() {
 	*x = ResourceGetRequest{}
-	mi := &file_control_proto_msgTypes[15]
+	mi := &file_control_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1087,7 +1403,7 @@ func (x *ResourceGetRequest) String() string {
 func (*ResourceGetRequest) ProtoMessage() {}
 
 func (x *ResourceGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[15]
+	mi := &file_control_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1100,7 +1416,7 @@ func (x *ResourceGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceGetRequest.ProtoReflect.Descriptor instead.
 func (*ResourceGetRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{15}
+	return file_control_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ResourceGetRequest) GetNamespace() string {
@@ -1128,7 +1444,7 @@ type ResourceGetResponse struct {
 
 func (x *ResourceGetResponse) Reset() {
 	*x = ResourceGetResponse{}
-	mi := &file_control_proto_msgTypes[16]
+	mi := &file_control_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1140,7 +1456,7 @@ func (x *ResourceGetResponse) String() string {
 func (*ResourceGetResponse) ProtoMessage() {}
 
 func (x *ResourceGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[16]
+	mi := &file_control_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1153,7 +1469,7 @@ func (x *ResourceGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceGetResponse.ProtoReflect.Descriptor instead.
 func (*ResourceGetResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{16}
+	return file_control_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ResourceGetResponse) GetCode() uint64 {
@@ -1186,7 +1502,7 @@ type ResourcePutRequest struct {
 
 func (x *ResourcePutRequest) Reset() {
 	*x = ResourcePutRequest{}
-	mi := &file_control_proto_msgTypes[17]
+	mi := &file_control_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1198,7 +1514,7 @@ func (x *ResourcePutRequest) String() string {
 func (*ResourcePutRequest) ProtoMessage() {}
 
 func (x *ResourcePutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[17]
+	mi := &file_control_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1211,7 +1527,7 @@ func (x *ResourcePutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourcePutRequest.ProtoReflect.Descriptor instead.
 func (*ResourcePutRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{17}
+	return file_control_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ResourcePutRequest) GetItem() *Resource {
@@ -1232,7 +1548,7 @@ type ResourcePutResponse struct {
 
 func (x *ResourcePutResponse) Reset() {
 	*x = ResourcePutResponse{}
-	mi := &file_control_proto_msgTypes[18]
+	mi := &file_control_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1244,7 +1560,7 @@ func (x *ResourcePutResponse) String() string {
 func (*ResourcePutResponse) ProtoMessage() {}
 
 func (x *ResourcePutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[18]
+	mi := &file_control_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1257,7 +1573,7 @@ func (x *ResourcePutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourcePutResponse.ProtoReflect.Descriptor instead.
 func (*ResourcePutResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{18}
+	return file_control_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ResourcePutResponse) GetCode() uint64 {
@@ -1293,7 +1609,7 @@ type ResourceListRequest struct {
 
 func (x *ResourceListRequest) Reset() {
 	*x = ResourceListRequest{}
-	mi := &file_control_proto_msgTypes[19]
+	mi := &file_control_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1305,7 +1621,7 @@ func (x *ResourceListRequest) String() string {
 func (*ResourceListRequest) ProtoMessage() {}
 
 func (x *ResourceListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[19]
+	mi := &file_control_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1318,7 +1634,7 @@ func (x *ResourceListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceListRequest.ProtoReflect.Descriptor instead.
 func (*ResourceListRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{19}
+	return file_control_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ResourceListRequest) GetNamespace() string {
@@ -1360,7 +1676,7 @@ type ResourceListResponse struct {
 
 func (x *ResourceListResponse) Reset() {
 	*x = ResourceListResponse{}
-	mi := &file_control_proto_msgTypes[20]
+	mi := &file_control_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1372,7 +1688,7 @@ func (x *ResourceListResponse) String() string {
 func (*ResourceListResponse) ProtoMessage() {}
 
 func (x *ResourceListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[20]
+	mi := &file_control_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1385,7 +1701,7 @@ func (x *ResourceListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceListResponse.ProtoReflect.Descriptor instead.
 func (*ResourceListResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{20}
+	return file_control_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ResourceListResponse) GetCode() uint64 {
@@ -1418,7 +1734,7 @@ type ClusterDeleteRequest struct {
 
 func (x *ClusterDeleteRequest) Reset() {
 	*x = ClusterDeleteRequest{}
-	mi := &file_control_proto_msgTypes[21]
+	mi := &file_control_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1430,7 +1746,7 @@ func (x *ClusterDeleteRequest) String() string {
 func (*ClusterDeleteRequest) ProtoMessage() {}
 
 func (x *ClusterDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[21]
+	mi := &file_control_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1443,7 +1759,7 @@ func (x *ClusterDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterDeleteRequest.ProtoReflect.Descriptor instead.
 func (*ClusterDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{21}
+	return file_control_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ClusterDeleteRequest) GetName() string {
@@ -1463,7 +1779,7 @@ type ClusterDeleteResponse struct {
 
 func (x *ClusterDeleteResponse) Reset() {
 	*x = ClusterDeleteResponse{}
-	mi := &file_control_proto_msgTypes[22]
+	mi := &file_control_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1475,7 +1791,7 @@ func (x *ClusterDeleteResponse) String() string {
 func (*ClusterDeleteResponse) ProtoMessage() {}
 
 func (x *ClusterDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[22]
+	mi := &file_control_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1488,7 +1804,7 @@ func (x *ClusterDeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterDeleteResponse.ProtoReflect.Descriptor instead.
 func (*ClusterDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{22}
+	return file_control_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ClusterDeleteResponse) GetCode() uint64 {
@@ -1514,7 +1830,7 @@ type ClusterGetRequest struct {
 
 func (x *ClusterGetRequest) Reset() {
 	*x = ClusterGetRequest{}
-	mi := &file_control_proto_msgTypes[23]
+	mi := &file_control_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1526,7 +1842,7 @@ func (x *ClusterGetRequest) String() string {
 func (*ClusterGetRequest) ProtoMessage() {}
 
 func (x *ClusterGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[23]
+	mi := &file_control_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1539,7 +1855,7 @@ func (x *ClusterGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterGetRequest.ProtoReflect.Descriptor instead.
 func (*ClusterGetRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{23}
+	return file_control_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ClusterGetRequest) GetName() string {
@@ -1560,7 +1876,7 @@ type ClusterGetResponse struct {
 
 func (x *ClusterGetResponse) Reset() {
 	*x = ClusterGetResponse{}
-	mi := &file_control_proto_msgTypes[24]
+	mi := &file_control_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1572,7 +1888,7 @@ func (x *ClusterGetResponse) String() string {
 func (*ClusterGetResponse) ProtoMessage() {}
 
 func (x *ClusterGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[24]
+	mi := &file_control_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1585,7 +1901,7 @@ func (x *ClusterGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterGetResponse.ProtoReflect.Descriptor instead.
 func (*ClusterGetResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{24}
+	return file_control_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ClusterGetResponse) GetCode() uint64 {
@@ -1618,7 +1934,7 @@ type ClusterPutRequest struct {
 
 func (x *ClusterPutRequest) Reset() {
 	*x = ClusterPutRequest{}
-	mi := &file_control_proto_msgTypes[25]
+	mi := &file_control_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1630,7 +1946,7 @@ func (x *ClusterPutRequest) String() string {
 func (*ClusterPutRequest) ProtoMessage() {}
 
 func (x *ClusterPutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[25]
+	mi := &file_control_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1643,7 +1959,7 @@ func (x *ClusterPutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterPutRequest.ProtoReflect.Descriptor instead.
 func (*ClusterPutRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{25}
+	return file_control_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ClusterPutRequest) GetItem() *Cluster {
@@ -1664,7 +1980,7 @@ type ClusterPutResponse struct {
 
 func (x *ClusterPutResponse) Reset() {
 	*x = ClusterPutResponse{}
-	mi := &file_control_proto_msgTypes[26]
+	mi := &file_control_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1676,7 +1992,7 @@ func (x *ClusterPutResponse) String() string {
 func (*ClusterPutResponse) ProtoMessage() {}
 
 func (x *ClusterPutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[26]
+	mi := &file_control_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1689,7 +2005,7 @@ func (x *ClusterPutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterPutResponse.ProtoReflect.Descriptor instead.
 func (*ClusterPutResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{26}
+	return file_control_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ClusterPutResponse) GetCode() uint64 {
@@ -1723,7 +2039,7 @@ type ClusterListRequest struct {
 
 func (x *ClusterListRequest) Reset() {
 	*x = ClusterListRequest{}
-	mi := &file_control_proto_msgTypes[27]
+	mi := &file_control_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1735,7 +2051,7 @@ func (x *ClusterListRequest) String() string {
 func (*ClusterListRequest) ProtoMessage() {}
 
 func (x *ClusterListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[27]
+	mi := &file_control_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1748,7 +2064,7 @@ func (x *ClusterListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterListRequest.ProtoReflect.Descriptor instead.
 func (*ClusterListRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{27}
+	return file_control_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ClusterListRequest) GetLimit() uint64 {
@@ -1776,7 +2092,7 @@ type ClusterListResponse struct {
 
 func (x *ClusterListResponse) Reset() {
 	*x = ClusterListResponse{}
-	mi := &file_control_proto_msgTypes[28]
+	mi := &file_control_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1788,7 +2104,7 @@ func (x *ClusterListResponse) String() string {
 func (*ClusterListResponse) ProtoMessage() {}
 
 func (x *ClusterListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[28]
+	mi := &file_control_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1801,7 +2117,7 @@ func (x *ClusterListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClusterListResponse.ProtoReflect.Descriptor instead.
 func (*ClusterListResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{28}
+	return file_control_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ClusterListResponse) GetCode() uint64 {
@@ -1837,7 +2153,7 @@ type ServiceDeleteRequest struct {
 
 func (x *ServiceDeleteRequest) Reset() {
 	*x = ServiceDeleteRequest{}
-	mi := &file_control_proto_msgTypes[29]
+	mi := &file_control_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1849,7 +2165,7 @@ func (x *ServiceDeleteRequest) String() string {
 func (*ServiceDeleteRequest) ProtoMessage() {}
 
 func (x *ServiceDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[29]
+	mi := &file_control_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1862,7 +2178,7 @@ func (x *ServiceDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceDeleteRequest.ProtoReflect.Descriptor instead.
 func (*ServiceDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{29}
+	return file_control_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ServiceDeleteRequest) GetNamespace() string {
@@ -1903,7 +2219,7 @@ type ServiceDeleteResponse struct {
 
 func (x *ServiceDeleteResponse) Reset() {
 	*x = ServiceDeleteResponse{}
-	mi := &file_control_proto_msgTypes[30]
+	mi := &file_control_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1915,7 +2231,7 @@ func (x *ServiceDeleteResponse) String() string {
 func (*ServiceDeleteResponse) ProtoMessage() {}
 
 func (x *ServiceDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[30]
+	mi := &file_control_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1928,7 +2244,7 @@ func (x *ServiceDeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceDeleteResponse.ProtoReflect.Descriptor instead.
 func (*ServiceDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{30}
+	return file_control_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ServiceDeleteResponse) GetCode() uint64 {
@@ -1956,7 +2272,7 @@ type ServiceGetRequest struct {
 
 func (x *ServiceGetRequest) Reset() {
 	*x = ServiceGetRequest{}
-	mi := &file_control_proto_msgTypes[31]
+	mi := &file_control_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1968,7 +2284,7 @@ func (x *ServiceGetRequest) String() string {
 func (*ServiceGetRequest) ProtoMessage() {}
 
 func (x *ServiceGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[31]
+	mi := &file_control_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1981,7 +2297,7 @@ func (x *ServiceGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceGetRequest.ProtoReflect.Descriptor instead.
 func (*ServiceGetRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{31}
+	return file_control_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ServiceGetRequest) GetNamespace() string {
@@ -2016,7 +2332,7 @@ type ServiceGetResponse struct {
 
 func (x *ServiceGetResponse) Reset() {
 	*x = ServiceGetResponse{}
-	mi := &file_control_proto_msgTypes[32]
+	mi := &file_control_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2028,7 +2344,7 @@ func (x *ServiceGetResponse) String() string {
 func (*ServiceGetResponse) ProtoMessage() {}
 
 func (x *ServiceGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[32]
+	mi := &file_control_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2041,7 +2357,7 @@ func (x *ServiceGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceGetResponse.ProtoReflect.Descriptor instead.
 func (*ServiceGetResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{32}
+	return file_control_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ServiceGetResponse) GetCode() uint64 {
@@ -2074,7 +2390,7 @@ type ServicePutRequest struct {
 
 func (x *ServicePutRequest) Reset() {
 	*x = ServicePutRequest{}
-	mi := &file_control_proto_msgTypes[33]
+	mi := &file_control_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2086,7 +2402,7 @@ func (x *ServicePutRequest) String() string {
 func (*ServicePutRequest) ProtoMessage() {}
 
 func (x *ServicePutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[33]
+	mi := &file_control_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2099,7 +2415,7 @@ func (x *ServicePutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServicePutRequest.ProtoReflect.Descriptor instead.
 func (*ServicePutRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{33}
+	return file_control_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ServicePutRequest) GetItem() *Service {
@@ -2120,7 +2436,7 @@ type ServicePutResponse struct {
 
 func (x *ServicePutResponse) Reset() {
 	*x = ServicePutResponse{}
-	mi := &file_control_proto_msgTypes[34]
+	mi := &file_control_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2132,7 +2448,7 @@ func (x *ServicePutResponse) String() string {
 func (*ServicePutResponse) ProtoMessage() {}
 
 func (x *ServicePutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[34]
+	mi := &file_control_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2145,7 +2461,7 @@ func (x *ServicePutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServicePutResponse.ProtoReflect.Descriptor instead.
 func (*ServicePutResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{34}
+	return file_control_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ServicePutResponse) GetCode() uint64 {
@@ -2181,7 +2497,7 @@ type ServiceListRequest struct {
 
 func (x *ServiceListRequest) Reset() {
 	*x = ServiceListRequest{}
-	mi := &file_control_proto_msgTypes[35]
+	mi := &file_control_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2193,7 +2509,7 @@ func (x *ServiceListRequest) String() string {
 func (*ServiceListRequest) ProtoMessage() {}
 
 func (x *ServiceListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[35]
+	mi := &file_control_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2206,7 +2522,7 @@ func (x *ServiceListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceListRequest.ProtoReflect.Descriptor instead.
 func (*ServiceListRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{35}
+	return file_control_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ServiceListRequest) GetNamespace() string {
@@ -2248,7 +2564,7 @@ type ServiceListResponse struct {
 
 func (x *ServiceListResponse) Reset() {
 	*x = ServiceListResponse{}
-	mi := &file_control_proto_msgTypes[36]
+	mi := &file_control_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2260,7 +2576,7 @@ func (x *ServiceListResponse) String() string {
 func (*ServiceListResponse) ProtoMessage() {}
 
 func (x *ServiceListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[36]
+	mi := &file_control_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2273,7 +2589,7 @@ func (x *ServiceListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceListResponse.ProtoReflect.Descriptor instead.
 func (*ServiceListResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{36}
+	return file_control_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ServiceListResponse) GetCode() uint64 {
@@ -2309,7 +2625,7 @@ type ComponentDeleteRequest struct {
 
 func (x *ComponentDeleteRequest) Reset() {
 	*x = ComponentDeleteRequest{}
-	mi := &file_control_proto_msgTypes[37]
+	mi := &file_control_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2321,7 +2637,7 @@ func (x *ComponentDeleteRequest) String() string {
 func (*ComponentDeleteRequest) ProtoMessage() {}
 
 func (x *ComponentDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[37]
+	mi := &file_control_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2334,7 +2650,7 @@ func (x *ComponentDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentDeleteRequest.ProtoReflect.Descriptor instead.
 func (*ComponentDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{37}
+	return file_control_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ComponentDeleteRequest) GetNamespace() string {
@@ -2375,7 +2691,7 @@ type ComponentDeleteResponse struct {
 
 func (x *ComponentDeleteResponse) Reset() {
 	*x = ComponentDeleteResponse{}
-	mi := &file_control_proto_msgTypes[38]
+	mi := &file_control_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2387,7 +2703,7 @@ func (x *ComponentDeleteResponse) String() string {
 func (*ComponentDeleteResponse) ProtoMessage() {}
 
 func (x *ComponentDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[38]
+	mi := &file_control_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2400,7 +2716,7 @@ func (x *ComponentDeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentDeleteResponse.ProtoReflect.Descriptor instead.
 func (*ComponentDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{38}
+	return file_control_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ComponentDeleteResponse) GetCode() uint64 {
@@ -2428,7 +2744,7 @@ type ComponentGetRequest struct {
 
 func (x *ComponentGetRequest) Reset() {
 	*x = ComponentGetRequest{}
-	mi := &file_control_proto_msgTypes[39]
+	mi := &file_control_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2440,7 +2756,7 @@ func (x *ComponentGetRequest) String() string {
 func (*ComponentGetRequest) ProtoMessage() {}
 
 func (x *ComponentGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[39]
+	mi := &file_control_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2453,7 +2769,7 @@ func (x *ComponentGetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentGetRequest.ProtoReflect.Descriptor instead.
 func (*ComponentGetRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{39}
+	return file_control_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ComponentGetRequest) GetNamespace() string {
@@ -2488,7 +2804,7 @@ type ComponentGetResponse struct {
 
 func (x *ComponentGetResponse) Reset() {
 	*x = ComponentGetResponse{}
-	mi := &file_control_proto_msgTypes[40]
+	mi := &file_control_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2500,7 +2816,7 @@ func (x *ComponentGetResponse) String() string {
 func (*ComponentGetResponse) ProtoMessage() {}
 
 func (x *ComponentGetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[40]
+	mi := &file_control_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2513,7 +2829,7 @@ func (x *ComponentGetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentGetResponse.ProtoReflect.Descriptor instead.
 func (*ComponentGetResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{40}
+	return file_control_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ComponentGetResponse) GetCode() uint64 {
@@ -2546,7 +2862,7 @@ type ComponentPutRequest struct {
 
 func (x *ComponentPutRequest) Reset() {
 	*x = ComponentPutRequest{}
-	mi := &file_control_proto_msgTypes[41]
+	mi := &file_control_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2558,7 +2874,7 @@ func (x *ComponentPutRequest) String() string {
 func (*ComponentPutRequest) ProtoMessage() {}
 
 func (x *ComponentPutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[41]
+	mi := &file_control_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2571,7 +2887,7 @@ func (x *ComponentPutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentPutRequest.ProtoReflect.Descriptor instead.
 func (*ComponentPutRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{41}
+	return file_control_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ComponentPutRequest) GetItem() *Component {
@@ -2592,7 +2908,7 @@ type ComponentPutResponse struct {
 
 func (x *ComponentPutResponse) Reset() {
 	*x = ComponentPutResponse{}
-	mi := &file_control_proto_msgTypes[42]
+	mi := &file_control_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2604,7 +2920,7 @@ func (x *ComponentPutResponse) String() string {
 func (*ComponentPutResponse) ProtoMessage() {}
 
 func (x *ComponentPutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[42]
+	mi := &file_control_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2617,7 +2933,7 @@ func (x *ComponentPutResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentPutResponse.ProtoReflect.Descriptor instead.
 func (*ComponentPutResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{42}
+	return file_control_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ComponentPutResponse) GetCode() uint64 {
@@ -2653,7 +2969,7 @@ type ComponentListRequest struct {
 
 func (x *ComponentListRequest) Reset() {
 	*x = ComponentListRequest{}
-	mi := &file_control_proto_msgTypes[43]
+	mi := &file_control_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2665,7 +2981,7 @@ func (x *ComponentListRequest) String() string {
 func (*ComponentListRequest) ProtoMessage() {}
 
 func (x *ComponentListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[43]
+	mi := &file_control_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2678,7 +2994,7 @@ func (x *ComponentListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentListRequest.ProtoReflect.Descriptor instead.
 func (*ComponentListRequest) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{43}
+	return file_control_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *ComponentListRequest) GetNamespace() string {
@@ -2720,7 +3036,7 @@ type ComponentListResponse struct {
 
 func (x *ComponentListResponse) Reset() {
 	*x = ComponentListResponse{}
-	mi := &file_control_proto_msgTypes[44]
+	mi := &file_control_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2732,7 +3048,7 @@ func (x *ComponentListResponse) String() string {
 func (*ComponentListResponse) ProtoMessage() {}
 
 func (x *ComponentListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_control_proto_msgTypes[44]
+	mi := &file_control_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2745,7 +3061,7 @@ func (x *ComponentListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ComponentListResponse.ProtoReflect.Descriptor instead.
 func (*ComponentListResponse) Descriptor() ([]byte, []int) {
-	return file_control_proto_rawDescGZIP(), []int{44}
+	return file_control_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ComponentListResponse) GetCode() uint64 {
@@ -2773,40 +3089,40 @@ var File_control_proto protoreflect.FileDescriptor
 
 const file_control_proto_rawDesc = "" +
 	"\n" +
-	"\rcontrol.proto\x12\x05proto\"\xf0\x01\n" +
+	"\rcontrol.proto\x12\x02pb\"\xed\x01\n" +
 	"\tNamespace\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x04R\aversion\x12\x18\n" +
 	"\acreated\x18\x03 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\x04 \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\x05 \x01(\x04R\adeleted\x12.\n" +
-	"\x04tags\x18\x06 \x03(\v2\x1a.proto.Namespace.TagsEntryR\x04tags\x1a7\n" +
+	"\adeleted\x18\x05 \x01(\x04R\adeleted\x12+\n" +
+	"\x04tags\x18\x06 \x03(\v2\x17.pb.Namespace.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xec\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe9\x01\n" +
 	"\aCluster\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\x04R\aversion\x12\x18\n" +
 	"\acreated\x18\x03 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\x04 \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\x05 \x01(\x04R\adeleted\x12,\n" +
-	"\x04tags\x18\x06 \x03(\v2\x18.proto.Cluster.TagsEntryR\x04tags\x1a7\n" +
+	"\adeleted\x18\x05 \x01(\x04R\adeleted\x12)\n" +
+	"\x04tags\x18\x06 \x03(\v2\x15.pb.Cluster.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb5\x02\n" +
 	"\bResource\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x03 \x01(\x04R\aversion\x12\x18\n" +
 	"\acreated\x18\x04 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\x05 \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\x06 \x01(\x04R\adeleted\x12-\n" +
-	"\x04tags\x18\a \x03(\v2\x19.proto.Resource.TagsEntryR\x04tags\x12\x12\n" +
+	"\adeleted\x18\x06 \x01(\x04R\adeleted\x12*\n" +
+	"\x04tags\x18\a \x03(\v2\x16.pb.Resource.TagsEntryR\x04tags\x12\x12\n" +
 	"\x04type\x18\b \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\t \x01(\tR\x06status\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe6\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe3\x02\n" +
 	"\aService\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
@@ -2814,15 +3130,15 @@ const file_control_proto_rawDesc = "" +
 	"\aversion\x18\x04 \x01(\x04R\aversion\x12\x18\n" +
 	"\acreated\x18\x05 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\x06 \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\a \x01(\x04R\adeleted\x12,\n" +
-	"\x04tags\x18\b \x03(\v2\x18.proto.Service.TagsEntryR\x04tags\x12\x12\n" +
+	"\adeleted\x18\a \x01(\x04R\adeleted\x12)\n" +
+	"\x04tags\x18\b \x03(\v2\x15.pb.Service.TagsEntryR\x04tags\x12\x12\n" +
 	"\x04type\x18\t \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\n" +
 	" \x01(\tR\x06status\x12\x12\n" +
 	"\x04port\x18\v \x01(\x04R\x04port\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf0\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xed\x02\n" +
 	"\tComponent\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
@@ -2831,11 +3147,52 @@ const file_control_proto_rawDesc = "" +
 	"\aversion\x18\x05 \x01(\x04R\aversion\x12\x18\n" +
 	"\acreated\x18\x06 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\a \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\b \x01(\x04R\adeleted\x12.\n" +
-	"\x04tags\x18\t \x03(\v2\x1a.proto.Component.TagsEntryR\x04tags\x12\x12\n" +
+	"\adeleted\x18\b \x01(\x04R\adeleted\x12+\n" +
+	"\x04tags\x18\t \x03(\v2\x17.pb.Component.TagsEntryR\x04tags\x12\x12\n" +
 	"\x04type\x18\n" +
 	" \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\v \x01(\tR\x06status\x1a7\n" +
+	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa8\x02\n" +
+	"\x04Host\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\acreated\x18\x02 \x01(\x04R\acreated\x12\x18\n" +
+	"\aupdated\x18\x03 \x01(\x04R\aupdated\x12\x1f\n" +
+	"\vapi_address\x18\x04 \x01(\tR\n" +
+	"apiAddress\x12!\n" +
+	"\fraft_address\x18\x05 \x01(\tR\vraftAddress\x12&\n" +
+	"\x04tags\x18\x06 \x03(\v2\x12.pb.Host.TagsEntryR\x04tags\x12\x1f\n" +
+	"\vshard_types\x18\a \x03(\tR\n" +
+	"shardTypes\x12\x16\n" +
+	"\x06status\x18\b \x01(\tR\x06status\x1a7\n" +
+	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\x02\n" +
+	"\x05Shard\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
+	"\acreated\x18\x02 \x01(\x04R\acreated\x12\x18\n" +
+	"\aupdated\x18\x03 \x01(\x04R\aupdated\x12\x16\n" +
+	"\x06leader\x18\x04 \x01(\x04R\x06leader\x12\x12\n" +
+	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
+	"\x04term\x18\x06 \x01(\x04R\x04term\x12'\n" +
+	"\x04tags\x18\a \x03(\v2\x13.pb.Shard.TagsEntryR\x04tags\x12\x12\n" +
+	"\x04type\x18\b \x01(\tR\x04type\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x1a7\n" +
+	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc0\x02\n" +
+	"\aReplica\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x18\n" +
+	"\acreated\x18\x02 \x01(\x04R\acreated\x12\x18\n" +
+	"\aupdated\x18\x03 \x01(\x04R\aupdated\x12\x17\n" +
+	"\ahost_id\x18\x04 \x01(\tR\x06hostId\x12\"\n" +
+	"\ris_non_voting\x18\x05 \x01(\bR\visNonVoting\x12\x1d\n" +
+	"\n" +
+	"is_witness\x18\x06 \x01(\bR\tisWitness\x12\x19\n" +
+	"\bshard_id\x18\a \x01(\x04R\ashardId\x12)\n" +
+	"\x04tags\x18\b \x03(\v2\x15.pb.Replica.TagsEntryR\x04tags\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\",\n" +
@@ -2845,24 +3202,24 @@ const file_control_proto_rawDesc = "" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\")\n" +
 	"\x13NamespaceGetRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"f\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"c\n" +
 	"\x14NamespaceGetResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x01(\v2\x10.proto.NamespaceR\x04item\";\n" +
-	"\x13NamespacePutRequest\x12$\n" +
-	"\x04item\x18\x01 \x01(\v2\x10.proto.NamespaceR\x04item\"f\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x01(\v2\r.pb.NamespaceR\x04item\"8\n" +
+	"\x13NamespacePutRequest\x12!\n" +
+	"\x04item\x18\x01 \x01(\v2\r.pb.NamespaceR\x04item\"c\n" +
 	"\x14NamespacePutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x01(\v2\x10.proto.NamespaceR\x04item\"D\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x01(\v2\r.pb.NamespaceR\x04item\"D\n" +
 	"\x14NamespaceListRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\"g\n" +
+	"\x06offset\x18\x02 \x01(\x04R\x06offset\"d\n" +
 	"\x15NamespaceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x03(\v2\x10.proto.NamespaceR\x04item\"I\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x03(\v2\r.pb.NamespaceR\x04item\"I\n" +
 	"\x15ResourceDeleteRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"B\n" +
@@ -2871,50 +3228,50 @@ const file_control_proto_rawDesc = "" +
 	"\x05error\x18\x02 \x01(\tR\x05error\"F\n" +
 	"\x12ResourceGetRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"d\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"a\n" +
 	"\x13ResourceGetResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12#\n" +
-	"\x04item\x18\x03 \x01(\v2\x0f.proto.ResourceR\x04item\"9\n" +
-	"\x12ResourcePutRequest\x12#\n" +
-	"\x04item\x18\x01 \x01(\v2\x0f.proto.ResourceR\x04item\"d\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12 \n" +
+	"\x04item\x18\x03 \x01(\v2\f.pb.ResourceR\x04item\"6\n" +
+	"\x12ResourcePutRequest\x12 \n" +
+	"\x04item\x18\x01 \x01(\v2\f.pb.ResourceR\x04item\"a\n" +
 	"\x13ResourcePutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12#\n" +
-	"\x04item\x18\x03 \x01(\v2\x0f.proto.ResourceR\x04item\"w\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12 \n" +
+	"\x04item\x18\x03 \x01(\v2\f.pb.ResourceR\x04item\"w\n" +
 	"\x13ResourceListRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x04 \x01(\x04R\x06offset\"e\n" +
+	"\x06offset\x18\x04 \x01(\x04R\x06offset\"b\n" +
 	"\x14ResourceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12#\n" +
-	"\x04item\x18\x03 \x03(\v2\x0f.proto.ResourceR\x04item\"*\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12 \n" +
+	"\x04item\x18\x03 \x03(\v2\f.pb.ResourceR\x04item\"*\n" +
 	"\x14ClusterDeleteRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"A\n" +
 	"\x15ClusterDeleteResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\"'\n" +
 	"\x11ClusterGetRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"b\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"_\n" +
 	"\x12ClusterGetResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x01(\v2\x0e.proto.ClusterR\x04item\"7\n" +
-	"\x11ClusterPutRequest\x12\"\n" +
-	"\x04item\x18\x01 \x01(\v2\x0e.proto.ClusterR\x04item\"b\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
+	"\x04item\x18\x03 \x01(\v2\v.pb.ClusterR\x04item\"4\n" +
+	"\x11ClusterPutRequest\x12\x1f\n" +
+	"\x04item\x18\x01 \x01(\v2\v.pb.ClusterR\x04item\"_\n" +
 	"\x12ClusterPutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x01(\v2\x0e.proto.ClusterR\x04item\"B\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
+	"\x04item\x18\x03 \x01(\v2\v.pb.ClusterR\x04item\"B\n" +
 	"\x12ClusterListRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\"c\n" +
+	"\x06offset\x18\x02 \x01(\x04R\x06offset\"`\n" +
 	"\x13ClusterListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x03(\v2\x0e.proto.ClusterR\x04item\"~\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
+	"\x04item\x18\x03 \x03(\v2\v.pb.ClusterR\x04item\"~\n" +
 	"\x14ServiceDeleteRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
@@ -2926,26 +3283,26 @@ const file_control_proto_rawDesc = "" +
 	"\x11ServiceGetRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\"b\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\"_\n" +
 	"\x12ServiceGetResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x01(\v2\x0e.proto.ServiceR\x04item\"7\n" +
-	"\x11ServicePutRequest\x12\"\n" +
-	"\x04item\x18\x01 \x01(\v2\x0e.proto.ServiceR\x04item\"b\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
+	"\x04item\x18\x03 \x01(\v2\v.pb.ServiceR\x04item\"4\n" +
+	"\x11ServicePutRequest\x12\x1f\n" +
+	"\x04item\x18\x01 \x01(\v2\v.pb.ServiceR\x04item\"_\n" +
 	"\x12ServicePutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x01(\v2\x0e.proto.ServiceR\x04item\"|\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
+	"\x04item\x18\x03 \x01(\v2\v.pb.ServiceR\x04item\"|\n" +
 	"\x12ServiceListRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x04 \x01(\x04R\x06offset\"c\n" +
+	"\x06offset\x18\x04 \x01(\x04R\x06offset\"`\n" +
 	"\x13ServiceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\"\n" +
-	"\x04item\x18\x03 \x03(\v2\x0e.proto.ServiceR\x04item\"\x80\x01\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
+	"\x04item\x18\x03 \x03(\v2\v.pb.ServiceR\x04item\"\x80\x01\n" +
 	"\x16ComponentDeleteRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
@@ -2957,51 +3314,52 @@ const file_control_proto_rawDesc = "" +
 	"\x13ComponentGetRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\"f\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\"c\n" +
 	"\x14ComponentGetResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x01(\v2\x10.proto.ComponentR\x04item\";\n" +
-	"\x13ComponentPutRequest\x12$\n" +
-	"\x04item\x18\x01 \x01(\v2\x10.proto.ComponentR\x04item\"f\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x01(\v2\r.pb.ComponentR\x04item\"8\n" +
+	"\x13ComponentPutRequest\x12!\n" +
+	"\x04item\x18\x01 \x01(\v2\r.pb.ComponentR\x04item\"c\n" +
 	"\x14ComponentPutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x01(\v2\x10.proto.ComponentR\x04item\"~\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x01(\v2\r.pb.ComponentR\x04item\"~\n" +
 	"\x14ComponentListRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x04 \x01(\x04R\x06offset\"g\n" +
+	"\x06offset\x18\x04 \x01(\x04R\x06offset\"d\n" +
 	"\x15ComponentListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12$\n" +
-	"\x04item\x18\x03 \x03(\v2\x10.proto.ComponentR\x04item2\xe5\v\n" +
-	"\aControl\x12R\n" +
-	"\x0fNamespaceDelete\x12\x1d.proto.NamespaceDeleteRequest\x1a\x1e.proto.NamespaceDeleteResponse\"\x00\x12I\n" +
-	"\fNamespaceGet\x12\x1a.proto.NamespaceGetRequest\x1a\x1b.proto.NamespaceGetResponse\"\x00\x12L\n" +
-	"\rNamespaceList\x12\x1b.proto.NamespaceListRequest\x1a\x1c.proto.NamespaceListResponse\"\x00\x12I\n" +
-	"\fNamespacePut\x12\x1a.proto.NamespacePutRequest\x1a\x1b.proto.NamespacePutResponse\"\x00\x12O\n" +
-	"\x0eResourceDelete\x12\x1c.proto.ResourceDeleteRequest\x1a\x1d.proto.ResourceDeleteResponse\"\x00\x12F\n" +
-	"\vResourceGet\x12\x19.proto.ResourceGetRequest\x1a\x1a.proto.ResourceGetResponse\"\x00\x12I\n" +
-	"\fResourceList\x12\x1a.proto.ResourceListRequest\x1a\x1b.proto.ResourceListResponse\"\x00\x12F\n" +
-	"\vResourcePut\x12\x19.proto.ResourcePutRequest\x1a\x1a.proto.ResourcePutResponse\"\x00\x12L\n" +
-	"\rClusterDelete\x12\x1b.proto.ClusterDeleteRequest\x1a\x1c.proto.ClusterDeleteResponse\"\x00\x12C\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x03(\v2\r.pb.ComponentR\x04item2\xed\n" +
 	"\n" +
-	"ClusterGet\x12\x18.proto.ClusterGetRequest\x1a\x19.proto.ClusterGetResponse\"\x00\x12F\n" +
-	"\vClusterList\x12\x19.proto.ClusterListRequest\x1a\x1a.proto.ClusterListResponse\"\x00\x12C\n" +
+	"\aControl\x12L\n" +
+	"\x0fNamespaceDelete\x12\x1a.pb.NamespaceDeleteRequest\x1a\x1b.pb.NamespaceDeleteResponse\"\x00\x12C\n" +
+	"\fNamespaceGet\x12\x17.pb.NamespaceGetRequest\x1a\x18.pb.NamespaceGetResponse\"\x00\x12F\n" +
+	"\rNamespaceList\x12\x18.pb.NamespaceListRequest\x1a\x19.pb.NamespaceListResponse\"\x00\x12C\n" +
+	"\fNamespacePut\x12\x17.pb.NamespacePutRequest\x1a\x18.pb.NamespacePutResponse\"\x00\x12I\n" +
+	"\x0eResourceDelete\x12\x19.pb.ResourceDeleteRequest\x1a\x1a.pb.ResourceDeleteResponse\"\x00\x12@\n" +
+	"\vResourceGet\x12\x16.pb.ResourceGetRequest\x1a\x17.pb.ResourceGetResponse\"\x00\x12C\n" +
+	"\fResourceList\x12\x17.pb.ResourceListRequest\x1a\x18.pb.ResourceListResponse\"\x00\x12@\n" +
+	"\vResourcePut\x12\x16.pb.ResourcePutRequest\x1a\x17.pb.ResourcePutResponse\"\x00\x12F\n" +
+	"\rClusterDelete\x12\x18.pb.ClusterDeleteRequest\x1a\x19.pb.ClusterDeleteResponse\"\x00\x12=\n" +
 	"\n" +
-	"ClusterPut\x12\x18.proto.ClusterPutRequest\x1a\x19.proto.ClusterPutResponse\"\x00\x12L\n" +
-	"\rServiceDelete\x12\x1b.proto.ServiceDeleteRequest\x1a\x1c.proto.ServiceDeleteResponse\"\x00\x12C\n" +
+	"ClusterGet\x12\x15.pb.ClusterGetRequest\x1a\x16.pb.ClusterGetResponse\"\x00\x12@\n" +
+	"\vClusterList\x12\x16.pb.ClusterListRequest\x1a\x17.pb.ClusterListResponse\"\x00\x12=\n" +
 	"\n" +
-	"ServiceGet\x12\x18.proto.ServiceGetRequest\x1a\x19.proto.ServiceGetResponse\"\x00\x12F\n" +
-	"\vServiceList\x12\x19.proto.ServiceListRequest\x1a\x1a.proto.ServiceListResponse\"\x00\x12C\n" +
+	"ClusterPut\x12\x15.pb.ClusterPutRequest\x1a\x16.pb.ClusterPutResponse\"\x00\x12F\n" +
+	"\rServiceDelete\x12\x18.pb.ServiceDeleteRequest\x1a\x19.pb.ServiceDeleteResponse\"\x00\x12=\n" +
 	"\n" +
-	"ServicePut\x12\x18.proto.ServicePutRequest\x1a\x19.proto.ServicePutResponse\"\x00\x12R\n" +
-	"\x0fComponentDelete\x12\x1d.proto.ComponentDeleteRequest\x1a\x1e.proto.ComponentDeleteResponse\"\x00\x12I\n" +
-	"\fComponentGet\x12\x1a.proto.ComponentGetRequest\x1a\x1b.proto.ComponentGetResponse\"\x00\x12L\n" +
-	"\rComponentList\x12\x1b.proto.ComponentListRequest\x1a\x1c.proto.ComponentListResponse\"\x00\x12I\n" +
-	"\fComponentPut\x12\x1a.proto.ComponentPutRequest\x1a\x1b.proto.ComponentPutResponse\"\x00B Z\x1egithub.com/pantopic/cluster/pbb\x06proto3"
+	"ServiceGet\x12\x15.pb.ServiceGetRequest\x1a\x16.pb.ServiceGetResponse\"\x00\x12@\n" +
+	"\vServiceList\x12\x16.pb.ServiceListRequest\x1a\x17.pb.ServiceListResponse\"\x00\x12=\n" +
+	"\n" +
+	"ServicePut\x12\x15.pb.ServicePutRequest\x1a\x16.pb.ServicePutResponse\"\x00\x12L\n" +
+	"\x0fComponentDelete\x12\x1a.pb.ComponentDeleteRequest\x1a\x1b.pb.ComponentDeleteResponse\"\x00\x12C\n" +
+	"\fComponentGet\x12\x17.pb.ComponentGetRequest\x1a\x18.pb.ComponentGetResponse\"\x00\x12F\n" +
+	"\rComponentList\x12\x18.pb.ComponentListRequest\x1a\x19.pb.ComponentListResponse\"\x00\x12C\n" +
+	"\fComponentPut\x12\x17.pb.ComponentPutRequest\x1a\x18.pb.ComponentPutResponse\"\x00B Z\x1egithub.com/pantopic/cluster/pbb\x06proto3"
 
 var (
 	file_control_proto_rawDescOnce sync.Once
@@ -3015,130 +3373,139 @@ func file_control_proto_rawDescGZIP() []byte {
 	return file_control_proto_rawDescData
 }
 
-var file_control_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_control_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
 var file_control_proto_goTypes = []any{
-	(*Namespace)(nil),               // 0: proto.Namespace
-	(*Cluster)(nil),                 // 1: proto.Cluster
-	(*Resource)(nil),                // 2: proto.Resource
-	(*Service)(nil),                 // 3: proto.Service
-	(*Component)(nil),               // 4: proto.Component
-	(*NamespaceDeleteRequest)(nil),  // 5: proto.NamespaceDeleteRequest
-	(*NamespaceDeleteResponse)(nil), // 6: proto.NamespaceDeleteResponse
-	(*NamespaceGetRequest)(nil),     // 7: proto.NamespaceGetRequest
-	(*NamespaceGetResponse)(nil),    // 8: proto.NamespaceGetResponse
-	(*NamespacePutRequest)(nil),     // 9: proto.NamespacePutRequest
-	(*NamespacePutResponse)(nil),    // 10: proto.NamespacePutResponse
-	(*NamespaceListRequest)(nil),    // 11: proto.NamespaceListRequest
-	(*NamespaceListResponse)(nil),   // 12: proto.NamespaceListResponse
-	(*ResourceDeleteRequest)(nil),   // 13: proto.ResourceDeleteRequest
-	(*ResourceDeleteResponse)(nil),  // 14: proto.ResourceDeleteResponse
-	(*ResourceGetRequest)(nil),      // 15: proto.ResourceGetRequest
-	(*ResourceGetResponse)(nil),     // 16: proto.ResourceGetResponse
-	(*ResourcePutRequest)(nil),      // 17: proto.ResourcePutRequest
-	(*ResourcePutResponse)(nil),     // 18: proto.ResourcePutResponse
-	(*ResourceListRequest)(nil),     // 19: proto.ResourceListRequest
-	(*ResourceListResponse)(nil),    // 20: proto.ResourceListResponse
-	(*ClusterDeleteRequest)(nil),    // 21: proto.ClusterDeleteRequest
-	(*ClusterDeleteResponse)(nil),   // 22: proto.ClusterDeleteResponse
-	(*ClusterGetRequest)(nil),       // 23: proto.ClusterGetRequest
-	(*ClusterGetResponse)(nil),      // 24: proto.ClusterGetResponse
-	(*ClusterPutRequest)(nil),       // 25: proto.ClusterPutRequest
-	(*ClusterPutResponse)(nil),      // 26: proto.ClusterPutResponse
-	(*ClusterListRequest)(nil),      // 27: proto.ClusterListRequest
-	(*ClusterListResponse)(nil),     // 28: proto.ClusterListResponse
-	(*ServiceDeleteRequest)(nil),    // 29: proto.ServiceDeleteRequest
-	(*ServiceDeleteResponse)(nil),   // 30: proto.ServiceDeleteResponse
-	(*ServiceGetRequest)(nil),       // 31: proto.ServiceGetRequest
-	(*ServiceGetResponse)(nil),      // 32: proto.ServiceGetResponse
-	(*ServicePutRequest)(nil),       // 33: proto.ServicePutRequest
-	(*ServicePutResponse)(nil),      // 34: proto.ServicePutResponse
-	(*ServiceListRequest)(nil),      // 35: proto.ServiceListRequest
-	(*ServiceListResponse)(nil),     // 36: proto.ServiceListResponse
-	(*ComponentDeleteRequest)(nil),  // 37: proto.ComponentDeleteRequest
-	(*ComponentDeleteResponse)(nil), // 38: proto.ComponentDeleteResponse
-	(*ComponentGetRequest)(nil),     // 39: proto.ComponentGetRequest
-	(*ComponentGetResponse)(nil),    // 40: proto.ComponentGetResponse
-	(*ComponentPutRequest)(nil),     // 41: proto.ComponentPutRequest
-	(*ComponentPutResponse)(nil),    // 42: proto.ComponentPutResponse
-	(*ComponentListRequest)(nil),    // 43: proto.ComponentListRequest
-	(*ComponentListResponse)(nil),   // 44: proto.ComponentListResponse
-	nil,                             // 45: proto.Namespace.TagsEntry
-	nil,                             // 46: proto.Cluster.TagsEntry
-	nil,                             // 47: proto.Resource.TagsEntry
-	nil,                             // 48: proto.Service.TagsEntry
-	nil,                             // 49: proto.Component.TagsEntry
+	(*Namespace)(nil),               // 0: pb.Namespace
+	(*Cluster)(nil),                 // 1: pb.Cluster
+	(*Resource)(nil),                // 2: pb.Resource
+	(*Service)(nil),                 // 3: pb.Service
+	(*Component)(nil),               // 4: pb.Component
+	(*Host)(nil),                    // 5: pb.Host
+	(*Shard)(nil),                   // 6: pb.Shard
+	(*Replica)(nil),                 // 7: pb.Replica
+	(*NamespaceDeleteRequest)(nil),  // 8: pb.NamespaceDeleteRequest
+	(*NamespaceDeleteResponse)(nil), // 9: pb.NamespaceDeleteResponse
+	(*NamespaceGetRequest)(nil),     // 10: pb.NamespaceGetRequest
+	(*NamespaceGetResponse)(nil),    // 11: pb.NamespaceGetResponse
+	(*NamespacePutRequest)(nil),     // 12: pb.NamespacePutRequest
+	(*NamespacePutResponse)(nil),    // 13: pb.NamespacePutResponse
+	(*NamespaceListRequest)(nil),    // 14: pb.NamespaceListRequest
+	(*NamespaceListResponse)(nil),   // 15: pb.NamespaceListResponse
+	(*ResourceDeleteRequest)(nil),   // 16: pb.ResourceDeleteRequest
+	(*ResourceDeleteResponse)(nil),  // 17: pb.ResourceDeleteResponse
+	(*ResourceGetRequest)(nil),      // 18: pb.ResourceGetRequest
+	(*ResourceGetResponse)(nil),     // 19: pb.ResourceGetResponse
+	(*ResourcePutRequest)(nil),      // 20: pb.ResourcePutRequest
+	(*ResourcePutResponse)(nil),     // 21: pb.ResourcePutResponse
+	(*ResourceListRequest)(nil),     // 22: pb.ResourceListRequest
+	(*ResourceListResponse)(nil),    // 23: pb.ResourceListResponse
+	(*ClusterDeleteRequest)(nil),    // 24: pb.ClusterDeleteRequest
+	(*ClusterDeleteResponse)(nil),   // 25: pb.ClusterDeleteResponse
+	(*ClusterGetRequest)(nil),       // 26: pb.ClusterGetRequest
+	(*ClusterGetResponse)(nil),      // 27: pb.ClusterGetResponse
+	(*ClusterPutRequest)(nil),       // 28: pb.ClusterPutRequest
+	(*ClusterPutResponse)(nil),      // 29: pb.ClusterPutResponse
+	(*ClusterListRequest)(nil),      // 30: pb.ClusterListRequest
+	(*ClusterListResponse)(nil),     // 31: pb.ClusterListResponse
+	(*ServiceDeleteRequest)(nil),    // 32: pb.ServiceDeleteRequest
+	(*ServiceDeleteResponse)(nil),   // 33: pb.ServiceDeleteResponse
+	(*ServiceGetRequest)(nil),       // 34: pb.ServiceGetRequest
+	(*ServiceGetResponse)(nil),      // 35: pb.ServiceGetResponse
+	(*ServicePutRequest)(nil),       // 36: pb.ServicePutRequest
+	(*ServicePutResponse)(nil),      // 37: pb.ServicePutResponse
+	(*ServiceListRequest)(nil),      // 38: pb.ServiceListRequest
+	(*ServiceListResponse)(nil),     // 39: pb.ServiceListResponse
+	(*ComponentDeleteRequest)(nil),  // 40: pb.ComponentDeleteRequest
+	(*ComponentDeleteResponse)(nil), // 41: pb.ComponentDeleteResponse
+	(*ComponentGetRequest)(nil),     // 42: pb.ComponentGetRequest
+	(*ComponentGetResponse)(nil),    // 43: pb.ComponentGetResponse
+	(*ComponentPutRequest)(nil),     // 44: pb.ComponentPutRequest
+	(*ComponentPutResponse)(nil),    // 45: pb.ComponentPutResponse
+	(*ComponentListRequest)(nil),    // 46: pb.ComponentListRequest
+	(*ComponentListResponse)(nil),   // 47: pb.ComponentListResponse
+	nil,                             // 48: pb.Namespace.TagsEntry
+	nil,                             // 49: pb.Cluster.TagsEntry
+	nil,                             // 50: pb.Resource.TagsEntry
+	nil,                             // 51: pb.Service.TagsEntry
+	nil,                             // 52: pb.Component.TagsEntry
+	nil,                             // 53: pb.Host.TagsEntry
+	nil,                             // 54: pb.Shard.TagsEntry
+	nil,                             // 55: pb.Replica.TagsEntry
 }
 var file_control_proto_depIdxs = []int32{
-	45, // 0: proto.Namespace.tags:type_name -> proto.Namespace.TagsEntry
-	46, // 1: proto.Cluster.tags:type_name -> proto.Cluster.TagsEntry
-	47, // 2: proto.Resource.tags:type_name -> proto.Resource.TagsEntry
-	48, // 3: proto.Service.tags:type_name -> proto.Service.TagsEntry
-	49, // 4: proto.Component.tags:type_name -> proto.Component.TagsEntry
-	0,  // 5: proto.NamespaceGetResponse.item:type_name -> proto.Namespace
-	0,  // 6: proto.NamespacePutRequest.item:type_name -> proto.Namespace
-	0,  // 7: proto.NamespacePutResponse.item:type_name -> proto.Namespace
-	0,  // 8: proto.NamespaceListResponse.item:type_name -> proto.Namespace
-	2,  // 9: proto.ResourceGetResponse.item:type_name -> proto.Resource
-	2,  // 10: proto.ResourcePutRequest.item:type_name -> proto.Resource
-	2,  // 11: proto.ResourcePutResponse.item:type_name -> proto.Resource
-	2,  // 12: proto.ResourceListResponse.item:type_name -> proto.Resource
-	1,  // 13: proto.ClusterGetResponse.item:type_name -> proto.Cluster
-	1,  // 14: proto.ClusterPutRequest.item:type_name -> proto.Cluster
-	1,  // 15: proto.ClusterPutResponse.item:type_name -> proto.Cluster
-	1,  // 16: proto.ClusterListResponse.item:type_name -> proto.Cluster
-	3,  // 17: proto.ServiceGetResponse.item:type_name -> proto.Service
-	3,  // 18: proto.ServicePutRequest.item:type_name -> proto.Service
-	3,  // 19: proto.ServicePutResponse.item:type_name -> proto.Service
-	3,  // 20: proto.ServiceListResponse.item:type_name -> proto.Service
-	4,  // 21: proto.ComponentGetResponse.item:type_name -> proto.Component
-	4,  // 22: proto.ComponentPutRequest.item:type_name -> proto.Component
-	4,  // 23: proto.ComponentPutResponse.item:type_name -> proto.Component
-	4,  // 24: proto.ComponentListResponse.item:type_name -> proto.Component
-	5,  // 25: proto.Control.NamespaceDelete:input_type -> proto.NamespaceDeleteRequest
-	7,  // 26: proto.Control.NamespaceGet:input_type -> proto.NamespaceGetRequest
-	11, // 27: proto.Control.NamespaceList:input_type -> proto.NamespaceListRequest
-	9,  // 28: proto.Control.NamespacePut:input_type -> proto.NamespacePutRequest
-	13, // 29: proto.Control.ResourceDelete:input_type -> proto.ResourceDeleteRequest
-	15, // 30: proto.Control.ResourceGet:input_type -> proto.ResourceGetRequest
-	19, // 31: proto.Control.ResourceList:input_type -> proto.ResourceListRequest
-	17, // 32: proto.Control.ResourcePut:input_type -> proto.ResourcePutRequest
-	21, // 33: proto.Control.ClusterDelete:input_type -> proto.ClusterDeleteRequest
-	23, // 34: proto.Control.ClusterGet:input_type -> proto.ClusterGetRequest
-	27, // 35: proto.Control.ClusterList:input_type -> proto.ClusterListRequest
-	25, // 36: proto.Control.ClusterPut:input_type -> proto.ClusterPutRequest
-	29, // 37: proto.Control.ServiceDelete:input_type -> proto.ServiceDeleteRequest
-	31, // 38: proto.Control.ServiceGet:input_type -> proto.ServiceGetRequest
-	35, // 39: proto.Control.ServiceList:input_type -> proto.ServiceListRequest
-	33, // 40: proto.Control.ServicePut:input_type -> proto.ServicePutRequest
-	37, // 41: proto.Control.ComponentDelete:input_type -> proto.ComponentDeleteRequest
-	39, // 42: proto.Control.ComponentGet:input_type -> proto.ComponentGetRequest
-	43, // 43: proto.Control.ComponentList:input_type -> proto.ComponentListRequest
-	41, // 44: proto.Control.ComponentPut:input_type -> proto.ComponentPutRequest
-	6,  // 45: proto.Control.NamespaceDelete:output_type -> proto.NamespaceDeleteResponse
-	8,  // 46: proto.Control.NamespaceGet:output_type -> proto.NamespaceGetResponse
-	12, // 47: proto.Control.NamespaceList:output_type -> proto.NamespaceListResponse
-	10, // 48: proto.Control.NamespacePut:output_type -> proto.NamespacePutResponse
-	14, // 49: proto.Control.ResourceDelete:output_type -> proto.ResourceDeleteResponse
-	16, // 50: proto.Control.ResourceGet:output_type -> proto.ResourceGetResponse
-	20, // 51: proto.Control.ResourceList:output_type -> proto.ResourceListResponse
-	18, // 52: proto.Control.ResourcePut:output_type -> proto.ResourcePutResponse
-	22, // 53: proto.Control.ClusterDelete:output_type -> proto.ClusterDeleteResponse
-	24, // 54: proto.Control.ClusterGet:output_type -> proto.ClusterGetResponse
-	28, // 55: proto.Control.ClusterList:output_type -> proto.ClusterListResponse
-	26, // 56: proto.Control.ClusterPut:output_type -> proto.ClusterPutResponse
-	30, // 57: proto.Control.ServiceDelete:output_type -> proto.ServiceDeleteResponse
-	32, // 58: proto.Control.ServiceGet:output_type -> proto.ServiceGetResponse
-	36, // 59: proto.Control.ServiceList:output_type -> proto.ServiceListResponse
-	34, // 60: proto.Control.ServicePut:output_type -> proto.ServicePutResponse
-	38, // 61: proto.Control.ComponentDelete:output_type -> proto.ComponentDeleteResponse
-	40, // 62: proto.Control.ComponentGet:output_type -> proto.ComponentGetResponse
-	44, // 63: proto.Control.ComponentList:output_type -> proto.ComponentListResponse
-	42, // 64: proto.Control.ComponentPut:output_type -> proto.ComponentPutResponse
-	45, // [45:65] is the sub-list for method output_type
-	25, // [25:45] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	48, // 0: pb.Namespace.tags:type_name -> pb.Namespace.TagsEntry
+	49, // 1: pb.Cluster.tags:type_name -> pb.Cluster.TagsEntry
+	50, // 2: pb.Resource.tags:type_name -> pb.Resource.TagsEntry
+	51, // 3: pb.Service.tags:type_name -> pb.Service.TagsEntry
+	52, // 4: pb.Component.tags:type_name -> pb.Component.TagsEntry
+	53, // 5: pb.Host.tags:type_name -> pb.Host.TagsEntry
+	54, // 6: pb.Shard.tags:type_name -> pb.Shard.TagsEntry
+	55, // 7: pb.Replica.tags:type_name -> pb.Replica.TagsEntry
+	0,  // 8: pb.NamespaceGetResponse.item:type_name -> pb.Namespace
+	0,  // 9: pb.NamespacePutRequest.item:type_name -> pb.Namespace
+	0,  // 10: pb.NamespacePutResponse.item:type_name -> pb.Namespace
+	0,  // 11: pb.NamespaceListResponse.item:type_name -> pb.Namespace
+	2,  // 12: pb.ResourceGetResponse.item:type_name -> pb.Resource
+	2,  // 13: pb.ResourcePutRequest.item:type_name -> pb.Resource
+	2,  // 14: pb.ResourcePutResponse.item:type_name -> pb.Resource
+	2,  // 15: pb.ResourceListResponse.item:type_name -> pb.Resource
+	1,  // 16: pb.ClusterGetResponse.item:type_name -> pb.Cluster
+	1,  // 17: pb.ClusterPutRequest.item:type_name -> pb.Cluster
+	1,  // 18: pb.ClusterPutResponse.item:type_name -> pb.Cluster
+	1,  // 19: pb.ClusterListResponse.item:type_name -> pb.Cluster
+	3,  // 20: pb.ServiceGetResponse.item:type_name -> pb.Service
+	3,  // 21: pb.ServicePutRequest.item:type_name -> pb.Service
+	3,  // 22: pb.ServicePutResponse.item:type_name -> pb.Service
+	3,  // 23: pb.ServiceListResponse.item:type_name -> pb.Service
+	4,  // 24: pb.ComponentGetResponse.item:type_name -> pb.Component
+	4,  // 25: pb.ComponentPutRequest.item:type_name -> pb.Component
+	4,  // 26: pb.ComponentPutResponse.item:type_name -> pb.Component
+	4,  // 27: pb.ComponentListResponse.item:type_name -> pb.Component
+	8,  // 28: pb.Control.NamespaceDelete:input_type -> pb.NamespaceDeleteRequest
+	10, // 29: pb.Control.NamespaceGet:input_type -> pb.NamespaceGetRequest
+	14, // 30: pb.Control.NamespaceList:input_type -> pb.NamespaceListRequest
+	12, // 31: pb.Control.NamespacePut:input_type -> pb.NamespacePutRequest
+	16, // 32: pb.Control.ResourceDelete:input_type -> pb.ResourceDeleteRequest
+	18, // 33: pb.Control.ResourceGet:input_type -> pb.ResourceGetRequest
+	22, // 34: pb.Control.ResourceList:input_type -> pb.ResourceListRequest
+	20, // 35: pb.Control.ResourcePut:input_type -> pb.ResourcePutRequest
+	24, // 36: pb.Control.ClusterDelete:input_type -> pb.ClusterDeleteRequest
+	26, // 37: pb.Control.ClusterGet:input_type -> pb.ClusterGetRequest
+	30, // 38: pb.Control.ClusterList:input_type -> pb.ClusterListRequest
+	28, // 39: pb.Control.ClusterPut:input_type -> pb.ClusterPutRequest
+	32, // 40: pb.Control.ServiceDelete:input_type -> pb.ServiceDeleteRequest
+	34, // 41: pb.Control.ServiceGet:input_type -> pb.ServiceGetRequest
+	38, // 42: pb.Control.ServiceList:input_type -> pb.ServiceListRequest
+	36, // 43: pb.Control.ServicePut:input_type -> pb.ServicePutRequest
+	40, // 44: pb.Control.ComponentDelete:input_type -> pb.ComponentDeleteRequest
+	42, // 45: pb.Control.ComponentGet:input_type -> pb.ComponentGetRequest
+	46, // 46: pb.Control.ComponentList:input_type -> pb.ComponentListRequest
+	44, // 47: pb.Control.ComponentPut:input_type -> pb.ComponentPutRequest
+	9,  // 48: pb.Control.NamespaceDelete:output_type -> pb.NamespaceDeleteResponse
+	11, // 49: pb.Control.NamespaceGet:output_type -> pb.NamespaceGetResponse
+	15, // 50: pb.Control.NamespaceList:output_type -> pb.NamespaceListResponse
+	13, // 51: pb.Control.NamespacePut:output_type -> pb.NamespacePutResponse
+	17, // 52: pb.Control.ResourceDelete:output_type -> pb.ResourceDeleteResponse
+	19, // 53: pb.Control.ResourceGet:output_type -> pb.ResourceGetResponse
+	23, // 54: pb.Control.ResourceList:output_type -> pb.ResourceListResponse
+	21, // 55: pb.Control.ResourcePut:output_type -> pb.ResourcePutResponse
+	25, // 56: pb.Control.ClusterDelete:output_type -> pb.ClusterDeleteResponse
+	27, // 57: pb.Control.ClusterGet:output_type -> pb.ClusterGetResponse
+	31, // 58: pb.Control.ClusterList:output_type -> pb.ClusterListResponse
+	29, // 59: pb.Control.ClusterPut:output_type -> pb.ClusterPutResponse
+	33, // 60: pb.Control.ServiceDelete:output_type -> pb.ServiceDeleteResponse
+	35, // 61: pb.Control.ServiceGet:output_type -> pb.ServiceGetResponse
+	39, // 62: pb.Control.ServiceList:output_type -> pb.ServiceListResponse
+	37, // 63: pb.Control.ServicePut:output_type -> pb.ServicePutResponse
+	41, // 64: pb.Control.ComponentDelete:output_type -> pb.ComponentDeleteResponse
+	43, // 65: pb.Control.ComponentGet:output_type -> pb.ComponentGetResponse
+	47, // 66: pb.Control.ComponentList:output_type -> pb.ComponentListResponse
+	45, // 67: pb.Control.ComponentPut:output_type -> pb.ComponentPutResponse
+	48, // [48:68] is the sub-list for method output_type
+	28, // [28:48] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_control_proto_init() }
@@ -3152,7 +3519,7 @@ func file_control_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_proto_rawDesc), len(file_control_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   50,
+			NumMessages:   56,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

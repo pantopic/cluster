@@ -108,7 +108,8 @@ func (c *controllerService) tick() (err error) {
 				c.log.Infof(`[%s] Service Controller: Starting %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcStart(res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Start: %s (%d): %w`, svcId(svc), svc.Port, err)
-					break
+					continue
+					// break
 				}
 				c.running[svcId(svc)] = svc
 			}

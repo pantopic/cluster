@@ -36,6 +36,9 @@ func cmdComponentPut(entry *Entry, state *State, cmd []byte) (err error) {
 			entry.Result.Data = []byte("Version mismatch")
 			return
 		}
+		if item.Status == "" {
+			item.Status = found.Status
+		}
 	} else {
 		if _, ok := state.NamespaceFindByName(item.Namespace); !ok {
 			entry.Result.Value = ResultErrNotFound
@@ -54,6 +57,7 @@ func cmdComponentPut(entry *Entry, state *State, cmd []byte) (err error) {
 		}
 		item.Version = 0
 		item.Created = entry.Index
+		item.Status = Status_Pending
 	}
 	item.Version++
 	item.Updated = entry.Index

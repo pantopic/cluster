@@ -6,7 +6,7 @@ require (
 	github.com/benbjohnson/clock v1.3.5
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/hashicorp/go-memdb v1.3.4
-	github.com/logbn/zongzi v0.0.22
+	github.com/logbn/zongzi v0.0.23
 	github.com/pantopic/ext-atomic/host-wazero v0.0.4
 	github.com/pantopic/ext-buffer/host-wazero v0.0.4
 	github.com/pantopic/ext-cluster/host-wazero v0.0.1
@@ -16,7 +16,7 @@ require (
 	github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10
 	github.com/pantopic/ext-raft/host-wazero v0.0.4
 	github.com/pantopic/ext-range-watch/host-wazero v0.0.7
-	github.com/pantopic/ext-shard-client/host-wazero v0.0.4
+	github.com/pantopic/ext-shard-client/host-wazero v0.0.3
 	github.com/pantopic/ext-small-cache/host-wazero v0.0.3
 	github.com/pantopic/kitsune/embed v0.0.1
 	github.com/pantopic/kitsune/test v0.0.0-20261102173909-47dd4eaf50c9
@@ -62,6 +62,7 @@ require (
 	github.com/lni/vfs v0.2.1-0.20220616104132-8852fd867376 // indirect
 	github.com/logbn/byteinterval v0.0.2 // indirect
 	github.com/miekg/dns v1.1.26 // indirect
+	github.com/pantopic/wazero-cluster/host v0.0.0-20260711151336-9bd8f3a69a34 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

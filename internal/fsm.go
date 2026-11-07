@@ -9,7 +9,7 @@ import (
 
 const StateMachineUri = "pantopic/cluster/internal"
 
-func StateMachineFactory(logger Logger, ctrlSvc ControllerService) func(shardID, replicaID uint64) zongzi.StateMachine {
+func StateMachineFactory(logger Logger, ctrlService ControllerService, ctrlManager ControllerManager) func(shardID, replicaID uint64) zongzi.StateMachine {
 	return func(shardID, replicaID uint64) zongzi.StateMachine {
 		fsm := &stateMachine{
 			log:       logger,
@@ -17,7 +17,8 @@ func StateMachineFactory(logger Logger, ctrlSvc ControllerService) func(shardID,
 			replicaID: replicaID,
 			state:     newState(),
 		}
-		ctrlSvc.SetState(fsm.state)
+		ctrlService.SetState(fsm.state)
+		ctrlManager.SetState(fsm.state)
 		return fsm
 	}
 }

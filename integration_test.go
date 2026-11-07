@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"time"
 
 	"github.com/logbn/zongzi"
-	// "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -39,8 +40,14 @@ import (
 	"github.com/pantopic/cluster/test/pb"
 )
 
-//go:embed _dist/service\-grpc\.wasm
+//go:embed _dist/service-grpc.dev.wasm
 var wasmTestServiceGrpc []byte
+
+//go:embed _dist/storage.dev.wasm
+var wasmTestStorage []byte
+
+//go:embed _dist/control.dev.wasm
+var wasmTestControl []byte
 
 func TestMain(t *testing.T) {
 	basedir := `./tmp/pantopic`
@@ -57,11 +64,13 @@ func TestMain(t *testing.T) {
 	agents := []*zongzi.Agent{}
 	crtlClusters := []internal.ControllerCluster{}
 	crtlServices := []internal.ControllerService{}
+	crtlManagers := []internal.ControllerManager{}
 	logger := getLogger(cfg)
 	var n int
 	start := func(t *testing.T, peers []string, class string, portSets ...[]uint16) {
 		for i, ports := range portSets {
 			ctrlCluster := internal.NewControllerCluster(logger)
+			ctrlManager := internal.NewControllerManager(logger)
 			agent, err := zongzi.NewAgent(cfg.ClusterName, peers,
 				zongzi.WithDirRaft(fmt.Sprintf(basedir+`/%d/raft`, i+n)),
 				zongzi.WithDirWAL(fmt.Sprintf(basedir+`/%d/wal`, i+n)),
@@ -72,24 +81,15 @@ func TestMain(t *testing.T) {
 					`cluster:member`,
 					`cluster:host`,
 					`host:class=`+class,
+					`geo:zone=test-`+strconv.Itoa(i%3),
 					`host:id=`+strconv.Itoa(i+n)),
 				zongzi.WithRaftEventListener(ctrlCluster),
+				zongzi.WithRaftEventListener(ctrlManager),
 				zongzi.WithLogLevel(zongzi.LogLevelInfo))
 			if err != nil {
 				panic(err)
 			}
 			ctrlCluster.Start(ctx, agent)
-
-			runtimeSvc := internal.NewRuntimeService(ctx, []internal.Extension{
-				wazero_global.New(),
-				wazero_grpc_server.New(),
-				wazero_http_server.New(),
-				wazero_buffer.New(),
-				wazero_shard_client.New(agent),
-			}...)
-			runtimeSvc.Register(turbokube.ServiceGrpcName, turbokube.ServiceGrpcDevWasm)
-			runtimeSvc.Register(kitsune.ServiceHttpName, kitsune.ServiceHttpDevWasm)
-			ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeSvc)
 
 			runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
 				wazero_lmdb.New(),
@@ -99,15 +99,34 @@ func TestMain(t *testing.T) {
 				wazero_small_cache.New(),
 				wazero_raft.New(),
 			}...)
-			runtimeStorage.Register(turbokube.StorageKvName, turbokube.StorageKvDevWasm)
-			runtimeStorage.Register(kitsune.StorageQueueName, kitsune.StorageQueueDevWasm)
+			runtimeService := internal.NewRuntimeService(ctx, []internal.Extension{
+				wazero_global.New(),
+				wazero_grpc_server.New(),
+				wazero_http_server.New(),
+				wazero_buffer.New(),
+				wazero_shard_client.New(agent),
+			}...)
+			runtimeControl := internal.NewRuntimeControl(ctx, agent, []internal.Extension{
+				wazero_shard_client.New(agent),
+			}...)
 
-			go run(ctx, agent, logger, ctrlService)
-			ctrlService.Runtime().Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
+			ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeService)
+
+			// Test
+			runtimeService.Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
+			runtimeStorage.Register("pantopic/cluster-test/storage/test", wasmTestStorage)
+			runtimeControl.Register("pantopic/cluster-test/control/test", wasmTestControl)
+
+			turbokube.Register(runtimeService, runtimeStorage, runtimeControl)
+			kitsune.Register(runtimeService, runtimeStorage, runtimeControl)
+
+			go run(ctx, agent, logger, ctrlService, ctrlManager)
 			ctrlService.Start()
+			ctrlManager.Start(ctx, agent, runtimeControl)
 			agents = append(agents, agent)
 			crtlServices = append(crtlServices, ctrlService)
 			crtlClusters = append(crtlClusters, ctrlCluster)
+			crtlManagers = append(crtlManagers, ctrlManager)
 			n++
 		}
 		time.Sleep(time.Second)
@@ -189,113 +208,119 @@ func TestMain(t *testing.T) {
 		panic(err)
 	}
 	ctrlClient := pb.NewControlClient(conn)
-	resource := &pb.Resource{
-		Namespace: "default",
-		Name:      "test",
-		Type:      "pantopic/cluster-test",
-	}
-	service := &pb.Service{
-		Namespace: "default",
-		Resource:  resource.Name,
-		Name:      "test",
-		Type:      "grpc",
-		Port:      19000,
-		Status:    internal.Status_Active,
-		Tags: map[string]string{
-			"placement:cover": "host:class=service",
-		},
-	}
-	component := &pb.Component{
-		Namespace: "default",
-		Resource:  resource.Name,
-		Cluster:   cfg.ClusterName,
-		Name:      "test",
-		Type:      "component",
-		Tags: map[string]string{
-			"placement:cover": "host:class=storage",
-			"placement:vary":  "geo:zone",
-		},
-	}
-	t.Run(`resource`, func(t *testing.T) {
-		t.Run(`create`, func(t *testing.T) {
-			putResp, err := ctrlClient.ResourcePut(ctx, &pb.ResourcePutRequest{
-				Item: resource,
+
+	t.Run(`cluster-test`, func(t *testing.T) {
+		port := uint64(19000)
+		addr := fmt.Sprintf("localhost:%d", port)
+		resource := &pb.Resource{
+			Namespace: "default",
+			Name:      "test",
+			Type:      "pantopic/cluster-test",
+		}
+		service := &pb.Service{
+			Namespace: "default",
+			Resource:  resource.Name,
+			Name:      "test",
+			Type:      "grpc",
+			Port:      port,
+			Status:    internal.Status_Active,
+			Tags: map[string]string{
+				"placement:cover": "host:class=service",
+			},
+		}
+		component := &pb.Component{
+			Namespace: "default",
+			Resource:  resource.Name,
+			Cluster:   cfg.ClusterName,
+			Name:      "test",
+			Type:      "test",
+			Tags: map[string]string{
+				"placement:member": "3;host:class=storage",
+				"placement:vary":   "geo:zone",
+			},
+		}
+		t.Run(`provision`, func(t *testing.T) {
+			t.Run(`resource`, func(t *testing.T) {
+				putResp, err := ctrlClient.ResourcePut(ctx, &pb.ResourcePutRequest{
+					Item: resource,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, resource.Namespace, putResp.Item.Namespace)
+				require.Equal(t, resource.Name, putResp.Item.Name)
+				require.Equal(t, resource.Type, putResp.Item.Type)
 			})
-			require.Nil(t, err, err)
-			require.Equal(t, uint64(0), putResp.Code, putResp.Error)
-			require.Equal(t, resource.Namespace, putResp.Item.Namespace)
-			require.Equal(t, resource.Name, putResp.Item.Name)
-			require.Equal(t, resource.Type, putResp.Item.Type)
-		})
-	})
-	t.Run(`service`, func(t *testing.T) {
-		t.Run(`create`, func(t *testing.T) {
-			putResp, err := ctrlClient.ServicePut(ctx, &pb.ServicePutRequest{
-				Item: service,
+			t.Run(`service`, func(t *testing.T) {
+				putResp, err := ctrlClient.ServicePut(ctx, &pb.ServicePutRequest{
+					Item: service,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, service.Namespace, putResp.Item.Namespace)
+				require.Equal(t, service.Name, putResp.Item.Name)
+				require.Equal(t, service.Type, putResp.Item.Type)
 			})
-			require.Nil(t, err, err)
-			require.Equal(t, uint64(0), putResp.Code, putResp.Error)
-			require.Equal(t, service.Namespace, putResp.Item.Namespace)
-			require.Equal(t, service.Name, putResp.Item.Name)
-			require.Equal(t, service.Type, putResp.Item.Type)
-		})
-		t.Run(`list`, func(t *testing.T) {
-			// 10s - service is created and healthy
-			svcListReq := &pb.ServiceListRequest{
-				Namespace: resource.Namespace,
-				Resource:  resource.Name,
-			}
-			var svcListResp *pb.ServiceListResponse
-			require.True(t, await(10, 100, func() bool {
-				svcListResp, err = ctrlClient.ServiceList(ctx, svcListReq)
-				return err == nil &&
-					svcListResp.Code == internal.ResultSuccess &&
-					len(svcListResp.Item) > 0 &&
-					svcListResp.Item[0].Status == internal.Status_Active
-			}), "%#v, %#v", svcListResp, err)
-			require.Equal(t, 1, len(svcListResp.Item))
-			require.Equal(t, `grpc`, svcListResp.Item[0].Type)
+			t.Run(`component`, func(t *testing.T) {
+				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
+					Item: component,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, component.Namespace, putResp.Item.Namespace)
+				require.Equal(t, component.Name, putResp.Item.Name)
+				require.Equal(t, component.Resource, putResp.Item.Resource)
+				require.Equal(t, component.Type, putResp.Item.Type)
+			})
+			t.Run(`active`, func(t *testing.T) {
+				t.Run(`service`, func(t *testing.T) {
+					svcListReq := &pb.ServiceListRequest{
+						Namespace: resource.Namespace,
+						Resource:  resource.Name,
+					}
+					var svcListResp *pb.ServiceListResponse
+					// 10s - service is created and active
+					require.True(t, await(10, 100, func() bool {
+						svcListResp, err = ctrlClient.ServiceList(ctx, svcListReq)
+						return err == nil &&
+							svcListResp.Code == internal.ResultSuccess &&
+							len(svcListResp.Item) > 0 &&
+							svcListResp.Item[0].Status == internal.Status_Active
+					}), "%#v, %#v", svcListResp, err)
+					require.Equal(t, 1, len(svcListResp.Item))
+					require.Equal(t, service.Type, svcListResp.Item[0].Type)
+				})
+				t.Run(`component`, func(t *testing.T) {
+					compListReq := &pb.ComponentListRequest{
+						Namespace: resource.Namespace,
+						Resource:  resource.Name,
+					}
+					var compListResp *pb.ComponentListResponse
+					// 10s - component is created and active
+					require.True(t, await(10, 100, func() bool {
+						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+						return err == nil &&
+							compListResp.Code == internal.ResultSuccess &&
+							len(compListResp.Item) > 0 &&
+							compListResp.Item[0].Status == internal.Status_Active
+					}), err)
+					require.Equal(t, 1, len(compListResp.Item))
+					require.Equal(t, component.Type, compListResp.Item[0].Type)
+				})
+			})
 		})
 		t.Run(`query`, func(t *testing.T) {
-			conn, err := grpc.NewClient("localhost:19000", grpc.WithTransportCredentials(insecure.NewCredentials()))
+			conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 			if err != nil {
 				panic(err)
 			}
 			svcClient := testpb.NewTestClient(conn)
 			var res *testpb.PingResponse
-			require.True(t, await(10, 100, func() bool {
+			assert.True(t, await(5, 10, func() bool {
 				res, err = svcClient.Ping(ctx, &testpb.PingRequest{})
 				return err == nil
 			}), "%s", err)
 			require.Nil(t, err, err)
 			require.NotNil(t, res)
-		})
-	})
-	t.Run(`component`, func(t *testing.T) {
-		t.Run(`create`, func(t *testing.T) {
-			putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
-				Item: component,
-			})
-			require.Nil(t, err, err)
-			require.Equal(t, uint64(0), putResp.Code, putResp.Error)
-			require.Equal(t, component.Namespace, putResp.Item.Namespace)
-			require.Equal(t, component.Name, putResp.Item.Name)
-			require.Equal(t, component.Resource, putResp.Item.Resource)
-			require.Equal(t, component.Type, putResp.Item.Type)
-		})
-		t.Run(`list`, func(t *testing.T) {
-			// 10s - component is created and healthy
-			compListReq := &pb.ComponentListRequest{
-				Namespace: resource.Namespace,
-				Resource:  resource.Name,
-			}
-			var compListResp *pb.ComponentListResponse
-			require.True(t, await(10, 100, func() bool {
-				compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
-				return err == nil && compListResp.Code == internal.ResultSuccess && len(compListResp.Item) > 0
-			}), err)
-			require.Equal(t, 1, len(compListResp.Item))
-			require.Equal(t, `component`, compListResp.Item[0].Type)
 		})
 	})
 	// service set/get
@@ -311,35 +336,35 @@ func TestMain(t *testing.T) {
 	t.Run(`kitsune`, func(t *testing.T) {
 		port := 19100
 		addr := fmt.Sprintf("localhost:%d", port)
-		resource := &pb.Resource{
-			Namespace: "default",
-			Name:      "kitsune-test",
-			Type:      "pantopic/kitsune",
-		}
-		service := &pb.Service{
-			Namespace: "default",
-			Resource:  resource.Name,
-			Name:      "kitsune-test",
-			Type:      "http",
-			Port:      uint64(port),
-			Status:    internal.Status_Active,
-			Tags: map[string]string{
-				"placement:cover": "host:class=service",
-			},
-		}
-		component := &pb.Component{
-			Namespace: "default",
-			Resource:  resource.Name,
-			Cluster:   cfg.ClusterName,
-			Name:      "kitsune-test",
-			Type:      "component",
-			Tags: map[string]string{
-				"placement:cover": "host:class=storage",
-				"placement:vary":  "geo:zone",
-			},
-		}
-		t.Run(`resource`, func(t *testing.T) {
-			t.Run(`create`, func(t *testing.T) {
+		t.Run(`provision`, func(t *testing.T) {
+			resource := &pb.Resource{
+				Namespace: "default",
+				Name:      "kitsune-test",
+				Type:      "pantopic/kitsune",
+			}
+			service := &pb.Service{
+				Namespace: "default",
+				Resource:  resource.Name,
+				Name:      "api",
+				Type:      "http",
+				Port:      uint64(port),
+				Status:    internal.Status_Active,
+				Tags: map[string]string{
+					"placement:cover": "host:class=service",
+				},
+			}
+			component := &pb.Component{
+				Namespace: "default",
+				Resource:  resource.Name,
+				Cluster:   cfg.ClusterName,
+				Name:      "default",
+				Type:      "basic",
+				Tags: map[string]string{
+					"placement:member": "3;host:class=storage",
+					"placement:vary":   "geo:zone",
+				},
+			}
+			t.Run(`resource`, func(t *testing.T) {
 				putResp, err := ctrlClient.ResourcePut(ctx, &pb.ResourcePutRequest{
 					Item: resource,
 				})
@@ -349,9 +374,7 @@ func TestMain(t *testing.T) {
 				require.Equal(t, resource.Name, putResp.Item.Name)
 				require.Equal(t, resource.Type, putResp.Item.Type)
 			})
-		})
-		t.Run(`service`, func(t *testing.T) {
-			t.Run(`create`, func(t *testing.T) {
+			t.Run(`service`, func(t *testing.T) {
 				putResp, err := ctrlClient.ServicePut(ctx, &pb.ServicePutRequest{
 					Item: service,
 				})
@@ -361,9 +384,7 @@ func TestMain(t *testing.T) {
 				require.Equal(t, service.Name, putResp.Item.Name)
 				require.Equal(t, service.Type, putResp.Item.Type)
 			})
-		})
-		t.Run(`component`, func(t *testing.T) {
-			t.Run(`create`, func(t *testing.T) {
+			t.Run(`component`, func(t *testing.T) {
 				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
 					Item: component,
 				})
@@ -374,16 +395,57 @@ func TestMain(t *testing.T) {
 				require.Equal(t, component.Resource, putResp.Item.Resource)
 				require.Equal(t, component.Type, putResp.Item.Type)
 			})
+			t.Run(`active`, func(t *testing.T) {
+				t.Run(`service`, func(t *testing.T) {
+					svcListReq := &pb.ServiceListRequest{
+						Namespace: resource.Namespace,
+						Resource:  resource.Name,
+					}
+					var svcListResp *pb.ServiceListResponse
+					// 10s - service is created and active
+					require.True(t, await(10, 100, func() bool {
+						svcListResp, err = ctrlClient.ServiceList(ctx, svcListReq)
+						return err == nil &&
+							svcListResp.Code == internal.ResultSuccess &&
+							len(svcListResp.Item) > 0 &&
+							svcListResp.Item[0].Status == internal.Status_Active
+					}), "%#v, %#v", svcListResp, err)
+					require.Equal(t, 1, len(svcListResp.Item))
+					require.Equal(t, service.Type, svcListResp.Item[0].Type)
+				})
+				t.Run(`component`, func(t *testing.T) {
+					compListReq := &pb.ComponentListRequest{
+						Namespace: resource.Namespace,
+						Resource:  resource.Name,
+					}
+					var compListResp *pb.ComponentListResponse
+					// 10s - component is created and active
+					require.True(t, await(10, 100, func() bool {
+						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+						return err == nil &&
+							compListResp.Code == internal.ResultSuccess &&
+							len(compListResp.Item) > 0 &&
+							compListResp.Item[0].Status == internal.Status_Active
+					}), err)
+					require.Equal(t, 1, len(compListResp.Item))
+					require.Equal(t, component.Type, compListResp.Item[0].Type)
+				})
+			})
 		})
 		var c = &http.Client{}
 		var res *http.Response
 		t.Run(`healthcheck`, func(t *testing.T) {
-			require.True(t, await(10, 100, func() bool {
+			assert.True(t, await(5, 10, func() bool {
 				res, err = c.Get(fmt.Sprintf("http://%s/health", addr))
-				return err == nil
-			}), "%s", err)
+				return err == nil && res.StatusCode == 200
+			}), "timeout")
 			require.Nil(t, err, err)
 			require.NotNil(t, res)
+			body, err := io.ReadAll(res.Body)
+			require.Equal(t, http.StatusOK, res.StatusCode, "%s", string(body))
+			require.Nil(t, err, err)
+			require.Equal(t, "Okay", string(body))
+			defer res.Body.Close()
 		})
 		kitsune_test.All(t, c, addr)
 	})
@@ -399,6 +461,7 @@ func TestMain(t *testing.T) {
 	// }
 }
 
+// Wait d seconds, polling n times
 func await(d, n time.Duration, fn func() bool) bool {
 	for range n {
 		if fn() {

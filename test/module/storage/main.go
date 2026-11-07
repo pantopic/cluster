@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/pantopic/ext-raft/sdk-go"
+
+	"github.com/pantopic/cluster/test/module/storage/pb"
 )
 
 var (
@@ -22,6 +24,6 @@ func update(index uint64, cmd []byte) (value uint64, data []byte) {
 func finish() {}
 
 func read(query []byte) (value uint64, data []byte) {
-	data = register
-	return
+	out, _ := (&testpb.PingResponse{}).MarshalVT()
+	return 0, out
 }
