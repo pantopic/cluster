@@ -11,7 +11,7 @@ var (
 )
 
 func init() {
-	raft.Concurrent(update, finish, read)
+	raft.Concurrent(read, update, commit, abort)
 }
 
 func main() {}
@@ -21,7 +21,9 @@ func update(index uint64, cmd []byte) (value uint64, data []byte) {
 	return
 }
 
-func finish() {}
+func commit() {}
+
+func abort() {}
 
 func read(query []byte) (value uint64, data []byte) {
 	out, _ := (&testpb.PingResponse{}).MarshalVT()
