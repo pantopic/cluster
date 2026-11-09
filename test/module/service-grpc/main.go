@@ -6,6 +6,8 @@ import (
 	"github.com/pantopic/ext-shard-client/sdk-go"
 )
 
+var testShard = shard_client.New([]byte(`test`), []byte(`test`))
+
 func init() {
 	grpc_server.Init(
 		grpc_server.WithBufferCap(64, 1<<16),
@@ -18,7 +20,7 @@ func init() {
 func main() {}
 
 func ping(in []byte) (err error) {
-	return shard_client.New([]byte(`test`), []byte(`test`)).ReadAsync([]byte("ping"), in, false)
+	return testShard.ReadAsync([]byte("ping"), in, false)
 }
 
 func asyncRecv(name, data []byte, val uint64, err error) {
