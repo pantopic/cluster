@@ -9,18 +9,18 @@ require (
 	github.com/logbn/zongzi v0.0.23
 	github.com/pantopic/ext-atomic/host-wazero v0.0.4
 	github.com/pantopic/ext-buffer/host-wazero v0.0.4
-	github.com/pantopic/ext-cluster/host-wazero v0.0.1
+	github.com/pantopic/ext-cluster/host-wazero v0.0.2
 	github.com/pantopic/ext-global/host-wazero v0.0.4
 	github.com/pantopic/ext-grpc-server/host-wazero v0.0.17
 	github.com/pantopic/ext-http-server/host-wazero v0.0.0-20261101143411-fd185e609bcd
 	github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10
 	github.com/pantopic/ext-raft/host-wazero v0.0.4
 	github.com/pantopic/ext-range-watch/host-wazero v0.0.7
-	github.com/pantopic/ext-shard-client/host-wazero v0.0.3
+	github.com/pantopic/ext-shard-client/host-wazero v0.0.4
 	github.com/pantopic/ext-small-cache/host-wazero v0.0.3
 	github.com/pantopic/kitsune/embed v0.0.1
 	github.com/pantopic/kitsune/test v0.0.0-20261102173909-47dd4eaf50c9
-	github.com/pantopic/turbokube v0.0.4
+	github.com/pantopic/turbokube v0.0.5
 	github.com/pantopic/wazero-pool v0.0.7
 	github.com/stretchr/testify v1.11.1
 	github.com/tetratelabs/wazero v1.12.0
@@ -33,6 +33,7 @@ require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/PowerDNS/lmdb-go v1.9.3 // indirect
 	github.com/VictoriaMetrics/metrics v1.18.1 // indirect
+	github.com/aperturerobotics/protobuf-go-lite v0.19.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cockroachdb/errors v1.11.3 // indirect
@@ -62,7 +63,6 @@ require (
 	github.com/lni/vfs v0.2.1-0.20220616104132-8852fd867376 // indirect
 	github.com/logbn/byteinterval v0.0.2 // indirect
 	github.com/miekg/dns v1.1.26 // indirect
-	github.com/pantopic/wazero-cluster/host v0.0.0-20260711151336-9bd8f3a69a34 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect

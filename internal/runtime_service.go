@@ -17,6 +17,12 @@ import (
 	"github.com/pantopic/cluster/pb"
 )
 
+type RuntimeService interface {
+	Register(name string, wasm []byte)
+	Start(res *pb.Resource, svc *pb.Service) (err error)
+	Stop(res *pb.Resource, svc *pb.Service) (err error)
+}
+
 type runtimeService struct {
 	ctx     context.Context
 	ctxCopy []ContextCopy

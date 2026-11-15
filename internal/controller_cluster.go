@@ -16,7 +16,7 @@ var version = `1`
 
 type ControllerCluster interface {
 	zongzi.RaftEventListener
-	Start(context.Context, *Agent) error
+	Start(context.Context) error
 	Stop()
 }
 
@@ -37,19 +37,20 @@ type controllerCluster struct {
 
 var _ ControllerCluster = new(controllerCluster)
 
-func NewControllerCluster(logger Logger) *controllerCluster {
+func NewControllerCluster(logger Logger, agent *Agent) *controllerCluster {
 	return &controllerCluster{
 		clock: clock.New(),
 		log:   logger,
+		agent: agent,
 	}
 }
 
-func (c *controllerCluster) Start(ctx context.Context, agent *Agent) (err error) {
+func (c *controllerCluster) Start(ctx context.Context) (err error) {
+	defer c.agent.AddRaftEventListener(c)
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
-	c.agent = agent
 	c.controls = NewClusterControls(
-		agent.Client(ShardID, zongzi.WithWriteToLeader()),
+		c.agent.Client(ShardID, zongzi.WithWriteToLeader()),
 	)
 	c.ctx, c.ctxCancel = context.WithCancel(ctx)
 	c.wg.Go(func() {
@@ -86,8 +87,6 @@ func (c *controllerCluster) tick() {
 			updated = false
 
 			// Connect to other clusters and elect lead cluster
-			// Run Resource Controller Manager
-			// Run Component Controller Manager
 
 			if err != nil {
 				hadErr = true

@@ -4,7 +4,7 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-func getLogger(cfg config) zongzi.Logger {
+func getLogger(cfg config) Logger {
 	log := zongzi.GetLogger(`pantopic`)
 	switch cfg.LogLevel {
 	case "debug":

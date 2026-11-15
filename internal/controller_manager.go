@@ -15,14 +15,13 @@ import (
 
 type ControllerManager interface {
 	SetState(*State)
-	Start(ctx context.Context, a *Agent, runtime *runtimeControl) error
+	Start(ctx context.Context) error
 	Stop()
 }
 
 // controllerManager starts and stops services.
 type controllerManager struct {
 	agent     *Agent
-	client    zongzi.ShardClient
 	cluster   string
 	ctx       context.Context
 	ctxCancel context.CancelFunc
@@ -37,9 +36,11 @@ type controllerManager struct {
 
 var _ ControllerManager = new(controllerManager)
 
-func NewControllerManager(log Logger) *controllerManager {
+func NewControllerManager(log Logger, a *Agent, runtime *runtimeControl) *controllerManager {
 	return &controllerManager{
-		log: log,
+		agent:   a,
+		runtime: runtime,
+		log:     log,
 	}
 }
 
@@ -51,11 +52,9 @@ func (c *controllerManager) SetState(s *State) {
 	c.state = s
 }
 
-func (c *controllerManager) Start(ctx context.Context, a *Agent, runtime *runtimeControl) (err error) {
+func (c *controllerManager) Start(ctx context.Context) (err error) {
+	defer c.agent.AddRaftEventListener(c)
 	c.ctx = ctx
-	c.agent = a
-	c.client = a.Client(ShardID)
-	c.runtime = runtime
 	fmt.Printf("[%s] Starting controller manager\n", c.agent.HostID())
 	c.mutex.Lock()
 	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
@@ -79,7 +78,8 @@ func (c *controllerManager) Start(ctx context.Context, a *Agent, runtime *runtim
 	c.mutex.Unlock()
 	return c.tick()
 }
-func (c *controllerManager) updateComponentStatus(item *pb.Component, status Status) {
+
+func (c *controllerManager) updateComponentStatus(client zongzi.ShardClient, item *pb.Component, status Status) {
 	item.Status = status
 	var data []byte
 	var err error
@@ -88,7 +88,7 @@ func (c *controllerManager) updateComponentStatus(item *pb.Component, status Sta
 		c.log.Warningf("Error serializing component %v %s", item, err.Error())
 		return
 	}
-	_, _, err = c.client.Apply(c.ctx, append(data, CMD_COMPONENT_PUT))
+	_, _, err = client.Apply(c.ctx, append(data, CMD_COMPONENT_PUT))
 	if err != nil {
 		c.log.Warningf("Error updating component status %v %s", item, err.Error())
 	}
@@ -102,8 +102,9 @@ func (c *controllerManager) tick() (err error) {
 	defer c.mutex.Unlock()
 	var hadErr bool
 	var index uint64
-	var controls = NewClusterControls(c.agent.Client(ShardID))
 	if c.isLeader.Load() {
+		client := c.agent.Client(ShardID)
+		controls := NewClusterControls(client)
 		for {
 			state := c.state.withTxn(false)
 			index = state.Index()
@@ -121,10 +122,10 @@ func (c *controllerManager) tick() (err error) {
 					continue
 				}
 				if status == 0 && item.Status != Status_Pending {
-					c.updateComponentStatus(item, Status_Pending)
+					c.updateComponentStatus(client, item, Status_Pending)
 					controls.updated = true
 				} else if status == 1 && item.Status != Status_Active {
-					c.updateComponentStatus(item, Status_Active)
+					c.updateComponentStatus(client, item, Status_Active)
 					controls.updated = true
 				}
 				if controls.updated {

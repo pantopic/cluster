@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -19,17 +20,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/proto"
-
-	"github.com/pantopic/ext-atomic/host-wazero"
-	"github.com/pantopic/ext-buffer/host-wazero"
-	"github.com/pantopic/ext-global/host-wazero"
-	"github.com/pantopic/ext-grpc-server/host-wazero"
-	"github.com/pantopic/ext-http-server/host-wazero"
-	"github.com/pantopic/ext-mdb/host-wazero-lmdb"
-	"github.com/pantopic/ext-raft/host-wazero"
-	"github.com/pantopic/ext-range-watch/host-wazero"
-	"github.com/pantopic/ext-shard-client/host-wazero"
-	"github.com/pantopic/ext-small-cache/host-wazero"
 
 	"github.com/pantopic/kitsune/embed"
 	"github.com/pantopic/kitsune/test"
@@ -61,84 +51,50 @@ func TestMain(t *testing.T) {
 		cfg.HostName + `:18021`,
 		cfg.HostName + `:18031`,
 	}
-	agents := []*zongzi.Agent{}
-	crtlClusters := []internal.ControllerCluster{}
-	crtlServices := []internal.ControllerService{}
-	crtlManagers := []internal.ControllerManager{}
+	clusters := []*cluster{}
 	logger := getLogger(cfg)
 	var n int
 	start := func(t *testing.T, peers []string, class string, portSets ...[]uint16) {
 		for i, ports := range portSets {
-			ctrlCluster := internal.NewControllerCluster(logger)
-			ctrlManager := internal.NewControllerManager(logger)
-			agent, err := zongzi.NewAgent(cfg.ClusterName, peers,
-				zongzi.WithDirRaft(fmt.Sprintf(basedir+`/%d/raft`, i+n)),
-				zongzi.WithDirWAL(fmt.Sprintf(basedir+`/%d/wal`, i+n)),
-				zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[0])),
-				zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[1])),
-				zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, ports[2])),
-				zongzi.WithHostTags(
-					`cluster:member`,
-					`cluster:host`,
-					`host:class=`+class,
-					`geo:zone=test-`+strconv.Itoa(i%3),
-					`host:id=`+strconv.Itoa(i+n)),
-				zongzi.WithRaftEventListener(ctrlCluster),
-				zongzi.WithRaftEventListener(ctrlManager),
-				zongzi.WithLogLevel(zongzi.LogLevelInfo))
-			if err != nil {
-				panic(err)
-			}
-			ctrlCluster.Start(ctx, agent)
-
-			runtimeStorage := internal.NewRuntimeStorage(ctx, agent, []internal.Extension{
-				wazero_lmdb.New(),
-				wazero_global.New(),
-				wazero_atomic.New(),
-				wazero_range_watch.New(),
-				wazero_small_cache.New(),
-				wazero_raft.New(),
-			}...)
-			runtimeService := internal.NewRuntimeService(ctx, []internal.Extension{
-				wazero_global.New(),
-				wazero_grpc_server.New(),
-				wazero_http_server.New(),
-				wazero_buffer.New(),
-				wazero_shard_client.New(agent),
-			}...)
-			runtimeControl := internal.NewRuntimeControl(ctx, agent, []internal.Extension{
-				wazero_shard_client.New(agent),
-			}...)
-
-			ctrlService := internal.NewControllerService(ctx, agent, logger, runtimeService)
+			cfg := cfg
+			cfg.DirRaft = fmt.Sprintf(basedir+`/%d/raft`, i+n)
+			cfg.DirWAL = fmt.Sprintf(basedir+`/%d/wal`, i+n)
+			cfg.PortZongzi = ports[0]
+			cfg.PortRaft = ports[1]
+			cfg.PortGossip = ports[2]
+			cfg.HostTags = strings.Join([]string{
+				`cluster:member`,
+				`cluster:host`,
+				`host:class=` + class,
+				`geo:zone=test-` + strconv.Itoa(i%3),
+				`host:id=` + strconv.Itoa(i+n),
+			}, "|")
+			c := newCluster(ctx, cfg, logger)
 
 			// Test
-			runtimeService.Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
-			runtimeStorage.Register("pantopic/cluster-test/storage/test", wasmTestStorage)
-			runtimeControl.Register("pantopic/cluster-test/control/test", wasmTestControl)
+			c.RuntimeService().Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
+			c.RuntimeStorage().Register("pantopic/cluster-test/storage/test", wasmTestStorage)
+			c.RuntimeControl().Register("pantopic/cluster-test/control/test", wasmTestControl)
 
-			turbokube.Register(runtimeService, runtimeStorage, runtimeControl)
-			kitsune.Register(runtimeService, runtimeStorage, runtimeControl)
+			turbokube.Register(c)
+			kitsune.Register(c)
 
-			go run(ctx, agent, logger, ctrlService, ctrlManager)
-			ctrlService.Start()
-			ctrlManager.Start(ctx, agent, runtimeControl)
-			agents = append(agents, agent)
-			crtlServices = append(crtlServices, ctrlService)
-			crtlClusters = append(crtlClusters, ctrlCluster)
-			crtlManagers = append(crtlManagers, ctrlManager)
+			if err := c.Start(ctx); err != nil {
+				panic(err)
+			}
+			clusters = append(clusters, c)
 			n++
 		}
 		time.Sleep(time.Second)
 		// 10 seconds to start the cluster.
 		require.True(t, await(10, 100, func() bool {
-			for j := range agents {
-				if agents[j] == nil || agents[j].Status() != zongzi.AgentStatus_Ready {
+			for j := range clusters {
+				if clusters[j] == nil || clusters[j].agent.Status() != zongzi.AgentStatus_Ready {
 					return false
 				}
 			}
 			return true
-		}), `%v`, agents[0])
+		}), `%v`, clusters[0])
 	}
 	t.Run(`start`, func(t *testing.T) {
 		start(t, peers, `storage`,
@@ -150,7 +106,7 @@ func TestMain(t *testing.T) {
 			[]uint16{18111, 18112, 18113},
 		)
 	})
-	shardClient := agents[0].Client(internal.ShardID)
+	shardClient := clusters[0].agent.Client(internal.ShardID)
 	t.Run(`namespaces`, func(t *testing.T) {
 		for _, namespace := range []string{internal.NAMESPACE_INTERNAL, internal.NAMESPACE_DEFAULT} {
 			b, err := proto.Marshal(&pb.Namespace{Name: namespace})
@@ -448,6 +404,121 @@ func TestMain(t *testing.T) {
 			defer res.Body.Close()
 		})
 		kitsune_test.All(t, c, addr)
+	})
+	t.Run(`turbokube`, func(t *testing.T) {
+		port := 19200
+		addr := fmt.Sprintf("localhost:%d", port)
+		t.Run(`provision`, func(t *testing.T) {
+			resource := &pb.Resource{
+				Namespace: "default",
+				Name:      "turbokube-test",
+				Type:      "pantopic/turbokube",
+			}
+			service := &pb.Service{
+				Namespace: "default",
+				Resource:  resource.Name,
+				Name:      "api",
+				Type:      "grpc",
+				Port:      uint64(port),
+				Status:    internal.Status_Active,
+				Tags: map[string]string{
+					"placement:cover": "host:class=service",
+				},
+			}
+			component := &pb.Component{
+				Namespace: "default",
+				Resource:  resource.Name,
+				Cluster:   cfg.ClusterName,
+				Name:      "default",
+				Type:      "basic",
+				Tags: map[string]string{
+					"placement:member": "3;host:class=storage",
+					"placement:vary":   "geo:zone",
+				},
+			}
+			t.Run(`resource`, func(t *testing.T) {
+				putResp, err := ctrlClient.ResourcePut(ctx, &pb.ResourcePutRequest{
+					Item: resource,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, resource.Namespace, putResp.Item.Namespace)
+				require.Equal(t, resource.Name, putResp.Item.Name)
+				require.Equal(t, resource.Type, putResp.Item.Type)
+			})
+			t.Run(`service`, func(t *testing.T) {
+				putResp, err := ctrlClient.ServicePut(ctx, &pb.ServicePutRequest{
+					Item: service,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, service.Namespace, putResp.Item.Namespace)
+				require.Equal(t, service.Name, putResp.Item.Name)
+				require.Equal(t, service.Type, putResp.Item.Type)
+			})
+			t.Run(`component`, func(t *testing.T) {
+				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
+					Item: component,
+				})
+				require.Nil(t, err, err)
+				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
+				require.Equal(t, component.Namespace, putResp.Item.Namespace)
+				require.Equal(t, component.Name, putResp.Item.Name)
+				require.Equal(t, component.Resource, putResp.Item.Resource)
+				require.Equal(t, component.Type, putResp.Item.Type)
+			})
+			t.Run(`active`, func(t *testing.T) {
+				t.Run(`service`, func(t *testing.T) {
+					svcListReq := &pb.ServiceListRequest{
+						Namespace: resource.Namespace,
+						Resource:  resource.Name,
+					}
+					var svcListResp *pb.ServiceListResponse
+					// 10s - service is created and active
+					require.True(t, await(10, 100, func() bool {
+						svcListResp, err = ctrlClient.ServiceList(ctx, svcListReq)
+						return err == nil &&
+							svcListResp.Code == internal.ResultSuccess &&
+							len(svcListResp.Item) > 0 &&
+							svcListResp.Item[0].Status == internal.Status_Active
+					}), "%#v, %#v", svcListResp, err)
+					require.Equal(t, 1, len(svcListResp.Item))
+					require.Equal(t, service.Type, svcListResp.Item[0].Type)
+				})
+				t.Run(`component`, func(t *testing.T) {
+					compListReq := &pb.ComponentListRequest{
+						Namespace: resource.Namespace,
+						Resource:  resource.Name,
+					}
+					var compListResp *pb.ComponentListResponse
+					// 10s - component is created and active
+					require.True(t, await(10, 100, func() bool {
+						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+						return err == nil &&
+							compListResp.Code == internal.ResultSuccess &&
+							len(compListResp.Item) > 0 &&
+							compListResp.Item[0].Status == internal.Status_Active
+					}), err)
+					require.Equal(t, 1, len(compListResp.Item))
+					require.Equal(t, component.Type, compListResp.Item[0].Type)
+				})
+			})
+		})
+		var c = &http.Client{}
+		var res *http.Response
+		t.Run(`healthcheck`, func(t *testing.T) {
+			assert.True(t, await(5, 10, func() bool {
+				res, err = c.Get(fmt.Sprintf("http://%s/health", addr))
+				return err == nil && res.StatusCode == 200
+			}), "timeout")
+			require.Nil(t, err, err)
+			require.NotNil(t, res)
+			body, err := io.ReadAll(res.Body)
+			require.Equal(t, http.StatusOK, res.StatusCode, "%s", string(body))
+			require.Nil(t, err, err)
+			require.Equal(t, `{"health":"true","reason":""}`, string(body))
+			defer res.Body.Close()
+		})
 	})
 	logger.Infof("Stopping")
 	for i := range len(crtlClusters) {

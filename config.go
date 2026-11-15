@@ -12,6 +12,7 @@ type config struct {
 	DirWAL      string `env:"PANTOPIC_DIR_WAL"`
 	HostName    string `env:"PANTOPIC_HOST_NAME"`
 	HostPeers   string `env:"PANTOPIC_HOST_PEERS"`
+	HostTags    string `env:"PANTOPIC_HOST_TAGS"`
 	LogLevel    string `env:"PANTOPIC_LOG_LEVEL"`
 	PortApi     uint16 `env:"PANTOPIC_PORT_API"`
 	PortGossip  uint16 `env:"PANTOPIC_PORT_GOSSIP"`

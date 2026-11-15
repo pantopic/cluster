@@ -17,6 +17,10 @@ import (
 	"github.com/pantopic/ext-raft/host-wazero"
 )
 
+type RuntimeStorage interface {
+	Register(name string, wasm []byte)
+}
+
 type runtimeStorage struct {
 	agent   *Agent
 	ctx     context.Context
@@ -42,14 +46,23 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 	var ctxCopy []ContextCopy
 	var extStorage []wazero_raft.StorageExtensionPersistent
 	for _, e := range ext {
+		if esp, ok := e.(wazero_raft.StorageExtensionPersistent); ok {
+			extStorage = append(extStorage, esp)
+		}
+		if e.Name() == wazero_raft.Name {
+			err := fmt.Errorf(`%w: %s`, ErrBadRuntimeExtension, e.Name())
+			panic(err)
+		}
+	}
+	ext = append(ext, wazero_raft.New(
+		wazero_raft.WithStorageExtensionPersistent(extStorage...),
+	))
+	for _, e := range ext {
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
 		}
 		ctxCopy = append(ctxCopy, e.ContextCopy)
-		if esp, ok := e.(wazero_raft.StorageExtensionPersistent); ok {
-			extStorage = append(extStorage, esp)
-		}
 	}
 	ctxInit := func(ctx context.Context, shardID, replicaID uint64) context.Context {
 		dir := fmt.Sprintf("%s/data/%d/%d", r.dir, shardID, replicaID)

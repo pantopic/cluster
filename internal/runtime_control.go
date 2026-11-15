@@ -23,6 +23,11 @@ type reconcilerExtension interface {
 	Extension
 }
 
+type RuntimeControl interface {
+	Register(name string, wasm []byte)
+	Reconcile(ctx context.Context, state *State, res *pb.Resource, item *pb.Component, controls *ClusterControls) (status uint32, err error)
+}
+
 type runtimeControl struct {
 	ctx        context.Context
 	ctxCopy    []ContextCopy

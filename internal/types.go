@@ -86,6 +86,7 @@ var (
 	ErrCommandInvalid      = fmt.Errorf("Invalid command")
 	ErrIndexNotMatch       = fmt.Errorf("Index does not match")
 	ErrNotFound            = fmt.Errorf("Not Found")
+	ErrBadRuntimeExtension = fmt.Errorf("Runtime constructor cannot accept extension")
 )
 
 type ContextCopy = func(dst, src context.Context) context.Context
