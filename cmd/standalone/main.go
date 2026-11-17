@@ -8,21 +8,22 @@ import (
 
 	"github.com/pantopic/kitsune/embed"
 	"github.com/pantopic/turbokube/embed"
+
+	"github.com/pantopic/cluster"
 )
 
 func main() {
 	ctx := context.Background()
-	cfg := getConfig()
-	logger := getLogger(cfg)
-	c := newCluster(ctx, cfg, logger)
+	cfg := cluster.EnvConfig()
+	host := cluster.New(ctx, cfg)
 
-	turbokube.Register(c)
-	kitsune.Register(c)
+	turbokube.Register(host)
+	kitsune.Register(host)
 
-	if err := c.Start(); err != nil {
+	if err := host.Start(); err != nil {
 		panic(err)
 	}
-	defer c.Stop()
+	defer host.Stop()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)

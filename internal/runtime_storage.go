@@ -11,10 +11,8 @@ import (
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 
 	"github.com/logbn/zongzi"
-	"github.com/pantopic/wazero-pool"
-
-	"github.com/pantopic/ext-mdb/host-wazero-lmdb"
 	"github.com/pantopic/ext-raft/host-wazero"
+	"github.com/pantopic/wazero-pool"
 )
 
 type RuntimeStorage interface {
@@ -44,10 +42,13 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
 	var ctxCopy []ContextCopy
-	var extStorage []wazero_raft.StorageExtensionPersistent
+	var extStoragePersistent []wazero_raft.StorageExtensionPersistent
 	for _, e := range ext {
+		if _, ok := r.ext[e.Name()]; ok {
+			continue
+		}
 		if esp, ok := e.(wazero_raft.StorageExtensionPersistent); ok {
-			extStorage = append(extStorage, esp)
+			extStoragePersistent = append(extStoragePersistent, esp)
 		}
 		if e.Name() == wazero_raft.Name {
 			err := fmt.Errorf(`%w: %s`, ErrBadRuntimeExtension, e.Name())
@@ -55,33 +56,28 @@ func NewRuntimeStorage(ctx context.Context, a *Agent, ext ...Extension) (r *runt
 		}
 	}
 	ext = append(ext, wazero_raft.New(
-		wazero_raft.WithStorageExtensionPersistent(extStorage...),
+		wazero_raft.WithStorageExtensionPersistent(extStoragePersistent...),
 	))
 	for _, e := range ext {
+		if _, ok := r.ext[e.Name()]; ok {
+			continue
+		}
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
 		}
 		ctxCopy = append(ctxCopy, e.ContextCopy)
 	}
-	ctxInit := func(ctx context.Context, shardID, replicaID uint64) context.Context {
-		dir := fmt.Sprintf("%s/data/%d/%d", r.dir, shardID, replicaID)
-		return wazero_lmdb.EnvRegisterDir(ctx, dir)
-	}
 	logger := zongzi.GetLogger(`statemachine`)
 	a.StateMachineRegister(wazero_raft.UriPersistent, wazero_raft.FactoryPersistent(
 		ctx,
-		ctxInit,
 		ctxCopy,
 		logger,
 		r.poolFactoryStorage,
-		extStorage...,
+		extStoragePersistent...,
 	))
 	a.StateMachineRegister(wazero_raft.Uri, wazero_raft.Factory(
 		ctx,
-		func(ctx context.Context, shardID, replicaID uint64) context.Context {
-			return ctx
-		},
 		ctxCopy,
 		logger,
 		r.poolFactoryStorage,

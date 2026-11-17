@@ -1,6 +1,6 @@
 module github.com/pantopic/cluster
 
-go 1.25.12
+go 1.27.3
 
 require (
 	github.com/benbjohnson/clock v1.3.5
@@ -12,10 +12,11 @@ require (
 	github.com/pantopic/ext-cluster/host-wazero v0.0.2
 	github.com/pantopic/ext-global/host-wazero v0.0.4
 	github.com/pantopic/ext-grpc-server/host-wazero v0.0.17
-	github.com/pantopic/ext-http-server/host-wazero v0.0.0-20261101143411-fd185e609bcd
+	github.com/pantopic/ext-http-server/host-wazero v0.0.1
 	github.com/pantopic/ext-mdb/host-wazero-lmdb v0.0.10
 	github.com/pantopic/ext-raft/host-wazero v0.0.4
 	github.com/pantopic/ext-range-watch/host-wazero v0.0.7
+	github.com/pantopic/ext-relay/host-wazero v0.0.0-20261115141053-982a359a17d8
 	github.com/pantopic/ext-shard-client/host-wazero v0.0.4
 	github.com/pantopic/ext-small-cache/host-wazero v0.0.3
 	github.com/pantopic/kitsune/embed v0.0.1

@@ -1,5 +1,5 @@
 dev:
-	@go build -ldflags="-s -w" -o _dist/pantopic && cd cmd/standalone && docker compose up --build
+	@go build -ldflags="-s -w" -o _dist/pantopic cmd/standalone && cd cmd/standalone && docker compose up --build
 
 build:
 	@go build -ldflags="-s -w" -o _dist/pantopic
@@ -55,20 +55,16 @@ gen-lite-install:
 cloc:
 	@cloc . --exclude-dir=_example,_dist,internal,cmd --exclude-ext=pb.go
 
-wasm-storage:
-	@cd test/module/storage && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/storage.wasm -no-debug
-wasm-storage-dev:
-	@cd test/module/storage && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=conservative -scheduler=none -o ../../../_dist/storage.dev.wasm
-wasm-service-grpc:
-	@cd test/module/service-grpc && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/service-grpc.wasm -no-debug
-wasm-service-grpc-dev:
-	@cd test/module/service-grpc && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=conservative -scheduler=none -o ../../../_dist/service-grpc.dev.wasm
-wasm-control:
-	@cd test/module/control && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=conservative -scheduler=none -o ../../../_dist/control.wasm -no-debug
-wasm-control-dev:
-	@cd test/module/control && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=conservative -scheduler=none -o ../../../_dist/control.dev.wasm
-wasm-dev: wasm-storage-dev wasm-service-grpc-dev wasm-control-dev
-wasm-prod: wasm-storage wasm-service-grpc wasm-control
-wasm: wasm-dev wasm-prod
+WASM_MODULES := storage service-grpc control
+
+define WASM_BUILD_GO
+cd test/module/$(1) && tinygo build -buildmode=wasi-legacy -target=wasi -opt=2 -gc=leaking -scheduler=none -o ../../../_dist/$(1).dev.wasm && cd ../../..;
+cd test/module/$(1) && tinygo build -buildmode=wasi-legacy -target=wasi -opt=s -gc=leaking -scheduler=none -o ../../../_dist/$(1).wasm -no-debug && cd ../../..;
+endef
+
+wasm-go:
+	$(foreach mod,$(WASM_MODULES),$(call WASM_BUILD_GO,$(mod)))
+
+wasm: wasm-go
 
 .PHONY: test

@@ -12,7 +12,6 @@ import (
 
 	"github.com/logbn/zongzi"
 	"github.com/pantopic/ext-cluster/host-wazero"
-	extpb "github.com/pantopic/ext-cluster/host-wazero/pb"
 	"github.com/pantopic/wazero-pool"
 
 	"github.com/pantopic/cluster/pb"
@@ -52,6 +51,9 @@ func NewRuntimeControl(ctx context.Context, agent *zongzi.Agent, ext ...Extensio
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
 	ext = append(ext, r.extCluster)
 	for _, e := range ext {
+		if _, ok := r.ext[e.Name()]; ok {
+			continue
+		}
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
@@ -95,17 +97,5 @@ func (r *runtimeControl) Reconcile(ctx context.Context, state *State, res *pb.Re
 	for _, fn := range r.ctxCopy {
 		ctx = fn(ctx, poolCtx)
 	}
-	return r.extCluster.Reconcile(ctx, pool, &extpb.Component{
-		Namespace: item.GetNamespace(),
-		Resource:  item.GetResource(),
-		Cluster:   item.GetCluster(),
-		Name:      item.GetName(),
-		Version:   item.GetVersion(),
-		Created:   item.GetCreated(),
-		Updated:   item.GetUpdated(),
-		Deleted:   item.GetDeleted(),
-		Tags:      item.GetTags(),
-		Type:      item.GetType(),
-		Status:    item.GetStatus(),
-	})
+	return r.extCluster.Reconcile(ctx, pool, extpbResource(res), extpbComponent(item))
 }

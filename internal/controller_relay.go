@@ -52,41 +52,43 @@ func (c *controllerRelay) Start(ctx context.Context) (err error) {
 }
 
 func (c *controllerRelay) LeaderUpdated(info LeaderInfo) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	shard, err := c.agent.ShardFind(context.Background(), info.ShardID)
-	if err != nil {
-		panic(err)
-	}
-	var prefix = "pantopic:relay"
-	var mods = make(map[string]string)
-	for name, mod := range shard.TagsPrefixed(prefix) {
-		mods[name[len(prefix)+1:]] = mod
-	}
-	running := c.running[shard.ID]
-	if running == nil {
-		running = make(map[string]string)
-	}
-	if info.LeaderID == info.ReplicaID {
-		for name, found := range running {
-			if mods[name] != found {
-				c.runtime.Stop(name, found, info.Term, shard)
-				delete(running, name)
+	go func() {
+		c.mutex.Lock()
+		defer c.mutex.Unlock()
+		shard, err := c.agent.ShardFind(context.Background(), info.ShardID)
+		if err != nil {
+			panic(err)
+		}
+		var prefix = "pantopic:relay"
+		var mods = make(map[string]string)
+		for name, mod := range shard.TagsPrefixed(prefix) {
+			mods[name[len(prefix)+1:]] = mod
+		}
+		running := c.running[shard.ID]
+		if running == nil {
+			running = make(map[string]string)
+		}
+		if info.LeaderID == info.ReplicaID {
+			for name, found := range running {
+				if mods[name] != found {
+					c.runtime.Stop(name, found, info.Term, shard)
+					delete(running, name)
+				}
 			}
-		}
-		for name, mod := range mods {
-			if _, ok := running[name]; !ok {
-				c.runtime.Start(name, mod, info.Term, shard)
-				running[name] = mod
+			for name, mod := range mods {
+				if _, ok := running[name]; !ok {
+					c.runtime.Start(name, mod, info.Term, shard)
+					running[name] = mod
+				}
 			}
+			c.running[shard.ID] = running
+		} else if len(running) > 0 {
+			for name, mod := range running {
+				c.runtime.Stop(name, mod, info.Term, shard)
+			}
+			delete(c.running, shard.ID)
 		}
-		c.running[shard.ID] = running
-	} else if len(running) > 0 {
-		for name, mod := range running {
-			c.runtime.Stop(name, mod, info.Term, shard)
-		}
-		delete(c.running, shard.ID)
-	}
+	}()
 }
 
 func (c *controllerRelay) Stop() {

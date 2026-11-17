@@ -45,7 +45,13 @@ func NewRuntimeRelay(ctx context.Context, a *Agent, ext ...Extension) (r *runtim
 	}
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
+	extRelay := wazero_relay.New()
+	ext = append(ext, extRelay)
+	r.extRelay = extRelay
 	for _, e := range ext {
+		if _, ok := r.ext[e.Name()]; ok {
+			continue
+		}
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)

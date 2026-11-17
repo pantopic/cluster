@@ -1,10 +1,12 @@
-package main
+package cluster
 
 import (
 	"github.com/logbn/zongzi"
 )
 
-func getLogger(cfg config) Logger {
+type Logger zongzi.Logger
+
+func getLogger(cfg Config) Logger {
 	log := zongzi.GetLogger(`pantopic`)
 	switch cfg.LogLevel {
 	case "debug":

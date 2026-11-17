@@ -103,7 +103,6 @@ func (c *controllerCluster) LeaderUpdated(info LeaderInfo) {
 		go c.createShard()
 	}
 	if info.ShardID == ShardID {
-		c.log.Infof("[%05d:%05d] LeaderUpdated: %05d (term %d)", info.ShardID, info.ReplicaID, info.LeaderID, info.Term)
 		c.isLeader.Store(info.LeaderID == info.ReplicaID)
 		c.replicaID.Store(info.ReplicaID)
 		if info.LeaderID == info.ReplicaID {

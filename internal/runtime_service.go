@@ -48,6 +48,9 @@ func NewRuntimeService(ctx context.Context, ext ...Extension) (r *runtimeService
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
 	for _, e := range ext {
+		if _, ok := r.ext[e.Name()]; ok {
+			continue
+		}
 		r.ext[e.Name()] = e
 		if err := e.Register(r.ctx, r.wazero); err != nil {
 			panic(err)
@@ -94,6 +97,7 @@ func (r *runtimeService) Start(res *pb.Resource, svc *pb.Service) (err error) {
 	if !ok {
 		return fmt.Errorf(`Unrecognized service provider %s`, svc.Type)
 	}
+	ctx = wazero_cluster.ContextSetResource(ctx, extpbResource(res))
 	svcName := fmt.Sprintf("%s.%s.%s", res.Namespace, res.Name, svc.Name)
 	ctxCopy := append(r.ctxCopy, wazero_cluster.NewResolver(res.Namespace, res.Name))
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", svc.Port))

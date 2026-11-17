@@ -55,7 +55,6 @@ func (c *controllerManager) SetState(s *State) {
 func (c *controllerManager) Start(ctx context.Context) (err error) {
 	defer c.agent.AddRaftEventListener(c)
 	c.ctx = ctx
-	fmt.Printf("[%s] Starting controller manager\n", c.agent.HostID())
 	c.mutex.Lock()
 	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
 	c.done = make(chan bool)
@@ -71,7 +70,7 @@ func (c *controllerManager) Start(ctx context.Context) (err error) {
 				return
 			}
 			if err != nil {
-				c.log.Errorf("[%s] Controller Manager: %v", c.agent.HostID(), err)
+				c.log.Errorf("%s Controller Manager: %v", c.agent.HostID(), err)
 			}
 		}
 	}()
@@ -115,6 +114,8 @@ func (c *controllerManager) tick() (err error) {
 				}
 				controls.updated = false
 				var status uint32
+
+				c.log.Debugf("%s Reconciling %s.%s.%s %d", c.agent.HostID(), item.Namespace, item.Resource, item.Name, index)
 				status, err = c.runtime.Reconcile(c.ctx, state, res, item, controls)
 				if err != nil {
 					hadErr = true
@@ -122,9 +123,11 @@ func (c *controllerManager) tick() (err error) {
 					continue
 				}
 				if status == 0 && item.Status != Status_Pending {
+					c.log.Infof(`%s Setting component status %s for %s.%s.%s`, c.agent.HostID(), Status_Pending, item.Namespace, item.Resource, item.Name)
 					c.updateComponentStatus(client, item, Status_Pending)
 					controls.updated = true
 				} else if status == 1 && item.Status != Status_Active {
+					c.log.Infof(`%s Setting component status %s for %s.%s.%s`, c.agent.HostID(), Status_Active, item.Namespace, item.Resource, item.Name)
 					c.updateComponentStatus(client, item, Status_Active)
 					controls.updated = true
 				}
@@ -148,7 +151,6 @@ func (c *controllerManager) tick() (err error) {
 }
 
 func (c *controllerManager) LeaderUpdated(info LeaderInfo) {
-	c.log.Infof("[%05d:%05d] LeaderUpdated: %05d (term %d)", info.ShardID, info.ReplicaID, info.LeaderID, info.Term)
 	if info.ShardID == ShardID {
 		c.isLeader.Store(info.LeaderID == info.ReplicaID)
 	}

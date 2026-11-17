@@ -70,7 +70,7 @@ func (c *controllerService) Start(ctx context.Context) (err error) {
 				return
 			}
 			if err != nil {
-				c.log.Errorf("[%s] Service Controller: %v", c.agent.HostID(), err)
+				c.log.Errorf("%s Service Controller: %v", c.agent.HostID(), err)
 			}
 		}
 	}()
@@ -89,13 +89,13 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 		res, _ := state.ResourceFindByName(svc.Namespace, svc.Resource)
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {
-				c.log.Infof(`[%s] Service Controller: Updating %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				c.log.Infof(`%s Service Controller: Updating %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcUpdate(ctx, svc); err != nil {
 					err = fmt.Errorf(`Failed to Update: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
 				}
 			} else {
-				c.log.Infof(`[%s] Service Controller: Stopping %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				c.log.Infof(`%s Service Controller: Stopping %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcStop(ctx, res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Stop: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
@@ -103,7 +103,7 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 			}
 		} else if c.svcMatch(svc) {
 			if svc.Status == Status_Active {
-				c.log.Infof(`[%s] Service Controller: Starting %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				c.log.Infof(`%s Service Controller: Starting %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcStart(ctx, res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Start: %s (%d): %w`, svcId(svc), svc.Port, err)
 					continue
@@ -148,11 +148,11 @@ func (c *controllerService) svcMatch(svc *pb.Service) bool {
 	if err := c.agent.State(context.Background(), func(state *zongzi.State) {
 		host, ok = state.Host(c.agent.HostID())
 	}); err != nil {
-		c.log.Panicf(`[%s] Failed to read cluster state: %s `, c.agent.HostID(), err.Error())
+		c.log.Panicf(`%s Failed to read cluster state: %s `, c.agent.HostID(), err.Error())
 	} else if !ok {
-		c.log.Panicf(`[%s] Host not found`, c.agent.HostID())
+		c.log.Panicf(`%s Host not found`, c.agent.HostID())
 	}
-	c.log.Debugf(`[%s] Matching Service: %s (%d)`, c.agent.HostID(), id, svc.Port)
+	c.log.Debugf(`%s Matching Service: %s (%d)`, c.agent.HostID(), id, svc.Port)
 	tagCover, ok := svc.Tags["placement:cover"]
 	if !ok || len(tagCover) < 1 {
 		return false
@@ -161,7 +161,7 @@ func (c *controllerService) svcMatch(svc *pb.Service) bool {
 	for tag := range strings.SplitSeq(tagCover, ",") {
 		parts := strings.Split(tag, "=")
 		if len(parts) != 2 {
-			c.log.Infof(`[%s] Malformed Service Cover Tag (%s): "%s"`, c.agent.HostID(), id, tag)
+			c.log.Infof(`%s Malformed Service Cover Tag (%s): "%s"`, c.agent.HostID(), id, tag)
 			return false
 		}
 		if v, ok := host.Tags[parts[0]]; !ok || v != parts[1] {

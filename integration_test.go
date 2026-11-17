@@ -1,4 +1,4 @@
-package main
+package cluster
 
 import (
 	"context"
@@ -39,74 +39,81 @@ var wasmTestStorage []byte
 //go:embed _dist/control.dev.wasm
 var wasmTestControl []byte
 
-func TestMain(t *testing.T) {
-	basedir := `./tmp/pantopic`
-	var ctx = context.Background()
-	var err error
-	os.RemoveAll(basedir)
-	cfg := getConfig()
+func TestHost(t *testing.T) {
+	var cfg = EnvConfig()
 	cfg.HostName = "127.0.0.1"
-	peers := []string{
-		cfg.HostName + `:18011`,
-		cfg.HostName + `:18021`,
-		cfg.HostName + `:18031`,
-	}
-	clusters := []*cluster{}
-	logger := getLogger(cfg)
-	var n int
+	cfg.LogLevel = "debug"
+	var (
+		basedir = `./tmp/pantopic`
+		hosts   = []*Host{}
+		ctx     = context.Background()
+		err     error
+		peers   = []string{
+			cfg.HostName + `:18011`,
+			cfg.HostName + `:18021`,
+			cfg.HostName + `:18031`,
+		}
+		n = 0
+	)
+	os.RemoveAll(basedir)
 	start := func(t *testing.T, peers []string, class string, portSets ...[]uint16) {
 		for i, ports := range portSets {
 			cfg := cfg
-			cfg.DirRaft = fmt.Sprintf(basedir+`/%d/raft`, i+n)
-			cfg.DirWAL = fmt.Sprintf(basedir+`/%d/wal`, i+n)
+			cfg.DirBlock = fmt.Sprintf(basedir+"/%d/block", n)
+			cfg.DirLocal = fmt.Sprintf(basedir+"/%d/local", n)
+			cfg.DirRaft = fmt.Sprintf(basedir+`/%d/raft`, n)
+			cfg.DirWAL = fmt.Sprintf(basedir+`/%d/wal`, n)
 			cfg.PortZongzi = ports[0]
 			cfg.PortRaft = ports[1]
 			cfg.PortGossip = ports[2]
+			cfg.PortApi = ports[3]
 			cfg.HostTags = strings.Join([]string{
 				`cluster:member`,
 				`cluster:host`,
 				`host:class=` + class,
 				`geo:zone=test-` + strconv.Itoa(i%3),
-				`host:id=` + strconv.Itoa(i+n),
+				`host:id=` + strconv.Itoa(n),
 			}, "|")
-			c := newCluster(ctx, cfg, logger)
+			cfg.HostPeers = strings.Join(peers, ",")
+			host := New(ctx, cfg)
 
 			// Test
-			c.RuntimeService().Register("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
-			c.RuntimeStorage().Register("pantopic/cluster-test/storage/test", wasmTestStorage)
-			c.RuntimeControl().Register("pantopic/cluster-test/control/test", wasmTestControl)
+			host.RegisterService("pantopic/cluster-test/service/grpc", wasmTestServiceGrpc)
+			host.RegisterStorage("pantopic/cluster-test/storage/test", wasmTestStorage)
+			host.RegisterControl("pantopic/cluster-test/control/test", wasmTestControl)
 
-			turbokube.Register(c)
-			kitsune.Register(c)
+			turbokube.Register(host)
+			kitsune.Register(host)
 
-			if err := c.Start(ctx); err != nil {
+			if err := host.Start(); err != nil {
 				panic(err)
 			}
-			clusters = append(clusters, c)
+			hosts = append(hosts, host)
 			n++
 		}
 		time.Sleep(time.Second)
 		// 10 seconds to start the cluster.
 		require.True(t, await(10, 100, func() bool {
-			for j := range clusters {
-				if clusters[j] == nil || clusters[j].agent.Status() != zongzi.AgentStatus_Ready {
+			for j := range hosts {
+				if hosts[j] == nil || hosts[j].agent.Status() != zongzi.AgentStatus_Ready {
 					return false
 				}
 			}
 			return true
-		}), `%v`, clusters[0])
+		}), `%v`, hosts[0])
 	}
 	t.Run(`start`, func(t *testing.T) {
 		start(t, peers, `storage`,
-			[]uint16{18011, 18012, 18013},
-			[]uint16{18021, 18022, 18023},
-			[]uint16{18031, 18032, 18033},
+			[]uint16{18011, 18012, 18013, 19010},
+			[]uint16{18021, 18022, 18023, 19020},
+			[]uint16{18031, 18032, 18033, 19030},
 		)
 		start(t, peers, `service`,
-			[]uint16{18111, 18112, 18113},
+			[]uint16{18111, 18112, 18113, 19040},
 		)
 	})
-	shardClient := clusters[0].agent.Client(internal.ShardID)
+	host := hosts[0]
+	shardClient := host.agent.Client(internal.ShardID)
 	t.Run(`namespaces`, func(t *testing.T) {
 		for _, namespace := range []string{internal.NAMESPACE_INTERNAL, internal.NAMESPACE_DEFAULT} {
 			b, err := proto.Marshal(&pb.Namespace{Name: namespace})
@@ -170,7 +177,7 @@ func TestMain(t *testing.T) {
 		addr := fmt.Sprintf("localhost:%d", port)
 		resource := &pb.Resource{
 			Namespace: "default",
-			Name:      "test",
+			Name:      "cluster-test",
 			Type:      "pantopic/cluster-test",
 		}
 		service := &pb.Service{
@@ -520,10 +527,10 @@ func TestMain(t *testing.T) {
 			defer res.Body.Close()
 		})
 	})
-	logger.Infof("Stopping")
-	for i := range len(crtlClusters) {
-		logger.Infof("Stopping cluster %d", i)
-		crtlClusters[i].Stop()
+	host.logger.Infof("Stopping")
+	for i := range len(hosts) {
+		hosts[i].logger.Infof("Stopping cluster %d", i)
+		hosts[i].ctrlCluster.Stop()
 	}
 	// TODO - Fix graceful shutdown hang
 	// for i := range len(agents) {

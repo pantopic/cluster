@@ -90,7 +90,8 @@ func (s *svcControl) NamespaceGet(
 		res.Error = string(data)
 		return
 	}
-	if err = proto.Unmarshal(data, res); err != nil {
+	res.Item = &pb.Namespace{}
+	if err = proto.Unmarshal(data, res.Item); err != nil {
 		res.Code = ResultErrInternal
 		res.Error = err.Error()
 		return

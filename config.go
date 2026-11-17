@@ -1,10 +1,10 @@
-package main
+package cluster
 
 import (
 	"github.com/caarlos0/env/v11"
 )
 
-type config struct {
+type Config struct {
 	ClusterName string `env:"PANTOPIC_CLUSTER_NAME"`
 	DirBlock    string `env:"PANTOPIC_DIR_BLOCK"`
 	DirLocal    string `env:"PANTOPIC_DIR_LOCAL"`
@@ -20,21 +20,23 @@ type config struct {
 	PortZongzi  uint16 `env:"PANTOPIC_PORT_ZONGZI"`
 }
 
-func getConfig() config {
-	cfg := config{
-		ClusterName: "pantopic",
-		DirBlock:    "/var/lib/pantopic/block",
-		DirLocal:    "/var/lib/pantopic/local",
-		DirRaft:     "/var/lib/pantopic/raft",
-		DirWAL:      "/var/lib/pantopic/wal",
-		HostName:    "pantopic-a-0",
-		HostPeers:   "pantopic-a-0,pantopic-b-0,pantopic-c-0",
-		LogLevel:    "info",
-		PortApi:     17000,
-		PortZongzi:  17001,
-		PortRaft:    17002,
-		PortGossip:  17003,
-	}
+var DefaultConfig = Config{
+	ClusterName: "pantopic",
+	DirBlock:    "/var/lib/pantopic/block",
+	DirLocal:    "/var/lib/pantopic/local",
+	DirRaft:     "/var/lib/pantopic/raft",
+	DirWAL:      "/var/lib/pantopic/wal",
+	HostName:    "pantopic-a-0",
+	HostPeers:   "pantopic-a-0,pantopic-b-0,pantopic-c-0",
+	LogLevel:    "info",
+	PortApi:     17000,
+	PortZongzi:  17001,
+	PortRaft:    17002,
+	PortGossip:  17003,
+}
+
+func EnvConfig() Config {
+	cfg := DefaultConfig
 	if err := env.ParseWithOptions(&cfg, env.Options{}); err != nil {
 		panic(err)
 	}
