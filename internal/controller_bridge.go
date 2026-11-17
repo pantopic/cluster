@@ -7,14 +7,14 @@ import (
 	"github.com/logbn/zongzi"
 )
 
-type ControllerRelay interface {
+type ControllerBridge interface {
 	SetState(*State)
 	Start(ctx context.Context) error
 	Stop()
 }
 
-// controllerRelay starts and stops relays.
-type controllerRelay struct {
+// controllerBridge starts and stops bridges.
+type controllerBridge struct {
 	zongzi.RaftEventListener
 	agent   *Agent
 	cluster string
@@ -23,14 +23,14 @@ type controllerRelay struct {
 	log     Logger
 	mutex   sync.RWMutex
 	running map[uint64]map[string]string
-	runtime *runtimeRelay
+	runtime *runtimeBridge
 	state   *State
 }
 
-var _ ControllerRelay = new(controllerRelay)
+var _ ControllerBridge = new(controllerBridge)
 
-func NewControllerRelay(log Logger, a *Agent, runtime *runtimeRelay) *controllerRelay {
-	return &controllerRelay{
+func NewControllerBridge(log Logger, a *Agent, runtime *runtimeBridge) *controllerBridge {
+	return &controllerBridge{
 		agent:   a,
 		log:     log,
 		runtime: runtime,
@@ -38,20 +38,20 @@ func NewControllerRelay(log Logger, a *Agent, runtime *runtimeRelay) *controller
 	}
 }
 
-func (c *controllerRelay) Runtime() *runtimeRelay {
+func (c *controllerBridge) Runtime() *runtimeBridge {
 	return c.runtime
 }
 
-func (c *controllerRelay) SetState(s *State) {
+func (c *controllerBridge) SetState(s *State) {
 	c.state = s
 }
 
-func (c *controllerRelay) Start(ctx context.Context) (err error) {
+func (c *controllerBridge) Start(ctx context.Context) (err error) {
 	c.agent.AddRaftEventListener(c)
 	return
 }
 
-func (c *controllerRelay) LeaderUpdated(info LeaderInfo) {
+func (c *controllerBridge) LeaderUpdated(info LeaderInfo) {
 	go func() {
 		c.mutex.Lock()
 		defer c.mutex.Unlock()
@@ -59,7 +59,7 @@ func (c *controllerRelay) LeaderUpdated(info LeaderInfo) {
 		if err != nil {
 			panic(err)
 		}
-		var prefix = "pantopic:relay"
+		var prefix = "pantopic:bridge"
 		var mods = make(map[string]string)
 		for name, mod := range shard.TagsPrefixed(prefix) {
 			mods[name[len(prefix)+1:]] = mod
@@ -91,8 +91,8 @@ func (c *controllerRelay) LeaderUpdated(info LeaderInfo) {
 	}()
 }
 
-func (c *controllerRelay) Stop() {
-	defer c.log.Infof(`Stopped Controller Relay`)
+func (c *controllerBridge) Stop() {
+	defer c.log.Infof(`Stopped Controller Bridge`)
 	<-c.done
 	c.mutex.Lock()
 	defer c.mutex.Unlock()

@@ -26,15 +26,15 @@ import (
 type Host struct {
 	agent          *zongzi.Agent
 	cfg            Config
+	ctrlBank       internal.ControllerBank
 	ctrlCluster    internal.ControllerCluster
-	ctrlManager    internal.ControllerManager
 	ctrlService    internal.ControllerService
-	ctrlRelay      internal.ControllerRelay
+	ctrlBridge     internal.ControllerBridge
 	ctx            context.Context
 	extGlobal      wazero_global.HostModule
 	logger         Logger
 	runtimeControl internal.RuntimeControl
-	runtimeRelay   internal.RuntimeRelay
+	runtimeBridge  internal.RuntimeBridge
 	runtimeService internal.RuntimeService
 	runtimeStorage internal.RuntimeStorage
 	serverControl  *serverControl
@@ -66,7 +66,7 @@ func New(ctx context.Context, cfg Config) *Host {
 			extGlobal,
 			extShardClient,
 		}...)
-		runtimeRelay = internal.NewRuntimeRelay(ctx, agent, []internal.Extension{
+		runtimeBridge = internal.NewRuntimeBridge(ctx, agent, []internal.Extension{
 			extGlobal,
 			extShardClient,
 		}...)
@@ -86,26 +86,26 @@ func New(ctx context.Context, cfg Config) *Host {
 			wazero_small_cache.New(),
 		}...)
 
+		ctrlBank    = internal.NewControllerBank(logger, agent, runtimeControl)
 		ctrlCluster = internal.NewControllerCluster(logger, agent)
-		ctrlManager = internal.NewControllerManager(logger, agent, runtimeControl)
-		ctrlRelay   = internal.NewControllerRelay(logger, agent, runtimeRelay)
+		ctrlBridge  = internal.NewControllerBridge(logger, agent, runtimeBridge)
 		ctrlService = internal.NewControllerService(logger, agent, runtimeService)
 
-		fsm = internal.StateMachineFactory(logger, ctrlService, ctrlManager)
+		fsm = internal.StateMachineFactory(logger, ctrlService, ctrlBank)
 	)
 	agent.StateMachineRegister(internal.StateMachineUri, fsm)
 	return &Host{
 		agent:          agent,
 		cfg:            cfg,
+		ctrlBank:       ctrlBank,
 		ctrlCluster:    ctrlCluster,
-		ctrlManager:    ctrlManager,
-		ctrlRelay:      ctrlRelay,
+		ctrlBridge:     ctrlBridge,
 		ctrlService:    ctrlService,
 		ctx:            ctx,
 		extGlobal:      extGlobal,
 		logger:         logger,
 		runtimeControl: runtimeControl,
-		runtimeRelay:   runtimeRelay,
+		runtimeBridge:  runtimeBridge,
 		runtimeService: runtimeService,
 		runtimeStorage: runtimeStorage,
 		serverControl:  newServerControl(agent, apiAddr),
@@ -131,22 +131,22 @@ func (h *Host) GlobalDel(k string) {
 func (h *Host) Start() error {
 	h.agent.AddRaftEventListener(h.ctrlCluster)
 	h.ctrlCluster.Start(h.ctx)
-	h.ctrlRelay.Start(h.ctx)
+	h.ctrlBridge.Start(h.ctx)
 	h.wg.Go(func() {
 		if err := h.agent.Start(h.ctx); err != nil {
 			panic(err)
 		}
 	})
 	h.ctrlService.Start(h.ctx)
-	h.ctrlManager.Start(h.ctx)
+	h.ctrlBank.Start(h.ctx)
 	h.serverControl.Start()
 	return nil
 }
 
 func (h *Host) Stop() error {
-	h.ctrlRelay.Stop()
+	h.ctrlBridge.Stop()
 	h.ctrlService.Stop()
-	h.ctrlManager.Stop()
+	h.ctrlBank.Stop()
 	h.ctrlCluster.Stop()
 	h.agent.Stop()
 	return nil
@@ -164,8 +164,8 @@ func (h *Host) RuntimeStorage() internal.RuntimeStorage {
 	return h.runtimeStorage
 }
 
-func (h *Host) RuntimeRelay() internal.RuntimeRelay {
-	return h.runtimeRelay
+func (h *Host) RuntimeBridge() internal.RuntimeBridge {
+	return h.runtimeBridge
 }
 
 func (h *Host) RegisterControl(name string, wasm []byte) {
@@ -180,6 +180,6 @@ func (h *Host) RegisterStorage(name string, wasm []byte) {
 	h.runtimeStorage.Register(name, wasm)
 }
 
-func (h *Host) RegisterRelay(name string, wasm []byte) {
-	h.runtimeRelay.Register(name, wasm)
+func (h *Host) RegisterBridge(name string, wasm []byte) {
+	h.runtimeBridge.Register(name, wasm)
 }

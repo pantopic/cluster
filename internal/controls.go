@@ -10,8 +10,8 @@ import (
 )
 
 type ClusterControls struct {
+	Bank      *clusterItemControls[*pb.Bank]
 	Cluster   *clusterItemControls[*pb.Cluster]
-	Component *clusterItemControls[*pb.Component]
 	Namespace *clusterItemControls[*pb.Namespace]
 	Resource  *clusterItemControls[*pb.Resource]
 	Service   *clusterItemControls[*pb.Service]
@@ -20,8 +20,8 @@ type ClusterControls struct {
 
 func NewClusterControls(client zongzi.ShardClient) *ClusterControls {
 	c := &ClusterControls{}
+	c.Bank = &clusterItemControls[*pb.Bank]{c, client}
 	c.Cluster = &clusterItemControls[*pb.Cluster]{c, client}
-	c.Component = &clusterItemControls[*pb.Component]{c, client}
 	c.Namespace = &clusterItemControls[*pb.Namespace]{c, client}
 	c.Resource = &clusterItemControls[*pb.Resource]{c, client}
 	c.Service = &clusterItemControls[*pb.Service]{c, client}
@@ -39,10 +39,10 @@ func (c *clusterItemControls[T]) Put(ctx context.Context, item T) T {
 		panic(err)
 	}
 	switch any(item).(type) {
+	case *pb.Bank:
+		b = append(b, CMD_BANK_PUT)
 	case *pb.Cluster:
 		b = append(b, CMD_CLUSTER_PUT)
-	case *pb.Component:
-		b = append(b, CMD_COMPONENT_PUT)
 	case *pb.Namespace:
 		b = append(b, CMD_NAMESPACE_PUT)
 	case *pb.Resource:
@@ -69,10 +69,10 @@ func (c *clusterItemControls[T]) FindByName(ctx context.Context, item T) T {
 		panic(err)
 	}
 	switch any(item).(type) {
+	case *pb.Bank:
+		b = append(b, QUERY_BANK_GET)
 	case *pb.Cluster:
 		b = append(b, QUERY_CLUSTER_GET)
-	case *pb.Component:
-		b = append(b, QUERY_COMPONENT_GET)
 	case *pb.Namespace:
 		b = append(b, QUERY_NAMESPACE_GET)
 	case *pb.Resource:

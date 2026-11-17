@@ -85,7 +85,7 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	state := c.state.withTxn(false)
-	for svc := range state.ServiceIterUpdatedAfter(c.index) {
+	for svc := range state.ServiceIterUpdatedAfter(c.index) { // TODO - filter by cluster
 		res, _ := state.ResourceFindByName(svc.Namespace, svc.Resource)
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {

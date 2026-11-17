@@ -24,7 +24,7 @@ type reconcilerExtension interface {
 
 type RuntimeControl interface {
 	Register(name string, wasm []byte)
-	Reconcile(ctx context.Context, state *State, res *pb.Resource, item *pb.Component, controls *ClusterControls) (status uint32, err error)
+	Reconcile(ctx context.Context, state *State, res *pb.Resource, item *pb.Bank, controls *ClusterControls) (status uint32, err error)
 }
 
 type runtimeControl struct {
@@ -83,19 +83,19 @@ func (r *runtimeControl) Register(name string, wasm []byte) {
 	r.poolCtx[name] = ctx
 }
 
-func (r *runtimeControl) Reconcile(ctx context.Context, state *State, res *pb.Resource, item *pb.Component, controls *ClusterControls) (status uint32, err error) {
-	// Lookup the pool and context for the given component type.
+func (r *runtimeControl) Reconcile(ctx context.Context, state *State, res *pb.Resource, item *pb.Bank, controls *ClusterControls) (status uint32, err error) {
+	// Lookup the pool and context for the given bank type.
 	modName := fmt.Sprintf("%s/control/%s", res.Type, item.Type)
 	pool, ok := r.pools[modName]
 	if !ok {
-		return 0, fmt.Errorf("no pool found for component %s", modName)
+		return 0, fmt.Errorf("no pool found for bank %s", modName)
 	}
 	poolCtx, ok := r.poolCtx[modName]
 	if !ok {
-		return 0, fmt.Errorf("no context found for component %s", modName)
+		return 0, fmt.Errorf("no context found for bank %s", modName)
 	}
 	for _, fn := range r.ctxCopy {
 		ctx = fn(ctx, poolCtx)
 	}
-	return r.extCluster.Reconcile(ctx, pool, extpbResource(res), extpbComponent(item))
+	return r.extCluster.Reconcile(ctx, pool, extpbResource(res), extpbBank(item))
 }

@@ -5,6 +5,14 @@ package pb;
 option go_package = "github.com/pantopic/cluster/pb";
 
 service Control {
+  rpc BankDelete(BankDeleteRequest) returns (BankDeleteResponse) {}
+  rpc BankGet(BankGetRequest) returns (BankGetResponse) {}
+  rpc BankList(BankListRequest) returns (BankListResponse) {}
+  rpc BankPut(BankPutRequest) returns (BankPutResponse) {}
+  rpc ClusterDelete(ClusterDeleteRequest) returns (ClusterDeleteResponse) {}
+  rpc ClusterGet(ClusterGetRequest) returns (ClusterGetResponse) {}
+  rpc ClusterList(ClusterListRequest) returns (ClusterListResponse) {}
+  rpc ClusterPut(ClusterPutRequest) returns (ClusterPutResponse) {}
   rpc NamespaceDelete(NamespaceDeleteRequest) returns (NamespaceDeleteResponse) {}
   rpc NamespaceGet(NamespaceGetRequest) returns (NamespaceGetResponse) {}
   rpc NamespaceList(NamespaceListRequest) returns (NamespaceListResponse) {}
@@ -13,18 +21,10 @@ service Control {
   rpc ResourceGet(ResourceGetRequest) returns (ResourceGetResponse) {}
   rpc ResourceList(ResourceListRequest) returns (ResourceListResponse) {}
   rpc ResourcePut(ResourcePutRequest) returns (ResourcePutResponse) {}
-  rpc ClusterDelete(ClusterDeleteRequest) returns (ClusterDeleteResponse) {}
-  rpc ClusterGet(ClusterGetRequest) returns (ClusterGetResponse) {}
-  rpc ClusterList(ClusterListRequest) returns (ClusterListResponse) {}
-  rpc ClusterPut(ClusterPutRequest) returns (ClusterPutResponse) {}
   rpc ServiceDelete(ServiceDeleteRequest) returns (ServiceDeleteResponse) {}
   rpc ServiceGet(ServiceGetRequest) returns (ServiceGetResponse) {}
   rpc ServiceList(ServiceListRequest) returns (ServiceListResponse) {}
   rpc ServicePut(ServicePutRequest) returns (ServicePutResponse) {}
-  rpc ComponentDelete(ComponentDeleteRequest) returns (ComponentDeleteResponse) {}
-  rpc ComponentGet(ComponentGetRequest) returns (ComponentGetResponse) {}
-  rpc ComponentList(ComponentListRequest) returns (ComponentListResponse) {}
-  rpc ComponentPut(ComponentPutRequest) returns (ComponentPutResponse) {}
 }
 
 message Namespace {
@@ -57,7 +57,7 @@ message Resource {
   string status = 9;
 }
 
-message Component {
+message Bank {
   string namespace = 1;
   string resource = 2;
   string cluster = 3;
@@ -241,45 +241,45 @@ message ServiceListResponse {
   repeated Service item = 3;
 }
 
-message ComponentDeleteRequest {
+message BankDeleteRequest {
   string namespace = 1;
   string resource = 2;
   string cluster = 3;
   string name = 4;
 }
-message ComponentDeleteResponse {
+message BankDeleteResponse {
   uint64 code = 1;
   string error = 2;
 }
 
-message ComponentGetRequest {
+message BankGetRequest {
   string namespace = 1;
   string resource = 2;
   string name = 3;
 }
-message ComponentGetResponse {
+message BankGetResponse {
   uint64 code = 1;
   string error = 2;
-  Component item = 3;
+  Bank item = 3;
 }
 
-message ComponentPutRequest {
-  Component item = 1;
+message BankPutRequest {
+  Bank item = 1;
 }
-message ComponentPutResponse {
+message BankPutResponse {
   uint64 code = 1;
   string error = 2;
-  Component item = 3;
+  Bank item = 3;
 }
 
-message ComponentListRequest {
+message BankListRequest {
   string namespace = 1;
   string resource = 2;
   uint64 limit = 3;
   uint64 offset = 4;
 }
-message ComponentListResponse {
+message BankListResponse {
   uint64 code = 1;
   string error = 2;
-  repeated Component item = 3;
+  repeated Bank item = 3;
 }

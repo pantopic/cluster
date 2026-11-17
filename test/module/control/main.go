@@ -1,23 +1,21 @@
 package main
 
 import (
-	"maps"
-
 	"github.com/pantopic/ext-cluster/sdk-go"
 	"github.com/pantopic/ext-cluster/sdk-go/pb"
 )
 
 func init() {
 	cluster.Init(
-		cluster.WithComponentReconciler(reconcile),
+		cluster.WithBankReconciler(reconcile),
 	)
 }
 
 func main() {
 }
 
-func reconcile(component *pb.Component) uint32 {
-	name := component.Namespace + `.` + component.Resource + `.` + component.Name
+func reconcile(bank *pb.Bank) uint32 {
+	name := bank.Namespace + `.` + bank.Resource + `.` + bank.Name
 	var found bool
 	var s *pb.Shard
 	for s = range cluster.ShardIter() {
@@ -27,14 +25,8 @@ func reconcile(component *pb.Component) uint32 {
 		}
 	}
 	if !found {
-		tags := make(map[string]string)
-		maps.Copy(tags, component.Tags)
-		tags[`pantopic:module`] = `pantopic/cluster-test/storage/test`
-		_, err := cluster.ShardCreate(&pb.Shard{
-			Name: `test`,
-			Type: "pantopic/ext-raft",
-			Tags: tags,
-		})
+		_, err := cluster.ShardCreate(`test`, `pantopic/cluster-test/storage/test`,
+			cluster.WithTags(bank.Tags))
 		if err != nil {
 			println(err)
 			return cluster.StatusPending

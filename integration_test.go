@@ -183,6 +183,7 @@ func TestHost(t *testing.T) {
 		service := &pb.Service{
 			Namespace: "default",
 			Resource:  resource.Name,
+			Cluster:   cfg.ClusterName,
 			Name:      "test",
 			Type:      "grpc",
 			Port:      port,
@@ -191,7 +192,7 @@ func TestHost(t *testing.T) {
 				"placement:cover": "host:class=service",
 			},
 		}
-		component := &pb.Component{
+		bank := &pb.Bank{
 			Namespace: "default",
 			Resource:  resource.Name,
 			Cluster:   cfg.ClusterName,
@@ -223,16 +224,16 @@ func TestHost(t *testing.T) {
 				require.Equal(t, service.Name, putResp.Item.Name)
 				require.Equal(t, service.Type, putResp.Item.Type)
 			})
-			t.Run(`component`, func(t *testing.T) {
-				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
-					Item: component,
+			t.Run(`bank`, func(t *testing.T) {
+				putResp, err := ctrlClient.BankPut(ctx, &pb.BankPutRequest{
+					Item: bank,
 				})
 				require.Nil(t, err, err)
 				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
-				require.Equal(t, component.Namespace, putResp.Item.Namespace)
-				require.Equal(t, component.Name, putResp.Item.Name)
-				require.Equal(t, component.Resource, putResp.Item.Resource)
-				require.Equal(t, component.Type, putResp.Item.Type)
+				require.Equal(t, bank.Namespace, putResp.Item.Namespace)
+				require.Equal(t, bank.Name, putResp.Item.Name)
+				require.Equal(t, bank.Resource, putResp.Item.Resource)
+				require.Equal(t, bank.Type, putResp.Item.Type)
 			})
 			t.Run(`active`, func(t *testing.T) {
 				t.Run(`service`, func(t *testing.T) {
@@ -252,22 +253,22 @@ func TestHost(t *testing.T) {
 					require.Equal(t, 1, len(svcListResp.Item))
 					require.Equal(t, service.Type, svcListResp.Item[0].Type)
 				})
-				t.Run(`component`, func(t *testing.T) {
-					compListReq := &pb.ComponentListRequest{
+				t.Run(`bank`, func(t *testing.T) {
+					compListReq := &pb.BankListRequest{
 						Namespace: resource.Namespace,
 						Resource:  resource.Name,
 					}
-					var compListResp *pb.ComponentListResponse
-					// 10s - component is created and active
+					var compListResp *pb.BankListResponse
+					// 10s - bank is created and active
 					require.True(t, await(10, 100, func() bool {
-						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+						compListResp, err = ctrlClient.BankList(ctx, compListReq)
 						return err == nil &&
 							compListResp.Code == internal.ResultSuccess &&
 							len(compListResp.Item) > 0 &&
 							compListResp.Item[0].Status == internal.Status_Active
 					}), err)
 					require.Equal(t, 1, len(compListResp.Item))
-					require.Equal(t, component.Type, compListResp.Item[0].Type)
+					require.Equal(t, bank.Type, compListResp.Item[0].Type)
 				})
 			})
 		})
@@ -290,10 +291,10 @@ func TestHost(t *testing.T) {
 	t.Run(`delete`, func(t *testing.T) {
 		// gRPC Api Call to delete resource
 		// ensure resource status deleting
-		// 10s - component is deleting
+		// 10s - bank is deleting
 		// 10s - shard is deleting
 		// 10s - shard is deleted
-		// 10s - component is deleted
+		// 10s - bank is deleted
 		// 10s - resource is deleted
 	})
 	t.Run(`kitsune`, func(t *testing.T) {
@@ -308,6 +309,7 @@ func TestHost(t *testing.T) {
 			service := &pb.Service{
 				Namespace: "default",
 				Resource:  resource.Name,
+				Cluster:   cfg.ClusterName,
 				Name:      "api",
 				Type:      "http",
 				Port:      uint64(port),
@@ -316,7 +318,7 @@ func TestHost(t *testing.T) {
 					"placement:cover": "host:class=service",
 				},
 			}
-			component := &pb.Component{
+			bank := &pb.Bank{
 				Namespace: "default",
 				Resource:  resource.Name,
 				Cluster:   cfg.ClusterName,
@@ -347,16 +349,16 @@ func TestHost(t *testing.T) {
 				require.Equal(t, service.Name, putResp.Item.Name)
 				require.Equal(t, service.Type, putResp.Item.Type)
 			})
-			t.Run(`component`, func(t *testing.T) {
-				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
-					Item: component,
+			t.Run(`bank`, func(t *testing.T) {
+				putResp, err := ctrlClient.BankPut(ctx, &pb.BankPutRequest{
+					Item: bank,
 				})
 				require.Nil(t, err, err)
 				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
-				require.Equal(t, component.Namespace, putResp.Item.Namespace)
-				require.Equal(t, component.Name, putResp.Item.Name)
-				require.Equal(t, component.Resource, putResp.Item.Resource)
-				require.Equal(t, component.Type, putResp.Item.Type)
+				require.Equal(t, bank.Namespace, putResp.Item.Namespace)
+				require.Equal(t, bank.Name, putResp.Item.Name)
+				require.Equal(t, bank.Resource, putResp.Item.Resource)
+				require.Equal(t, bank.Type, putResp.Item.Type)
 			})
 			t.Run(`active`, func(t *testing.T) {
 				t.Run(`service`, func(t *testing.T) {
@@ -376,22 +378,22 @@ func TestHost(t *testing.T) {
 					require.Equal(t, 1, len(svcListResp.Item))
 					require.Equal(t, service.Type, svcListResp.Item[0].Type)
 				})
-				t.Run(`component`, func(t *testing.T) {
-					compListReq := &pb.ComponentListRequest{
+				t.Run(`bank`, func(t *testing.T) {
+					compListReq := &pb.BankListRequest{
 						Namespace: resource.Namespace,
 						Resource:  resource.Name,
 					}
-					var compListResp *pb.ComponentListResponse
-					// 10s - component is created and active
+					var compListResp *pb.BankListResponse
+					// 10s - bank is created and active
 					require.True(t, await(10, 100, func() bool {
-						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+						compListResp, err = ctrlClient.BankList(ctx, compListReq)
 						return err == nil &&
 							compListResp.Code == internal.ResultSuccess &&
 							len(compListResp.Item) > 0 &&
 							compListResp.Item[0].Status == internal.Status_Active
 					}), err)
 					require.Equal(t, 1, len(compListResp.Item))
-					require.Equal(t, component.Type, compListResp.Item[0].Type)
+					require.Equal(t, bank.Type, compListResp.Item[0].Type)
 				})
 			})
 		})
@@ -424,6 +426,7 @@ func TestHost(t *testing.T) {
 			service := &pb.Service{
 				Namespace: "default",
 				Resource:  resource.Name,
+				Cluster:   cfg.ClusterName,
 				Name:      "api",
 				Type:      "grpc",
 				Port:      uint64(port),
@@ -432,7 +435,7 @@ func TestHost(t *testing.T) {
 					"placement:cover": "host:class=service",
 				},
 			}
-			component := &pb.Component{
+			bank := &pb.Bank{
 				Namespace: "default",
 				Resource:  resource.Name,
 				Cluster:   cfg.ClusterName,
@@ -463,16 +466,16 @@ func TestHost(t *testing.T) {
 				require.Equal(t, service.Name, putResp.Item.Name)
 				require.Equal(t, service.Type, putResp.Item.Type)
 			})
-			t.Run(`component`, func(t *testing.T) {
-				putResp, err := ctrlClient.ComponentPut(ctx, &pb.ComponentPutRequest{
-					Item: component,
+			t.Run(`bank`, func(t *testing.T) {
+				putResp, err := ctrlClient.BankPut(ctx, &pb.BankPutRequest{
+					Item: bank,
 				})
 				require.Nil(t, err, err)
 				require.Equal(t, uint64(0), putResp.Code, putResp.Error)
-				require.Equal(t, component.Namespace, putResp.Item.Namespace)
-				require.Equal(t, component.Name, putResp.Item.Name)
-				require.Equal(t, component.Resource, putResp.Item.Resource)
-				require.Equal(t, component.Type, putResp.Item.Type)
+				require.Equal(t, bank.Namespace, putResp.Item.Namespace)
+				require.Equal(t, bank.Name, putResp.Item.Name)
+				require.Equal(t, bank.Resource, putResp.Item.Resource)
+				require.Equal(t, bank.Type, putResp.Item.Type)
 			})
 			t.Run(`active`, func(t *testing.T) {
 				t.Run(`service`, func(t *testing.T) {
@@ -492,22 +495,22 @@ func TestHost(t *testing.T) {
 					require.Equal(t, 1, len(svcListResp.Item))
 					require.Equal(t, service.Type, svcListResp.Item[0].Type)
 				})
-				t.Run(`component`, func(t *testing.T) {
-					compListReq := &pb.ComponentListRequest{
+				t.Run(`bank`, func(t *testing.T) {
+					compListReq := &pb.BankListRequest{
 						Namespace: resource.Namespace,
 						Resource:  resource.Name,
 					}
-					var compListResp *pb.ComponentListResponse
-					// 10s - component is created and active
+					var compListResp *pb.BankListResponse
+					// 10s - bank is created and active
 					require.True(t, await(10, 100, func() bool {
-						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
+						compListResp, err = ctrlClient.BankList(ctx, compListReq)
 						return err == nil &&
 							compListResp.Code == internal.ResultSuccess &&
 							len(compListResp.Item) > 0 &&
 							compListResp.Item[0].Status == internal.Status_Active
 					}), err)
 					require.Equal(t, 1, len(compListResp.Item))
-					require.Equal(t, component.Type, compListResp.Item[0].Type)
+					require.Equal(t, bank.Type, compListResp.Item[0].Type)
 				})
 			})
 		})

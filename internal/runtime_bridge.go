@@ -11,32 +11,32 @@ import (
 	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 
+	"github.com/pantopic/ext-bridge/host-wazero"
 	"github.com/pantopic/ext-cluster/host-wazero/pb"
-	"github.com/pantopic/ext-relay/host-wazero"
 	"github.com/pantopic/wazero-pool"
 )
 
-type RuntimeRelay interface {
+type RuntimeBridge interface {
 	Register(name string, wasm []byte)
 	Start(name, mod string, term uint64, shard Shard) error
 	Stop(name, mod string, term uint64, shard Shard) error
 	Reload(name, mod string, term uint64, shard Shard) error
 }
 
-type runtimeRelay struct {
-	ctx      context.Context
-	ctxCopy  []ContextCopy
-	ext      map[string]Extension
-	extRelay wazero_relay.Manager
-	pools    map[string]wazeropool.Instance
-	mutex    sync.RWMutex
-	poolCtx  map[string]context.Context
-	wasm     map[string][]byte
-	wazero   wazero.Runtime
+type runtimeBridge struct {
+	ctx       context.Context
+	ctxCopy   []ContextCopy
+	ext       map[string]Extension
+	extBridge wazero_bridge.Manager
+	pools     map[string]wazeropool.Instance
+	mutex     sync.RWMutex
+	poolCtx   map[string]context.Context
+	wasm      map[string][]byte
+	wazero    wazero.Runtime
 }
 
-func NewRuntimeRelay(ctx context.Context, a *Agent, ext ...Extension) (r *runtimeRelay) {
-	r = &runtimeRelay{
+func NewRuntimeBridge(ctx context.Context, a *Agent, ext ...Extension) (r *runtimeBridge) {
+	r = &runtimeBridge{
 		ctx:     ctx,
 		ext:     make(map[string]Extension),
 		pools:   make(map[string]wazeropool.Instance),
@@ -45,9 +45,9 @@ func NewRuntimeRelay(ctx context.Context, a *Agent, ext ...Extension) (r *runtim
 	}
 	r.wazero = wazero.NewRuntimeWithConfig(r.ctx, wazero.NewRuntimeConfig())
 	wasi_snapshot_preview1.MustInstantiate(r.ctx, r.wazero)
-	extRelay := wazero_relay.New()
-	ext = append(ext, extRelay)
-	r.extRelay = extRelay
+	extBridge := wazero_bridge.New()
+	ext = append(ext, extBridge)
+	r.extBridge = extBridge
 	for _, e := range ext {
 		if _, ok := r.ext[e.Name()]; ok {
 			continue
@@ -61,7 +61,7 @@ func NewRuntimeRelay(ctx context.Context, a *Agent, ext ...Extension) (r *runtim
 	return
 }
 
-func (r *runtimeRelay) Register(name string, wasm []byte) {
+func (r *runtimeBridge) Register(name string, wasm []byte) {
 	cfg := wazero.NewModuleConfig().WithStdout(os.Stdout)
 	pool, err := wazeropool.New(r.ctx, r.wazero, wasm,
 		wazeropool.WithModuleConfig(cfg),
@@ -81,7 +81,7 @@ func (r *runtimeRelay) Register(name string, wasm []byte) {
 	r.poolCtx[name] = ctx
 }
 
-func (r *runtimeRelay) Start(name, mod string, term uint64, shard Shard) (err error) {
+func (r *runtimeBridge) Start(name, mod string, term uint64, shard Shard) (err error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 	pool, ok := r.pools[mod]
@@ -92,10 +92,10 @@ func (r *runtimeRelay) Start(name, mod string, term uint64, shard Shard) (err er
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, mod)
 	}
-	return r.extRelay.Start(poolCtx, pool, term, shardToPb(shard))
+	return r.extBridge.Start(poolCtx, pool, term, shardToPb(shard))
 }
 
-func (r *runtimeRelay) Stop(name, mod string, term uint64, shard Shard) (err error) {
+func (r *runtimeBridge) Stop(name, mod string, term uint64, shard Shard) (err error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 	pool, ok := r.pools[mod]
@@ -106,10 +106,10 @@ func (r *runtimeRelay) Stop(name, mod string, term uint64, shard Shard) (err err
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, mod)
 	}
-	return r.extRelay.Stop(poolCtx, pool, term, shardToPb(shard))
+	return r.extBridge.Stop(poolCtx, pool, term, shardToPb(shard))
 }
 
-func (r *runtimeRelay) Reload(name, mod string, term uint64, shard Shard) (err error) {
+func (r *runtimeBridge) Reload(name, mod string, term uint64, shard Shard) (err error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 	pool, ok := r.pools[mod]
@@ -120,7 +120,7 @@ func (r *runtimeRelay) Reload(name, mod string, term uint64, shard Shard) (err e
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, mod)
 	}
-	return r.extRelay.Reload(poolCtx, pool, term, shardToPb(shard))
+	return r.extBridge.Reload(poolCtx, pool, term, shardToPb(shard))
 }
 
 func shardToPb(s Shard) *pb.Shard {

@@ -19,6 +19,7 @@ func cmdServicePut(entry *Entry, state *State, cmd []byte) (err error) {
 	if !validateFieldPresence(entry,
 		"Namespace", item.Namespace,
 		"Resource", item.Resource,
+		"Cluster", item.Cluster,
 		"Name", item.Name,
 	) {
 		return
@@ -72,6 +73,7 @@ func cmdServiceDelete(entry *Entry, state *State, cmd []byte) (err error) {
 	if !validateFieldPresence(entry,
 		"Namespace", item.Namespace,
 		"Resource", item.Resource,
+		"Cluster", item.Cluster,
 		"Name", item.Name,
 	) {
 		return
