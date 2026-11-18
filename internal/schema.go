@@ -100,8 +100,8 @@ func newSchema() *memdb.DBSchema {
 			},
 		},
 	}
-	schema.Tables[`bank`] = &memdb.TableSchema{
-		Name: "bank",
+	schema.Tables[`component`] = &memdb.TableSchema{
+		Name: "component",
 		Indexes: map[string]*memdb.IndexSchema{
 			"id": {
 				Name:   "id",

@@ -19,7 +19,7 @@ type State struct {
 
 type fsmStateMetaHeader struct {
 	Clusters   uint64 `json:"clusters"`
-	Banks      uint64 `json:"banks"`
+	Components uint64 `json:"components"`
 	Index      uint64 `json:"index"`
 	Namespaces uint64 `json:"namespaces"`
 	Resources  uint64 `json:"resources"`
@@ -85,7 +85,7 @@ func (s *State) Save(w io.Writer) error {
 	f := s.withTxn(false)
 	header := fsmStateMetaHeader{
 		Clusters:   f.metaGetVal(`clusters`),
-		Banks:      f.metaGetVal(`banks`),
+		Components: f.metaGetVal(`components`),
 		Index:      f.metaGetVal(`index`),
 		Namespaces: f.metaGetVal(`namespaces`),
 		Resources:  f.metaGetVal(`resources`),
@@ -105,7 +105,7 @@ func (s *State) Save(w io.Writer) error {
 		b, _ := json.Marshal(item)
 		w.Write(append(b, '\n'))
 	}
-	for item := range f.BankIterAll() {
+	for item := range f.ComponentIterAll() {
 		b, _ := json.Marshal(item)
 		w.Write(append(b, '\n'))
 	}
@@ -124,8 +124,8 @@ func (s *State) recover(r io.Reader) (err error) {
 	if err := decoder.Decode(&header); err != nil {
 		return err
 	}
-	f.metaSet(`banks`, header.Banks, nil)
 	f.metaSet(`clusters`, header.Clusters, nil)
+	f.metaSet(`components`, header.Components, nil)
 	f.metaSet(`index`, header.Index, nil)
 	f.metaSet(`namespaces`, header.Namespaces, nil)
 	f.metaSet(`resources`, header.Resources, nil)
@@ -152,12 +152,12 @@ func (s *State) recover(r io.Reader) (err error) {
 		}
 		f.resourcePut(s, false)
 	}
-	for i = 0; i < header.Banks; i++ {
-		var s = &pb.Bank{}
+	for i = 0; i < header.Components; i++ {
+		var s = &pb.Component{}
 		if err = decoder.Decode(&s); err != nil {
-			return fmt.Errorf("parse bank: %w", err)
+			return fmt.Errorf("parse component: %w", err)
 		}
-		f.bankPut(s, false)
+		f.componentPut(s, false)
 	}
 	for i = 0; i < header.Services; i++ {
 		var s = &pb.Service{}

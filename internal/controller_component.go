@@ -13,14 +13,14 @@ import (
 	"github.com/pantopic/cluster/pb"
 )
 
-type ControllerBank interface {
+type ControllerComponent interface {
 	SetState(*State)
 	Start(ctx context.Context) error
 	Stop()
 }
 
-// controllerBank starts and stops services.
-type controllerBank struct {
+// controllerComponent starts and stops services.
+type controllerComponent struct {
 	agent     *Agent
 	cluster   string
 	ctx       context.Context
@@ -34,25 +34,25 @@ type controllerBank struct {
 	state     *State
 }
 
-var _ ControllerBank = new(controllerBank)
+var _ ControllerComponent = new(controllerComponent)
 
-func NewControllerBank(log Logger, a *Agent, runtime *runtimeControl) *controllerBank {
-	return &controllerBank{
+func NewControllerComponent(log Logger, a *Agent, runtime *runtimeControl) *controllerComponent {
+	return &controllerComponent{
 		agent:   a,
 		runtime: runtime,
 		log:     log,
 	}
 }
 
-func (c *controllerBank) Runtime() *runtimeControl {
+func (c *controllerComponent) Runtime() *runtimeControl {
 	return c.runtime
 }
 
-func (c *controllerBank) SetState(s *State) {
+func (c *controllerComponent) SetState(s *State) {
 	c.state = s
 }
 
-func (c *controllerBank) Start(ctx context.Context) (err error) {
+func (c *controllerComponent) Start(ctx context.Context) (err error) {
 	defer c.agent.AddRaftEventListener(c)
 	c.ctx = ctx
 	c.mutex.Lock()
@@ -70,7 +70,7 @@ func (c *controllerBank) Start(ctx context.Context) (err error) {
 				return
 			}
 			if err != nil {
-				c.log.Errorf("%s Controller Bank: %v", c.agent.HostID(), err)
+				c.log.Errorf("%s Controller Component: %v", c.agent.HostID(), err)
 			}
 		}
 	}()
@@ -78,22 +78,22 @@ func (c *controllerBank) Start(ctx context.Context) (err error) {
 	return c.tick()
 }
 
-func (c *controllerBank) updateBankStatus(client zongzi.ShardClient, item *pb.Bank, status Status) {
+func (c *controllerComponent) updateComponentStatus(client zongzi.ShardClient, item *pb.Component, status Status) {
 	item.Status = status
 	var data []byte
 	var err error
 	data, err = proto.Marshal(item)
 	if err != nil {
-		c.log.Warningf("Error serializing bank %v %s", item, err.Error())
+		c.log.Warningf("Error serializing component %v %s", item, err.Error())
 		return
 	}
-	_, _, err = client.Apply(c.ctx, append(data, CMD_BANK_PUT))
+	_, _, err = client.Apply(c.ctx, append(data, CMD_COMPONENT_PUT))
 	if err != nil {
-		c.log.Warningf("Error updating bank status %v %s", item, err.Error())
+		c.log.Warningf("Error updating component status %v %s", item, err.Error())
 	}
 }
 
-func (c *controllerBank) tick() (err error) {
+func (c *controllerComponent) tick() (err error) {
 	if c.state == nil {
 		return
 	}
@@ -107,10 +107,10 @@ func (c *controllerBank) tick() (err error) {
 		for {
 			state := c.state.withTxn(false)
 			index = state.Index()
-			for item := range state.BankIterUpdatedAfter(c.index) {
+			for item := range state.ComponentIterUpdatedAfter(c.index) {
 				res, ok := state.ResourceFindByName(item.Namespace, item.Resource)
 				if !ok {
-					return fmt.Errorf("resource not found for bank %#v", item)
+					return fmt.Errorf("resource not found for component %#v", item)
 				}
 				controls.updated = false
 				var status uint32
@@ -119,16 +119,16 @@ func (c *controllerBank) tick() (err error) {
 				status, err = c.runtime.Reconcile(c.ctx, state, res, item, controls)
 				if err != nil {
 					hadErr = true
-					c.log.Warningf("Error resolving bank %v %s", item, err.Error())
+					c.log.Warningf("Error resolving component %v %s", item, err.Error())
 					continue
 				}
 				if status == 0 && item.Status != Status_Pending {
-					c.log.Infof(`%s Setting bank status %s for %s.%s.%s`, c.agent.HostID(), Status_Pending, item.Namespace, item.Resource, item.Name)
-					c.updateBankStatus(client, item, Status_Pending)
+					c.log.Infof(`%s Setting component status %s for %s.%s.%s`, c.agent.HostID(), Status_Pending, item.Namespace, item.Resource, item.Name)
+					c.updateComponentStatus(client, item, Status_Pending)
 					controls.updated = true
 				} else if status == 1 && item.Status != Status_Active {
-					c.log.Infof(`%s Setting bank status %s for %s.%s.%s`, c.agent.HostID(), Status_Active, item.Namespace, item.Resource, item.Name)
-					c.updateBankStatus(client, item, Status_Active)
+					c.log.Infof(`%s Setting component status %s for %s.%s.%s`, c.agent.HostID(), Status_Active, item.Namespace, item.Resource, item.Name)
+					c.updateComponentStatus(client, item, Status_Active)
 					controls.updated = true
 				}
 				if controls.updated {
@@ -144,20 +144,20 @@ func (c *controllerBank) tick() (err error) {
 		}
 	}
 	if !hadErr && index > c.index {
-		c.log.Debugf("%s Finished bank controller processing %d", c.agent.HostID(), index)
+		c.log.Debugf("%s Finished component controller processing %d", c.agent.HostID(), index)
 		c.index = index
 	}
 	return
 }
 
-func (c *controllerBank) LeaderUpdated(info LeaderInfo) {
+func (c *controllerComponent) LeaderUpdated(info LeaderInfo) {
 	if info.ShardID == ShardID {
 		c.isLeader.Store(info.LeaderID == info.ReplicaID)
 	}
 }
 
-func (c *controllerBank) Stop() {
-	defer c.log.Infof(`Stopped Controller Bank`)
+func (c *controllerComponent) Stop() {
+	defer c.log.Infof(`Stopped Controller Component`)
 	if c.ctxCancel != nil {
 		c.ctxCancel()
 	}

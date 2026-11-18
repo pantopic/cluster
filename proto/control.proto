@@ -5,10 +5,10 @@ package pb;
 option go_package = "github.com/pantopic/cluster/pb";
 
 service Control {
-  rpc BankDelete(BankDeleteRequest) returns (BankDeleteResponse) {}
-  rpc BankGet(BankGetRequest) returns (BankGetResponse) {}
-  rpc BankList(BankListRequest) returns (BankListResponse) {}
-  rpc BankPut(BankPutRequest) returns (BankPutResponse) {}
+  rpc ComponentDelete(ComponentDeleteRequest) returns (ComponentDeleteResponse) {}
+  rpc ComponentGet(ComponentGetRequest) returns (ComponentGetResponse) {}
+  rpc ComponentList(ComponentListRequest) returns (ComponentListResponse) {}
+  rpc ComponentPut(ComponentPutRequest) returns (ComponentPutResponse) {}
   rpc ClusterDelete(ClusterDeleteRequest) returns (ClusterDeleteResponse) {}
   rpc ClusterGet(ClusterGetRequest) returns (ClusterGetResponse) {}
   rpc ClusterList(ClusterListRequest) returns (ClusterListResponse) {}
@@ -57,7 +57,7 @@ message Resource {
   string status = 9;
 }
 
-message Bank {
+message Component {
   string namespace = 1;
   string resource = 2;
   string cluster = 3;
@@ -241,45 +241,45 @@ message ServiceListResponse {
   repeated Service item = 3;
 }
 
-message BankDeleteRequest {
+message ComponentDeleteRequest {
   string namespace = 1;
   string resource = 2;
   string cluster = 3;
   string name = 4;
 }
-message BankDeleteResponse {
+message ComponentDeleteResponse {
   uint64 code = 1;
   string error = 2;
 }
 
-message BankGetRequest {
+message ComponentGetRequest {
   string namespace = 1;
   string resource = 2;
   string name = 3;
 }
-message BankGetResponse {
+message ComponentGetResponse {
   uint64 code = 1;
   string error = 2;
-  Bank item = 3;
+  Component item = 3;
 }
 
-message BankPutRequest {
-  Bank item = 1;
+message ComponentPutRequest {
+  Component item = 1;
 }
-message BankPutResponse {
+message ComponentPutResponse {
   uint64 code = 1;
   string error = 2;
-  Bank item = 3;
+  Component item = 3;
 }
 
-message BankListRequest {
+message ComponentListRequest {
   string namespace = 1;
   string resource = 2;
   uint64 limit = 3;
   uint64 offset = 4;
 }
-message BankListResponse {
+message ComponentListResponse {
   uint64 code = 1;
   string error = 2;
-  repeated Bank item = 3;
+  repeated Component item = 3;
 }

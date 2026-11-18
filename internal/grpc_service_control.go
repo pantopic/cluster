@@ -415,15 +415,15 @@ func (s *svcControl) ServiceList(
 	return
 }
 
-func (s *svcControl) BankPut(
+func (s *svcControl) ComponentPut(
 	ctx context.Context,
-	req *pb.BankPutRequest,
-) (res *pb.BankPutResponse, err error) {
+	req *pb.ComponentPutRequest,
+) (res *pb.ComponentPutResponse, err error) {
 	// Protected fields
 	if req.Item.Tags == nil {
-		res = &pb.BankPutResponse{
+		res = &pb.ComponentPutResponse{
 			Code:  ResultErrSemantic,
-			Error: "Bank requires placement tags",
+			Error: "Component requires placement tags",
 		}
 		return
 	}
@@ -432,11 +432,11 @@ func (s *svcControl) BankPut(
 	if err != nil {
 		return
 	}
-	val, data, err := s.client.Apply(ctx, append(data, CMD_BANK_PUT))
+	val, data, err := s.client.Apply(ctx, append(data, CMD_COMPONENT_PUT))
 	if err != nil {
 		return
 	}
-	res = &pb.BankPutResponse{
+	res = &pb.ComponentPutResponse{
 		Code: val,
 	}
 	if val != ResultSuccess {
@@ -452,11 +452,11 @@ func (s *svcControl) BankPut(
 	return
 }
 
-func (s *svcControl) BankDelete(
+func (s *svcControl) ComponentDelete(
 	ctx context.Context,
-	req *pb.BankDeleteRequest,
-) (res *pb.BankDeleteResponse, err error) {
-	data, err := proto.Marshal(&pb.Bank{
+	req *pb.ComponentDeleteRequest,
+) (res *pb.ComponentDeleteResponse, err error) {
+	data, err := proto.Marshal(&pb.Component{
 		Namespace: req.Namespace,
 		Resource:  req.Resource,
 		Cluster:   req.Cluster,
@@ -465,29 +465,29 @@ func (s *svcControl) BankDelete(
 	if err != nil {
 		return
 	}
-	val, _, err := s.client.Apply(ctx, append(data, CMD_BANK_DELETE))
+	val, _, err := s.client.Apply(ctx, append(data, CMD_COMPONENT_DELETE))
 	if err != nil {
 		return
 	}
-	res = &pb.BankDeleteResponse{
+	res = &pb.ComponentDeleteResponse{
 		Code: val,
 	}
 	return
 }
 
-func (s *svcControl) BankGet(
+func (s *svcControl) ComponentGet(
 	ctx context.Context,
-	req *pb.BankGetRequest,
-) (res *pb.BankGetResponse, err error) {
+	req *pb.ComponentGetRequest,
+) (res *pb.ComponentGetResponse, err error) {
 	data, err := proto.Marshal(req)
 	if err != nil {
 		return
 	}
-	val, data, err := s.client.Read(ctx, append(data, QUERY_BANK_GET), true)
+	val, data, err := s.client.Read(ctx, append(data, QUERY_COMPONENT_GET), true)
 	if err != nil {
 		return
 	}
-	res = &pb.BankGetResponse{}
+	res = &pb.ComponentGetResponse{}
 	if err = proto.Unmarshal(data, res); err != nil {
 		res.Code = ResultErrInternal
 		res.Error = err.Error()
@@ -497,19 +497,19 @@ func (s *svcControl) BankGet(
 	return
 }
 
-func (s *svcControl) BankList(
+func (s *svcControl) ComponentList(
 	ctx context.Context,
-	req *pb.BankListRequest,
-) (res *pb.BankListResponse, err error) {
+	req *pb.ComponentListRequest,
+) (res *pb.ComponentListResponse, err error) {
 	data, err := proto.Marshal(req)
 	if err != nil {
 		return
 	}
-	val, data, err := s.client.Read(ctx, append(data, QUERY_BANK_LIST), true)
+	val, data, err := s.client.Read(ctx, append(data, QUERY_COMPONENT_LIST), true)
 	if err != nil {
 		return
 	}
-	res = &pb.BankListResponse{}
+	res = &pb.ComponentListResponse{}
 	if err = proto.Unmarshal(data, res); err != nil {
 		res.Code = ResultErrInternal
 		res.Error = err.Error()

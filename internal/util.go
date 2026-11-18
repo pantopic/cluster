@@ -32,8 +32,8 @@ func extpbResource(res *pb.Resource) *extpb.Resource {
 	}
 }
 
-func extpbBank(item *pb.Bank) *extpb.Bank {
-	return &extpb.Bank{
+func extpbComponent(item *pb.Component) *extpb.Component {
+	return &extpb.Component{
 		Namespace: item.GetNamespace(),
 		Resource:  item.GetResource(),
 		Cluster:   item.GetCluster(),

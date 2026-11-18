@@ -9,7 +9,7 @@ import (
 
 const StateMachineUri = "pantopic/cluster/internal"
 
-func StateMachineFactory(logger Logger, ctrlService ControllerService, ctrlBank ControllerBank) func(shardID, replicaID uint64) zongzi.StateMachine {
+func StateMachineFactory(logger Logger, ctrlService ControllerService, ctrlComponent ControllerComponent) func(shardID, replicaID uint64) zongzi.StateMachine {
 	return func(shardID, replicaID uint64) zongzi.StateMachine {
 		fsm := &stateMachine{
 			log:       logger,
@@ -18,7 +18,7 @@ func StateMachineFactory(logger Logger, ctrlService ControllerService, ctrlBank 
 			state:     newState(),
 		}
 		ctrlService.SetState(fsm.state)
-		ctrlBank.SetState(fsm.state)
+		ctrlComponent.SetState(fsm.state)
 		return fsm
 	}
 }
@@ -37,8 +37,8 @@ type stateMachine struct {
 var commands = map[byte]func(*Entry, *State, []byte) error{
 	CMD_CLUSTER_DELETE:   cmdClusterDelete,
 	CMD_CLUSTER_PUT:      cmdClusterPut,
-	CMD_BANK_DELETE:      cmdBankDelete,
-	CMD_BANK_PUT:         cmdBankPut,
+	CMD_COMPONENT_DELETE: cmdComponentDelete,
+	CMD_COMPONENT_PUT:    cmdComponentPut,
 	CMD_NAMESPACE_DELETE: cmdNamespaceDelete,
 	CMD_NAMESPACE_PUT:    cmdNamespacePut,
 	CMD_RESOURCE_DELETE:  cmdResourceDelete,
@@ -50,8 +50,8 @@ var commands = map[byte]func(*Entry, *State, []byte) error{
 var queries = map[byte]func(*Result, *State, []byte){
 	QUERY_CLUSTER_GET:    queryClusterGet,
 	QUERY_CLUSTER_LIST:   queryClusterList,
-	QUERY_BANK_GET:       queryBankGet,
-	QUERY_BANK_LIST:      queryBankList,
+	QUERY_COMPONENT_GET:  queryComponentGet,
+	QUERY_COMPONENT_LIST: queryComponentList,
 	QUERY_NAMESPACE_GET:  queryNamespaceGet,
 	QUERY_NAMESPACE_LIST: queryNamespaceList,
 	QUERY_RESOURCE_GET:   queryResourceGet,

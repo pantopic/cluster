@@ -79,7 +79,7 @@ func cmdResourceDelete(entry *Entry, state *State, cmd []byte) (err error) {
 		entry.Result.Data = []byte(`Resource Not Empty`)
 		return
 	}
-	for range state.BankIter(item.Namespace, item.Name) {
+	for range state.ComponentIter(item.Namespace, item.Name) {
 		entry.Result.Value = ResultErrConflict
 		entry.Result.Data = []byte(`Resource Not Empty`)
 		return

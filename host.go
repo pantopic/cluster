@@ -11,6 +11,7 @@ import (
 	"github.com/pantopic/ext-atomic/host-wazero"
 	"github.com/pantopic/ext-buffer/host-wazero"
 	"github.com/pantopic/ext-cluster/host-wazero"
+	"github.com/pantopic/ext-cron/host-wazero"
 	"github.com/pantopic/ext-global/host-wazero"
 	"github.com/pantopic/ext-grpc-server/host-wazero"
 	"github.com/pantopic/ext-http-server/host-wazero"
@@ -26,7 +27,7 @@ import (
 type Host struct {
 	agent          *zongzi.Agent
 	cfg            Config
-	ctrlBank       internal.ControllerBank
+	ctrlComponent  internal.ControllerComponent
 	ctrlCluster    internal.ControllerCluster
 	ctrlService    internal.ControllerService
 	ctrlBridge     internal.ControllerBridge
@@ -69,6 +70,7 @@ func New(ctx context.Context, cfg Config) *Host {
 		runtimeBridge = internal.NewRuntimeBridge(ctx, agent, []internal.Extension{
 			extGlobal,
 			extShardClient,
+			wazero_cron.New(),
 		}...)
 		runtimeService = internal.NewRuntimeService(ctx, []internal.Extension{
 			extGlobal,
@@ -86,18 +88,18 @@ func New(ctx context.Context, cfg Config) *Host {
 			wazero_small_cache.New(),
 		}...)
 
-		ctrlBank    = internal.NewControllerBank(logger, agent, runtimeControl)
-		ctrlCluster = internal.NewControllerCluster(logger, agent)
-		ctrlBridge  = internal.NewControllerBridge(logger, agent, runtimeBridge)
-		ctrlService = internal.NewControllerService(logger, agent, runtimeService)
+		ctrlComponent = internal.NewControllerComponent(logger, agent, runtimeControl)
+		ctrlCluster   = internal.NewControllerCluster(logger, agent)
+		ctrlBridge    = internal.NewControllerBridge(logger, agent, runtimeBridge)
+		ctrlService   = internal.NewControllerService(logger, agent, runtimeService)
 
-		fsm = internal.StateMachineFactory(logger, ctrlService, ctrlBank)
+		fsm = internal.StateMachineFactory(logger, ctrlService, ctrlComponent)
 	)
 	agent.StateMachineRegister(internal.StateMachineUri, fsm)
 	return &Host{
 		agent:          agent,
 		cfg:            cfg,
-		ctrlBank:       ctrlBank,
+		ctrlComponent:  ctrlComponent,
 		ctrlCluster:    ctrlCluster,
 		ctrlBridge:     ctrlBridge,
 		ctrlService:    ctrlService,
@@ -138,7 +140,7 @@ func (h *Host) Start() error {
 		}
 	})
 	h.ctrlService.Start(h.ctx)
-	h.ctrlBank.Start(h.ctx)
+	h.ctrlComponent.Start(h.ctx)
 	h.serverControl.Start()
 	return nil
 }
@@ -146,7 +148,7 @@ func (h *Host) Start() error {
 func (h *Host) Stop() error {
 	h.ctrlBridge.Stop()
 	h.ctrlService.Stop()
-	h.ctrlBank.Stop()
+	h.ctrlComponent.Stop()
 	h.ctrlCluster.Stop()
 	h.agent.Stop()
 	return nil

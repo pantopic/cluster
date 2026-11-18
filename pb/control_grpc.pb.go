@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Control_BankDelete_FullMethodName      = "/pb.Control/BankDelete"
-	Control_BankGet_FullMethodName         = "/pb.Control/BankGet"
-	Control_BankList_FullMethodName        = "/pb.Control/BankList"
-	Control_BankPut_FullMethodName         = "/pb.Control/BankPut"
+	Control_ComponentDelete_FullMethodName = "/pb.Control/ComponentDelete"
+	Control_ComponentGet_FullMethodName    = "/pb.Control/ComponentGet"
+	Control_ComponentList_FullMethodName   = "/pb.Control/ComponentList"
+	Control_ComponentPut_FullMethodName    = "/pb.Control/ComponentPut"
 	Control_ClusterDelete_FullMethodName   = "/pb.Control/ClusterDelete"
 	Control_ClusterGet_FullMethodName      = "/pb.Control/ClusterGet"
 	Control_ClusterList_FullMethodName     = "/pb.Control/ClusterList"
@@ -45,10 +45,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ControlClient interface {
-	BankDelete(ctx context.Context, in *BankDeleteRequest, opts ...grpc.CallOption) (*BankDeleteResponse, error)
-	BankGet(ctx context.Context, in *BankGetRequest, opts ...grpc.CallOption) (*BankGetResponse, error)
-	BankList(ctx context.Context, in *BankListRequest, opts ...grpc.CallOption) (*BankListResponse, error)
-	BankPut(ctx context.Context, in *BankPutRequest, opts ...grpc.CallOption) (*BankPutResponse, error)
+	ComponentDelete(ctx context.Context, in *ComponentDeleteRequest, opts ...grpc.CallOption) (*ComponentDeleteResponse, error)
+	ComponentGet(ctx context.Context, in *ComponentGetRequest, opts ...grpc.CallOption) (*ComponentGetResponse, error)
+	ComponentList(ctx context.Context, in *ComponentListRequest, opts ...grpc.CallOption) (*ComponentListResponse, error)
+	ComponentPut(ctx context.Context, in *ComponentPutRequest, opts ...grpc.CallOption) (*ComponentPutResponse, error)
 	ClusterDelete(ctx context.Context, in *ClusterDeleteRequest, opts ...grpc.CallOption) (*ClusterDeleteResponse, error)
 	ClusterGet(ctx context.Context, in *ClusterGetRequest, opts ...grpc.CallOption) (*ClusterGetResponse, error)
 	ClusterList(ctx context.Context, in *ClusterListRequest, opts ...grpc.CallOption) (*ClusterListResponse, error)
@@ -75,40 +75,40 @@ func NewControlClient(cc grpc.ClientConnInterface) ControlClient {
 	return &controlClient{cc}
 }
 
-func (c *controlClient) BankDelete(ctx context.Context, in *BankDeleteRequest, opts ...grpc.CallOption) (*BankDeleteResponse, error) {
+func (c *controlClient) ComponentDelete(ctx context.Context, in *ComponentDeleteRequest, opts ...grpc.CallOption) (*ComponentDeleteResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BankDeleteResponse)
-	err := c.cc.Invoke(ctx, Control_BankDelete_FullMethodName, in, out, cOpts...)
+	out := new(ComponentDeleteResponse)
+	err := c.cc.Invoke(ctx, Control_ComponentDelete_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *controlClient) BankGet(ctx context.Context, in *BankGetRequest, opts ...grpc.CallOption) (*BankGetResponse, error) {
+func (c *controlClient) ComponentGet(ctx context.Context, in *ComponentGetRequest, opts ...grpc.CallOption) (*ComponentGetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BankGetResponse)
-	err := c.cc.Invoke(ctx, Control_BankGet_FullMethodName, in, out, cOpts...)
+	out := new(ComponentGetResponse)
+	err := c.cc.Invoke(ctx, Control_ComponentGet_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *controlClient) BankList(ctx context.Context, in *BankListRequest, opts ...grpc.CallOption) (*BankListResponse, error) {
+func (c *controlClient) ComponentList(ctx context.Context, in *ComponentListRequest, opts ...grpc.CallOption) (*ComponentListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BankListResponse)
-	err := c.cc.Invoke(ctx, Control_BankList_FullMethodName, in, out, cOpts...)
+	out := new(ComponentListResponse)
+	err := c.cc.Invoke(ctx, Control_ComponentList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *controlClient) BankPut(ctx context.Context, in *BankPutRequest, opts ...grpc.CallOption) (*BankPutResponse, error) {
+func (c *controlClient) ComponentPut(ctx context.Context, in *ComponentPutRequest, opts ...grpc.CallOption) (*ComponentPutResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BankPutResponse)
-	err := c.cc.Invoke(ctx, Control_BankPut_FullMethodName, in, out, cOpts...)
+	out := new(ComponentPutResponse)
+	err := c.cc.Invoke(ctx, Control_ComponentPut_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -279,10 +279,10 @@ func (c *controlClient) ServicePut(ctx context.Context, in *ServicePutRequest, o
 // All implementations must embed UnimplementedControlServer
 // for forward compatibility.
 type ControlServer interface {
-	BankDelete(context.Context, *BankDeleteRequest) (*BankDeleteResponse, error)
-	BankGet(context.Context, *BankGetRequest) (*BankGetResponse, error)
-	BankList(context.Context, *BankListRequest) (*BankListResponse, error)
-	BankPut(context.Context, *BankPutRequest) (*BankPutResponse, error)
+	ComponentDelete(context.Context, *ComponentDeleteRequest) (*ComponentDeleteResponse, error)
+	ComponentGet(context.Context, *ComponentGetRequest) (*ComponentGetResponse, error)
+	ComponentList(context.Context, *ComponentListRequest) (*ComponentListResponse, error)
+	ComponentPut(context.Context, *ComponentPutRequest) (*ComponentPutResponse, error)
 	ClusterDelete(context.Context, *ClusterDeleteRequest) (*ClusterDeleteResponse, error)
 	ClusterGet(context.Context, *ClusterGetRequest) (*ClusterGetResponse, error)
 	ClusterList(context.Context, *ClusterListRequest) (*ClusterListResponse, error)
@@ -309,17 +309,17 @@ type ControlServer interface {
 // pointer dereference when methods are called.
 type UnimplementedControlServer struct{}
 
-func (UnimplementedControlServer) BankDelete(context.Context, *BankDeleteRequest) (*BankDeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BankDelete not implemented")
+func (UnimplementedControlServer) ComponentDelete(context.Context, *ComponentDeleteRequest) (*ComponentDeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComponentDelete not implemented")
 }
-func (UnimplementedControlServer) BankGet(context.Context, *BankGetRequest) (*BankGetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BankGet not implemented")
+func (UnimplementedControlServer) ComponentGet(context.Context, *ComponentGetRequest) (*ComponentGetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComponentGet not implemented")
 }
-func (UnimplementedControlServer) BankList(context.Context, *BankListRequest) (*BankListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BankList not implemented")
+func (UnimplementedControlServer) ComponentList(context.Context, *ComponentListRequest) (*ComponentListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComponentList not implemented")
 }
-func (UnimplementedControlServer) BankPut(context.Context, *BankPutRequest) (*BankPutResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BankPut not implemented")
+func (UnimplementedControlServer) ComponentPut(context.Context, *ComponentPutRequest) (*ComponentPutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComponentPut not implemented")
 }
 func (UnimplementedControlServer) ClusterDelete(context.Context, *ClusterDeleteRequest) (*ClusterDeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClusterDelete not implemented")
@@ -390,74 +390,74 @@ func RegisterControlServer(s grpc.ServiceRegistrar, srv ControlServer) {
 	s.RegisterService(&Control_ServiceDesc, srv)
 }
 
-func _Control_BankDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BankDeleteRequest)
+func _Control_ComponentDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ComponentDeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ControlServer).BankDelete(ctx, in)
+		return srv.(ControlServer).ComponentDelete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Control_BankDelete_FullMethodName,
+		FullMethod: Control_ComponentDelete_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ControlServer).BankDelete(ctx, req.(*BankDeleteRequest))
+		return srv.(ControlServer).ComponentDelete(ctx, req.(*ComponentDeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Control_BankGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BankGetRequest)
+func _Control_ComponentGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ComponentGetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ControlServer).BankGet(ctx, in)
+		return srv.(ControlServer).ComponentGet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Control_BankGet_FullMethodName,
+		FullMethod: Control_ComponentGet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ControlServer).BankGet(ctx, req.(*BankGetRequest))
+		return srv.(ControlServer).ComponentGet(ctx, req.(*ComponentGetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Control_BankList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BankListRequest)
+func _Control_ComponentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ComponentListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ControlServer).BankList(ctx, in)
+		return srv.(ControlServer).ComponentList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Control_BankList_FullMethodName,
+		FullMethod: Control_ComponentList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ControlServer).BankList(ctx, req.(*BankListRequest))
+		return srv.(ControlServer).ComponentList(ctx, req.(*ComponentListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Control_BankPut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BankPutRequest)
+func _Control_ComponentPut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ComponentPutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ControlServer).BankPut(ctx, in)
+		return srv.(ControlServer).ComponentPut(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Control_BankPut_FullMethodName,
+		FullMethod: Control_ComponentPut_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ControlServer).BankPut(ctx, req.(*BankPutRequest))
+		return srv.(ControlServer).ComponentPut(ctx, req.(*ComponentPutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -758,20 +758,20 @@ var Control_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ControlServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "BankDelete",
-			Handler:    _Control_BankDelete_Handler,
+			MethodName: "ComponentDelete",
+			Handler:    _Control_ComponentDelete_Handler,
 		},
 		{
-			MethodName: "BankGet",
-			Handler:    _Control_BankGet_Handler,
+			MethodName: "ComponentGet",
+			Handler:    _Control_ComponentGet_Handler,
 		},
 		{
-			MethodName: "BankList",
-			Handler:    _Control_BankList_Handler,
+			MethodName: "ComponentList",
+			Handler:    _Control_ComponentList_Handler,
 		},
 		{
-			MethodName: "BankPut",
-			Handler:    _Control_BankPut_Handler,
+			MethodName: "ComponentPut",
+			Handler:    _Control_ComponentPut_Handler,
 		},
 		{
 			MethodName: "ClusterDelete",

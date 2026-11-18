@@ -297,7 +297,7 @@ func (x *Resource) GetStatus() string {
 	return ""
 }
 
-type Bank struct {
+type Component struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
@@ -314,20 +314,20 @@ type Bank struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Bank) Reset() {
-	*x = Bank{}
+func (x *Component) Reset() {
+	*x = Component{}
 	mi := &file_control_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Bank) String() string {
+func (x *Component) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Bank) ProtoMessage() {}
+func (*Component) ProtoMessage() {}
 
-func (x *Bank) ProtoReflect() protoreflect.Message {
+func (x *Component) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -339,82 +339,82 @@ func (x *Bank) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Bank.ProtoReflect.Descriptor instead.
-func (*Bank) Descriptor() ([]byte, []int) {
+// Deprecated: Use Component.ProtoReflect.Descriptor instead.
+func (*Component) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Bank) GetNamespace() string {
+func (x *Component) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
 	}
 	return ""
 }
 
-func (x *Bank) GetResource() string {
+func (x *Component) GetResource() string {
 	if x != nil {
 		return x.Resource
 	}
 	return ""
 }
 
-func (x *Bank) GetCluster() string {
+func (x *Component) GetCluster() string {
 	if x != nil {
 		return x.Cluster
 	}
 	return ""
 }
 
-func (x *Bank) GetName() string {
+func (x *Component) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *Bank) GetVersion() uint64 {
+func (x *Component) GetVersion() uint64 {
 	if x != nil {
 		return x.Version
 	}
 	return 0
 }
 
-func (x *Bank) GetCreated() uint64 {
+func (x *Component) GetCreated() uint64 {
 	if x != nil {
 		return x.Created
 	}
 	return 0
 }
 
-func (x *Bank) GetUpdated() uint64 {
+func (x *Component) GetUpdated() uint64 {
 	if x != nil {
 		return x.Updated
 	}
 	return 0
 }
 
-func (x *Bank) GetDeleted() uint64 {
+func (x *Component) GetDeleted() uint64 {
 	if x != nil {
 		return x.Deleted
 	}
 	return 0
 }
 
-func (x *Bank) GetTags() map[string]string {
+func (x *Component) GetTags() map[string]string {
 	if x != nil {
 		return x.Tags
 	}
 	return nil
 }
 
-func (x *Bank) GetType() string {
+func (x *Component) GetType() string {
 	if x != nil {
 		return x.Type
 	}
 	return ""
 }
 
-func (x *Bank) GetStatus() string {
+func (x *Component) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
@@ -2305,7 +2305,7 @@ func (x *ServiceListResponse) GetItem() []*Service {
 	return nil
 }
 
-type BankDeleteRequest struct {
+type ComponentDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
@@ -2315,20 +2315,20 @@ type BankDeleteRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankDeleteRequest) Reset() {
-	*x = BankDeleteRequest{}
+func (x *ComponentDeleteRequest) Reset() {
+	*x = ComponentDeleteRequest{}
 	mi := &file_control_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankDeleteRequest) String() string {
+func (x *ComponentDeleteRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankDeleteRequest) ProtoMessage() {}
+func (*ComponentDeleteRequest) ProtoMessage() {}
 
-func (x *BankDeleteRequest) ProtoReflect() protoreflect.Message {
+func (x *ComponentDeleteRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2340,40 +2340,40 @@ func (x *BankDeleteRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankDeleteRequest.ProtoReflect.Descriptor instead.
-func (*BankDeleteRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentDeleteRequest.ProtoReflect.Descriptor instead.
+func (*ComponentDeleteRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{37}
 }
 
-func (x *BankDeleteRequest) GetNamespace() string {
+func (x *ComponentDeleteRequest) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
 	}
 	return ""
 }
 
-func (x *BankDeleteRequest) GetResource() string {
+func (x *ComponentDeleteRequest) GetResource() string {
 	if x != nil {
 		return x.Resource
 	}
 	return ""
 }
 
-func (x *BankDeleteRequest) GetCluster() string {
+func (x *ComponentDeleteRequest) GetCluster() string {
 	if x != nil {
 		return x.Cluster
 	}
 	return ""
 }
 
-func (x *BankDeleteRequest) GetName() string {
+func (x *ComponentDeleteRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-type BankDeleteResponse struct {
+type ComponentDeleteResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          uint64                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
 	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
@@ -2381,20 +2381,20 @@ type BankDeleteResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankDeleteResponse) Reset() {
-	*x = BankDeleteResponse{}
+func (x *ComponentDeleteResponse) Reset() {
+	*x = ComponentDeleteResponse{}
 	mi := &file_control_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankDeleteResponse) String() string {
+func (x *ComponentDeleteResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankDeleteResponse) ProtoMessage() {}
+func (*ComponentDeleteResponse) ProtoMessage() {}
 
-func (x *BankDeleteResponse) ProtoReflect() protoreflect.Message {
+func (x *ComponentDeleteResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2406,26 +2406,26 @@ func (x *BankDeleteResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankDeleteResponse.ProtoReflect.Descriptor instead.
-func (*BankDeleteResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentDeleteResponse.ProtoReflect.Descriptor instead.
+func (*ComponentDeleteResponse) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{38}
 }
 
-func (x *BankDeleteResponse) GetCode() uint64 {
+func (x *ComponentDeleteResponse) GetCode() uint64 {
 	if x != nil {
 		return x.Code
 	}
 	return 0
 }
 
-func (x *BankDeleteResponse) GetError() string {
+func (x *ComponentDeleteResponse) GetError() string {
 	if x != nil {
 		return x.Error
 	}
 	return ""
 }
 
-type BankGetRequest struct {
+type ComponentGetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
@@ -2434,20 +2434,20 @@ type BankGetRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankGetRequest) Reset() {
-	*x = BankGetRequest{}
+func (x *ComponentGetRequest) Reset() {
+	*x = ComponentGetRequest{}
 	mi := &file_control_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankGetRequest) String() string {
+func (x *ComponentGetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankGetRequest) ProtoMessage() {}
+func (*ComponentGetRequest) ProtoMessage() {}
 
-func (x *BankGetRequest) ProtoReflect() protoreflect.Message {
+func (x *ComponentGetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2459,55 +2459,55 @@ func (x *BankGetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankGetRequest.ProtoReflect.Descriptor instead.
-func (*BankGetRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentGetRequest.ProtoReflect.Descriptor instead.
+func (*ComponentGetRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{39}
 }
 
-func (x *BankGetRequest) GetNamespace() string {
+func (x *ComponentGetRequest) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
 	}
 	return ""
 }
 
-func (x *BankGetRequest) GetResource() string {
+func (x *ComponentGetRequest) GetResource() string {
 	if x != nil {
 		return x.Resource
 	}
 	return ""
 }
 
-func (x *BankGetRequest) GetName() string {
+func (x *ComponentGetRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-type BankGetResponse struct {
+type ComponentGetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          uint64                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
 	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
-	Item          *Bank                  `protobuf:"bytes,3,opt,name=item,proto3" json:"item,omitempty"`
+	Item          *Component             `protobuf:"bytes,3,opt,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankGetResponse) Reset() {
-	*x = BankGetResponse{}
+func (x *ComponentGetResponse) Reset() {
+	*x = ComponentGetResponse{}
 	mi := &file_control_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankGetResponse) String() string {
+func (x *ComponentGetResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankGetResponse) ProtoMessage() {}
+func (*ComponentGetResponse) ProtoMessage() {}
 
-func (x *BankGetResponse) ProtoReflect() protoreflect.Message {
+func (x *ComponentGetResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2519,53 +2519,53 @@ func (x *BankGetResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankGetResponse.ProtoReflect.Descriptor instead.
-func (*BankGetResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentGetResponse.ProtoReflect.Descriptor instead.
+func (*ComponentGetResponse) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{40}
 }
 
-func (x *BankGetResponse) GetCode() uint64 {
+func (x *ComponentGetResponse) GetCode() uint64 {
 	if x != nil {
 		return x.Code
 	}
 	return 0
 }
 
-func (x *BankGetResponse) GetError() string {
+func (x *ComponentGetResponse) GetError() string {
 	if x != nil {
 		return x.Error
 	}
 	return ""
 }
 
-func (x *BankGetResponse) GetItem() *Bank {
+func (x *ComponentGetResponse) GetItem() *Component {
 	if x != nil {
 		return x.Item
 	}
 	return nil
 }
 
-type BankPutRequest struct {
+type ComponentPutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *Bank                  `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Item          *Component             `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankPutRequest) Reset() {
-	*x = BankPutRequest{}
+func (x *ComponentPutRequest) Reset() {
+	*x = ComponentPutRequest{}
 	mi := &file_control_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankPutRequest) String() string {
+func (x *ComponentPutRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankPutRequest) ProtoMessage() {}
+func (*ComponentPutRequest) ProtoMessage() {}
 
-func (x *BankPutRequest) ProtoReflect() protoreflect.Message {
+func (x *ComponentPutRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2577,41 +2577,41 @@ func (x *BankPutRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankPutRequest.ProtoReflect.Descriptor instead.
-func (*BankPutRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentPutRequest.ProtoReflect.Descriptor instead.
+func (*ComponentPutRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{41}
 }
 
-func (x *BankPutRequest) GetItem() *Bank {
+func (x *ComponentPutRequest) GetItem() *Component {
 	if x != nil {
 		return x.Item
 	}
 	return nil
 }
 
-type BankPutResponse struct {
+type ComponentPutResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          uint64                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
 	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
-	Item          *Bank                  `protobuf:"bytes,3,opt,name=item,proto3" json:"item,omitempty"`
+	Item          *Component             `protobuf:"bytes,3,opt,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankPutResponse) Reset() {
-	*x = BankPutResponse{}
+func (x *ComponentPutResponse) Reset() {
+	*x = ComponentPutResponse{}
 	mi := &file_control_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankPutResponse) String() string {
+func (x *ComponentPutResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankPutResponse) ProtoMessage() {}
+func (*ComponentPutResponse) ProtoMessage() {}
 
-func (x *BankPutResponse) ProtoReflect() protoreflect.Message {
+func (x *ComponentPutResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2623,33 +2623,33 @@ func (x *BankPutResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankPutResponse.ProtoReflect.Descriptor instead.
-func (*BankPutResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentPutResponse.ProtoReflect.Descriptor instead.
+func (*ComponentPutResponse) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{42}
 }
 
-func (x *BankPutResponse) GetCode() uint64 {
+func (x *ComponentPutResponse) GetCode() uint64 {
 	if x != nil {
 		return x.Code
 	}
 	return 0
 }
 
-func (x *BankPutResponse) GetError() string {
+func (x *ComponentPutResponse) GetError() string {
 	if x != nil {
 		return x.Error
 	}
 	return ""
 }
 
-func (x *BankPutResponse) GetItem() *Bank {
+func (x *ComponentPutResponse) GetItem() *Component {
 	if x != nil {
 		return x.Item
 	}
 	return nil
 }
 
-type BankListRequest struct {
+type ComponentListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Namespace     string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Resource      string                 `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
@@ -2659,20 +2659,20 @@ type BankListRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankListRequest) Reset() {
-	*x = BankListRequest{}
+func (x *ComponentListRequest) Reset() {
+	*x = ComponentListRequest{}
 	mi := &file_control_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankListRequest) String() string {
+func (x *ComponentListRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankListRequest) ProtoMessage() {}
+func (*ComponentListRequest) ProtoMessage() {}
 
-func (x *BankListRequest) ProtoReflect() protoreflect.Message {
+func (x *ComponentListRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2684,62 +2684,62 @@ func (x *BankListRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankListRequest.ProtoReflect.Descriptor instead.
-func (*BankListRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentListRequest.ProtoReflect.Descriptor instead.
+func (*ComponentListRequest) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{43}
 }
 
-func (x *BankListRequest) GetNamespace() string {
+func (x *ComponentListRequest) GetNamespace() string {
 	if x != nil {
 		return x.Namespace
 	}
 	return ""
 }
 
-func (x *BankListRequest) GetResource() string {
+func (x *ComponentListRequest) GetResource() string {
 	if x != nil {
 		return x.Resource
 	}
 	return ""
 }
 
-func (x *BankListRequest) GetLimit() uint64 {
+func (x *ComponentListRequest) GetLimit() uint64 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *BankListRequest) GetOffset() uint64 {
+func (x *ComponentListRequest) GetOffset() uint64 {
 	if x != nil {
 		return x.Offset
 	}
 	return 0
 }
 
-type BankListResponse struct {
+type ComponentListResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          uint64                 `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
 	Error         string                 `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
-	Item          []*Bank                `protobuf:"bytes,3,rep,name=item,proto3" json:"item,omitempty"`
+	Item          []*Component           `protobuf:"bytes,3,rep,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BankListResponse) Reset() {
-	*x = BankListResponse{}
+func (x *ComponentListResponse) Reset() {
+	*x = ComponentListResponse{}
 	mi := &file_control_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BankListResponse) String() string {
+func (x *ComponentListResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BankListResponse) ProtoMessage() {}
+func (*ComponentListResponse) ProtoMessage() {}
 
-func (x *BankListResponse) ProtoReflect() protoreflect.Message {
+func (x *ComponentListResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_control_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2751,26 +2751,26 @@ func (x *BankListResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BankListResponse.ProtoReflect.Descriptor instead.
-func (*BankListResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ComponentListResponse.ProtoReflect.Descriptor instead.
+func (*ComponentListResponse) Descriptor() ([]byte, []int) {
 	return file_control_proto_rawDescGZIP(), []int{44}
 }
 
-func (x *BankListResponse) GetCode() uint64 {
+func (x *ComponentListResponse) GetCode() uint64 {
 	if x != nil {
 		return x.Code
 	}
 	return 0
 }
 
-func (x *BankListResponse) GetError() string {
+func (x *ComponentListResponse) GetError() string {
 	if x != nil {
 		return x.Error
 	}
 	return ""
 }
 
-func (x *BankListResponse) GetItem() []*Bank {
+func (x *ComponentListResponse) GetItem() []*Component {
 	if x != nil {
 		return x.Item
 	}
@@ -2814,8 +2814,8 @@ const file_control_proto_rawDesc = "" +
 	"\x06status\x18\t \x01(\tR\x06status\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe3\x02\n" +
-	"\x04Bank\x12\x1c\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xed\x02\n" +
+	"\tComponent\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
 	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
@@ -2823,8 +2823,8 @@ const file_control_proto_rawDesc = "" +
 	"\aversion\x18\x05 \x01(\x04R\aversion\x12\x18\n" +
 	"\acreated\x18\x06 \x01(\x04R\acreated\x12\x18\n" +
 	"\aupdated\x18\a \x01(\x04R\aupdated\x12\x18\n" +
-	"\adeleted\x18\b \x01(\x04R\adeleted\x12&\n" +
-	"\x04tags\x18\t \x03(\v2\x12.pb.Bank.TagsEntryR\x04tags\x12\x12\n" +
+	"\adeleted\x18\b \x01(\x04R\adeleted\x12+\n" +
+	"\x04tags\x18\t \x03(\v2\x17.pb.Component.TagsEntryR\x04tags\x12\x12\n" +
 	"\x04type\x18\n" +
 	" \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\v \x01(\tR\x06status\x1a7\n" +
@@ -2954,45 +2954,44 @@ const file_control_proto_rawDesc = "" +
 	"\x13ServiceListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1f\n" +
-	"\x04item\x18\x03 \x03(\v2\v.pb.ServiceR\x04item\"{\n" +
-	"\x11BankDeleteRequest\x12\x1c\n" +
+	"\x04item\x18\x03 \x03(\v2\v.pb.ServiceR\x04item\"\x80\x01\n" +
+	"\x16ComponentDeleteRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x18\n" +
 	"\acluster\x18\x03 \x01(\tR\acluster\x12\x12\n" +
-	"\x04name\x18\x04 \x01(\tR\x04name\">\n" +
-	"\x12BankDeleteResponse\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\"C\n" +
+	"\x17ComponentDeleteResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\"^\n" +
-	"\x0eBankGetRequest\x12\x1c\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\"c\n" +
+	"\x13ComponentGetRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\"Y\n" +
-	"\x0fBankGetResponse\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\"c\n" +
+	"\x14ComponentGetResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1c\n" +
-	"\x04item\x18\x03 \x01(\v2\b.pb.BankR\x04item\".\n" +
-	"\x0eBankPutRequest\x12\x1c\n" +
-	"\x04item\x18\x01 \x01(\v2\b.pb.BankR\x04item\"Y\n" +
-	"\x0fBankPutResponse\x12\x12\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x01(\v2\r.pb.ComponentR\x04item\"8\n" +
+	"\x13ComponentPutRequest\x12!\n" +
+	"\x04item\x18\x01 \x01(\v2\r.pb.ComponentR\x04item\"c\n" +
+	"\x14ComponentPutResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1c\n" +
-	"\x04item\x18\x03 \x01(\v2\b.pb.BankR\x04item\"y\n" +
-	"\x0fBankListRequest\x12\x1c\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x01(\v2\r.pb.ComponentR\x04item\"~\n" +
+	"\x14ComponentListRequest\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x1a\n" +
 	"\bresource\x18\x02 \x01(\tR\bresource\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x04 \x01(\x04R\x06offset\"Z\n" +
-	"\x10BankListResponse\x12\x12\n" +
+	"\x06offset\x18\x04 \x01(\x04R\x06offset\"d\n" +
+	"\x15ComponentListResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x04R\x04code\x12\x14\n" +
-	"\x05error\x18\x02 \x01(\tR\x05error\x12\x1c\n" +
-	"\x04item\x18\x03 \x03(\v2\b.pb.BankR\x04item2\xb1\n" +
+	"\x05error\x18\x02 \x01(\tR\x05error\x12!\n" +
+	"\x04item\x18\x03 \x03(\v2\r.pb.ComponentR\x04item2\xed\n" +
 	"\n" +
-	"\aControl\x12=\n" +
-	"\n" +
-	"BankDelete\x12\x15.pb.BankDeleteRequest\x1a\x16.pb.BankDeleteResponse\"\x00\x124\n" +
-	"\aBankGet\x12\x12.pb.BankGetRequest\x1a\x13.pb.BankGetResponse\"\x00\x127\n" +
-	"\bBankList\x12\x13.pb.BankListRequest\x1a\x14.pb.BankListResponse\"\x00\x124\n" +
-	"\aBankPut\x12\x12.pb.BankPutRequest\x1a\x13.pb.BankPutResponse\"\x00\x12F\n" +
+	"\aControl\x12L\n" +
+	"\x0fComponentDelete\x12\x1a.pb.ComponentDeleteRequest\x1a\x1b.pb.ComponentDeleteResponse\"\x00\x12C\n" +
+	"\fComponentGet\x12\x17.pb.ComponentGetRequest\x1a\x18.pb.ComponentGetResponse\"\x00\x12F\n" +
+	"\rComponentList\x12\x18.pb.ComponentListRequest\x1a\x19.pb.ComponentListResponse\"\x00\x12C\n" +
+	"\fComponentPut\x12\x17.pb.ComponentPutRequest\x1a\x18.pb.ComponentPutResponse\"\x00\x12F\n" +
 	"\rClusterDelete\x12\x18.pb.ClusterDeleteRequest\x1a\x19.pb.ClusterDeleteResponse\"\x00\x12=\n" +
 	"\n" +
 	"ClusterGet\x12\x15.pb.ClusterGetRequest\x1a\x16.pb.ClusterGetResponse\"\x00\x12@\n" +
@@ -3031,7 +3030,7 @@ var file_control_proto_goTypes = []any{
 	(*Namespace)(nil),               // 0: pb.Namespace
 	(*Cluster)(nil),                 // 1: pb.Cluster
 	(*Resource)(nil),                // 2: pb.Resource
-	(*Bank)(nil),                    // 3: pb.Bank
+	(*Component)(nil),               // 3: pb.Component
 	(*Service)(nil),                 // 4: pb.Service
 	(*NamespaceDeleteRequest)(nil),  // 5: pb.NamespaceDeleteRequest
 	(*NamespaceDeleteResponse)(nil), // 6: pb.NamespaceDeleteResponse
@@ -3065,25 +3064,25 @@ var file_control_proto_goTypes = []any{
 	(*ServicePutResponse)(nil),      // 34: pb.ServicePutResponse
 	(*ServiceListRequest)(nil),      // 35: pb.ServiceListRequest
 	(*ServiceListResponse)(nil),     // 36: pb.ServiceListResponse
-	(*BankDeleteRequest)(nil),       // 37: pb.BankDeleteRequest
-	(*BankDeleteResponse)(nil),      // 38: pb.BankDeleteResponse
-	(*BankGetRequest)(nil),          // 39: pb.BankGetRequest
-	(*BankGetResponse)(nil),         // 40: pb.BankGetResponse
-	(*BankPutRequest)(nil),          // 41: pb.BankPutRequest
-	(*BankPutResponse)(nil),         // 42: pb.BankPutResponse
-	(*BankListRequest)(nil),         // 43: pb.BankListRequest
-	(*BankListResponse)(nil),        // 44: pb.BankListResponse
+	(*ComponentDeleteRequest)(nil),  // 37: pb.ComponentDeleteRequest
+	(*ComponentDeleteResponse)(nil), // 38: pb.ComponentDeleteResponse
+	(*ComponentGetRequest)(nil),     // 39: pb.ComponentGetRequest
+	(*ComponentGetResponse)(nil),    // 40: pb.ComponentGetResponse
+	(*ComponentPutRequest)(nil),     // 41: pb.ComponentPutRequest
+	(*ComponentPutResponse)(nil),    // 42: pb.ComponentPutResponse
+	(*ComponentListRequest)(nil),    // 43: pb.ComponentListRequest
+	(*ComponentListResponse)(nil),   // 44: pb.ComponentListResponse
 	nil,                             // 45: pb.Namespace.TagsEntry
 	nil,                             // 46: pb.Cluster.TagsEntry
 	nil,                             // 47: pb.Resource.TagsEntry
-	nil,                             // 48: pb.Bank.TagsEntry
+	nil,                             // 48: pb.Component.TagsEntry
 	nil,                             // 49: pb.Service.TagsEntry
 }
 var file_control_proto_depIdxs = []int32{
 	45, // 0: pb.Namespace.tags:type_name -> pb.Namespace.TagsEntry
 	46, // 1: pb.Cluster.tags:type_name -> pb.Cluster.TagsEntry
 	47, // 2: pb.Resource.tags:type_name -> pb.Resource.TagsEntry
-	48, // 3: pb.Bank.tags:type_name -> pb.Bank.TagsEntry
+	48, // 3: pb.Component.tags:type_name -> pb.Component.TagsEntry
 	49, // 4: pb.Service.tags:type_name -> pb.Service.TagsEntry
 	0,  // 5: pb.NamespaceGetResponse.item:type_name -> pb.Namespace
 	0,  // 6: pb.NamespacePutRequest.item:type_name -> pb.Namespace
@@ -3101,14 +3100,14 @@ var file_control_proto_depIdxs = []int32{
 	4,  // 18: pb.ServicePutRequest.item:type_name -> pb.Service
 	4,  // 19: pb.ServicePutResponse.item:type_name -> pb.Service
 	4,  // 20: pb.ServiceListResponse.item:type_name -> pb.Service
-	3,  // 21: pb.BankGetResponse.item:type_name -> pb.Bank
-	3,  // 22: pb.BankPutRequest.item:type_name -> pb.Bank
-	3,  // 23: pb.BankPutResponse.item:type_name -> pb.Bank
-	3,  // 24: pb.BankListResponse.item:type_name -> pb.Bank
-	37, // 25: pb.Control.BankDelete:input_type -> pb.BankDeleteRequest
-	39, // 26: pb.Control.BankGet:input_type -> pb.BankGetRequest
-	43, // 27: pb.Control.BankList:input_type -> pb.BankListRequest
-	41, // 28: pb.Control.BankPut:input_type -> pb.BankPutRequest
+	3,  // 21: pb.ComponentGetResponse.item:type_name -> pb.Component
+	3,  // 22: pb.ComponentPutRequest.item:type_name -> pb.Component
+	3,  // 23: pb.ComponentPutResponse.item:type_name -> pb.Component
+	3,  // 24: pb.ComponentListResponse.item:type_name -> pb.Component
+	37, // 25: pb.Control.ComponentDelete:input_type -> pb.ComponentDeleteRequest
+	39, // 26: pb.Control.ComponentGet:input_type -> pb.ComponentGetRequest
+	43, // 27: pb.Control.ComponentList:input_type -> pb.ComponentListRequest
+	41, // 28: pb.Control.ComponentPut:input_type -> pb.ComponentPutRequest
 	21, // 29: pb.Control.ClusterDelete:input_type -> pb.ClusterDeleteRequest
 	23, // 30: pb.Control.ClusterGet:input_type -> pb.ClusterGetRequest
 	27, // 31: pb.Control.ClusterList:input_type -> pb.ClusterListRequest
@@ -3125,10 +3124,10 @@ var file_control_proto_depIdxs = []int32{
 	31, // 42: pb.Control.ServiceGet:input_type -> pb.ServiceGetRequest
 	35, // 43: pb.Control.ServiceList:input_type -> pb.ServiceListRequest
 	33, // 44: pb.Control.ServicePut:input_type -> pb.ServicePutRequest
-	38, // 45: pb.Control.BankDelete:output_type -> pb.BankDeleteResponse
-	40, // 46: pb.Control.BankGet:output_type -> pb.BankGetResponse
-	44, // 47: pb.Control.BankList:output_type -> pb.BankListResponse
-	42, // 48: pb.Control.BankPut:output_type -> pb.BankPutResponse
+	38, // 45: pb.Control.ComponentDelete:output_type -> pb.ComponentDeleteResponse
+	40, // 46: pb.Control.ComponentGet:output_type -> pb.ComponentGetResponse
+	44, // 47: pb.Control.ComponentList:output_type -> pb.ComponentListResponse
+	42, // 48: pb.Control.ComponentPut:output_type -> pb.ComponentPutResponse
 	22, // 49: pb.Control.ClusterDelete:output_type -> pb.ClusterDeleteResponse
 	24, // 50: pb.Control.ClusterGet:output_type -> pb.ClusterGetResponse
 	28, // 51: pb.Control.ClusterList:output_type -> pb.ClusterListResponse
