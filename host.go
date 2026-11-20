@@ -70,6 +70,7 @@ func New(ctx context.Context, cfg Config) *Host {
 		runtimeBridge = internal.NewRuntimeBridge(ctx, agent, []internal.Extension{
 			extGlobal,
 			extShardClient,
+			wazero_atomic.New(),
 			wazero_cron.New(),
 		}...)
 		runtimeService = internal.NewRuntimeService(ctx, []internal.Extension{

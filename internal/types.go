@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	ShardID = 1
+	ShardID uint64 = 1
 
 	NAMESPACE_DEFAULT  = `default`
 	NAMESPACE_INTERNAL = `internal`

@@ -89,7 +89,7 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 		res, _ := state.ResourceFindByName(svc.Namespace, svc.Resource)
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {
-				c.log.Infof(`%s Service Controller: Updating %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
+				c.log.Debugf(`%s Service Controller: Updating %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
 				if err = c.svcUpdate(ctx, svc); err != nil {
 					err = fmt.Errorf(`Failed to Update: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
@@ -160,11 +160,7 @@ func (c *controllerService) svcMatch(svc *pb.Service) bool {
 	// Service cover tag must match host tags (with AND semantics)
 	for tag := range strings.SplitSeq(tagCover, ",") {
 		parts := strings.Split(tag, "=")
-		if len(parts) != 2 {
-			c.log.Infof(`%s Malformed Service Cover Tag (%s): "%s"`, c.agent.HostID(), id, tag)
-			return false
-		}
-		if v, ok := host.Tags[parts[0]]; !ok || v != parts[1] {
+		if v, ok := host.Tags[parts[0]]; !ok || (len(parts) > 1 && v != parts[1]) {
 			return false
 		}
 	}

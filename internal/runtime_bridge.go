@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"sync"
 
 	"github.com/tetratelabs/wazero"
@@ -12,6 +13,7 @@ import (
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 
 	"github.com/pantopic/ext-bridge/host-wazero"
+	"github.com/pantopic/ext-cluster/host-wazero"
 	"github.com/pantopic/ext-cluster/host-wazero/pb"
 	"github.com/pantopic/wazero-pool"
 )
@@ -92,7 +94,13 @@ func (r *runtimeBridge) Start(name, mod string, term uint64, shard Shard) (err e
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, mod)
 	}
-	return r.extBridge.Start(poolCtx, pool, term, shardToPb(shard))
+	ctx := wazeropool.ContextSet(r.ctx, pool)
+	for _, cc := range r.ctxCopy {
+		ctx = cc(ctx, poolCtx)
+	}
+	parts := strings.Split(shard.Name, ".")
+	ctx = wazero_cluster.NewResolver(parts[0], parts[1])(ctx, ctx)
+	return r.extBridge.Start(ctx, term, shardToPb(shard))
 }
 
 func (r *runtimeBridge) Stop(name, mod string, term uint64, shard Shard) (err error) {
@@ -106,7 +114,13 @@ func (r *runtimeBridge) Stop(name, mod string, term uint64, shard Shard) (err er
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, mod)
 	}
-	return r.extBridge.Stop(poolCtx, pool, term, shardToPb(shard))
+	ctx := wazeropool.ContextSet(r.ctx, pool)
+	for _, cc := range r.ctxCopy {
+		ctx = cc(ctx, poolCtx)
+	}
+	parts := strings.Split(shard.Name, ".")
+	ctx = wazero_cluster.NewResolver(parts[0], parts[1])(ctx, ctx)
+	return r.extBridge.Stop(ctx, term, shardToPb(shard))
 }
 
 func (r *runtimeBridge) Reload(name, mod string, term uint64, shard Shard) (err error) {
@@ -120,7 +134,13 @@ func (r *runtimeBridge) Reload(name, mod string, term uint64, shard Shard) (err 
 	if !ok {
 		return fmt.Errorf(`Unrecognized service module %s`, mod)
 	}
-	return r.extBridge.Reload(poolCtx, pool, term, shardToPb(shard))
+	ctx := wazeropool.ContextSet(r.ctx, pool)
+	for _, cc := range r.ctxCopy {
+		ctx = cc(ctx, poolCtx)
+	}
+	parts := strings.Split(shard.Name, ".")
+	ctx = wazero_cluster.NewResolver(parts[0], parts[1])(ctx, ctx)
+	return r.extBridge.Reload(ctx, term, shardToPb(shard))
 }
 
 func shardToPb(s Shard) *pb.Shard {

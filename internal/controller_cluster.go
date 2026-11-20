@@ -112,9 +112,8 @@ func (c *controllerCluster) LeaderUpdated(info LeaderInfo) {
 }
 
 func (c *controllerCluster) createShard() {
-	c.log.Infof(`Creating shard`)
 	if _, _, err := c.agent.ShardCreate(c.ctx, StateMachineUri,
-		zongzi.WithName("cluster"),
+		zongzi.WithName("pantopic"),
 		zongzi.WithPlacementMembers(3, "cluster:member"),
 		zongzi.WithPlacementCover("cluster:host"),
 	); err != nil {
