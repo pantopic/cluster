@@ -132,21 +132,21 @@ func (h *Host) GlobalDel(k string) {
 }
 
 func (h *Host) Start() error {
-	h.agent.AddRaftEventListener(h.ctrlCluster)
 	h.ctrlCluster.Start(h.ctx)
+	if err := h.agent.Start(h.ctx); err != nil {
+		panic(err)
+	}
 	h.ctrlBridge.Start(h.ctx)
-	h.wg.Go(func() {
-		if err := h.agent.Start(h.ctx); err != nil {
-			panic(err)
-		}
-	})
 	h.ctrlService.Start(h.ctx)
 	h.ctrlComponent.Start(h.ctx)
 	h.serverControl.Start()
+	h.logger.Infof(`%s Host Started`, h.agent.HostID())
 	return nil
 }
 
 func (h *Host) Stop() error {
+	defer h.logger.Infof(`%s Host Stopped`, h.agent.HostID())
+	h.serverControl.Stop()
 	h.ctrlBridge.Stop()
 	h.ctrlService.Stop()
 	h.ctrlComponent.Stop()

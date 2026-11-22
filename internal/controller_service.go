@@ -22,16 +22,17 @@ type ControllerService interface {
 // controllerService starts and stops services.
 type controllerService struct {
 	agent   *Agent
+	cancel  context.CancelFunc
 	client  zongzi.ShardClient
 	cluster string
-	cancel  context.CancelFunc
-	done    chan bool
+	ctx     context.Context
 	index   uint64
 	log     Logger
 	mutex   sync.RWMutex
 	running map[string]*pb.Service
 	runtime *runtimeService
 	state   *State
+	wg      sync.WaitGroup
 }
 
 var _ ControllerService = new(controllerService)
@@ -55,30 +56,29 @@ func (c *controllerService) SetState(s *State) {
 }
 
 func (c *controllerService) Start(ctx context.Context) (err error) {
+	defer c.log.Infof(`%s Controller Started: service`, c.agent.HostID())
 	c.mutex.Lock()
-	ctx, c.cancel = context.WithCancel(context.Background())
-	c.done = make(chan bool)
-	go func() {
+	c.ctx, c.cancel = context.WithCancel(ctx)
+	c.wg.Go(func() {
 		t := time.NewTicker(time.Second)
 		defer t.Stop()
 		for {
 			select {
 			case <-t.C:
-				err = c.tick(ctx)
-			case <-ctx.Done():
-				close(c.done)
+				err = c.tick()
+			case <-c.ctx.Done():
 				return
 			}
 			if err != nil {
 				c.log.Errorf("%s Service Controller: %v", c.agent.HostID(), err)
 			}
 		}
-	}()
+	})
 	c.mutex.Unlock()
-	return c.tick(ctx)
+	return c.tick()
 }
 
-func (c *controllerService) tick(ctx context.Context) (err error) {
+func (c *controllerService) tick() (err error) {
 	if c.state == nil {
 		return
 	}
@@ -90,13 +90,13 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 		if c.svcRunning(svc) {
 			if svc.Status == Status_Active {
 				c.log.Debugf(`%s Service Controller: Updating %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
-				if err = c.svcUpdate(ctx, svc); err != nil {
+				if err = c.svcUpdate(res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Update: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
 				}
 			} else {
 				c.log.Infof(`%s Service Controller: Stopping %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
-				if err = c.svcStop(ctx, res, svc); err != nil {
+				if err = c.svcStop(res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Stop: %s (%d): %w`, svcId(svc), svc.Port, err)
 					break
 				}
@@ -104,12 +104,11 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 		} else if c.svcMatch(svc) {
 			if svc.Status == Status_Active {
 				c.log.Infof(`%s Service Controller: Starting %s (%d)`, c.agent.HostID(), svcId(svc), svc.Port)
-				if err = c.svcStart(ctx, res, svc); err != nil {
+				if err = c.svcStart(res, svc); err != nil {
 					err = fmt.Errorf(`Failed to Start: %s (%d): %w`, svcId(svc), svc.Port, err)
 					continue
 					// break
 				}
-				c.running[svcId(svc)] = svc
 			}
 		}
 		c.index = svc.Updated
@@ -117,12 +116,16 @@ func (c *controllerService) tick(ctx context.Context) (err error) {
 	return
 }
 
-func (c *controllerService) svcStop(ctx context.Context, res *pb.Resource, svc *pb.Service) (err error) {
-	err = c.runtime.Stop(res, svc)
-	return
+func (c *controllerService) svcStop(res *pb.Resource, svc *pb.Service) (err error) {
+	defer delete(c.running, svcId(svc))
+	return c.runtime.Stop(svc)
 }
 
-func (c *controllerService) svcStart(ctx context.Context, res *pb.Resource, svc *pb.Service) (err error) {
+func (c *controllerService) svcStart(res *pb.Resource, svc *pb.Service) (err error) {
+	id := svcId(svc)
+	if _, ok := c.running[id]; ok {
+		return
+	}
 	err = c.runtime.Start(res, svc)
 	if err != nil {
 		return
@@ -132,13 +135,21 @@ func (c *controllerService) svcStart(ctx context.Context, res *pb.Resource, svc 
 	if err != nil {
 		return
 	}
-	_, _, err = c.client.Apply(ctx, append(data, CMD_SERVICE_PUT))
+	_, _, err = c.client.Apply(c.ctx, append(data, CMD_SERVICE_PUT))
+	if err != nil {
+		c.runtime.Stop(svc)
+		return
+	}
+	c.running[id] = svc
 	return
 }
 
-func (c *controllerService) svcUpdate(ctx context.Context, svc *pb.Service) (err error) {
-
-	return
+func (c *controllerService) svcUpdate(res *pb.Resource, svc *pb.Service) (err error) {
+	id := svcId(svc)
+	if _, ok := c.running[id]; !ok {
+		return
+	}
+	return c.runtime.Update(res, svc)
 }
 
 func (c *controllerService) svcMatch(svc *pb.Service) bool {
@@ -173,13 +184,17 @@ func (c *controllerService) svcRunning(svc *pb.Service) bool {
 }
 
 func (c *controllerService) Stop() {
-	defer c.log.Infof(`Stopped Controller Service`)
+	defer c.log.Infof(`%s Controller Stopped: service`, c.agent.HostID())
 	if c.cancel != nil {
 		c.cancel()
 	}
-	<-c.done
+	c.wg.Wait()
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	for id, svc := range c.running {
+		c.runtime.Stop(svc)
+		delete(c.running, id)
+	}
 	c.index = 0
 }
 

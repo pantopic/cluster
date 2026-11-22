@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,8 +16,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pantopic/kitsune/embed"
@@ -42,7 +39,7 @@ var wasmTestControl []byte
 func TestHost(t *testing.T) {
 	var cfg = EnvConfig()
 	cfg.HostName = "127.0.0.1"
-	cfg.LogLevel = "debug"
+	// cfg.LogLevel = "debug"
 	var (
 		basedir = `./tmp/pantopic`
 		hosts   = []*Host{}
@@ -85,9 +82,11 @@ func TestHost(t *testing.T) {
 			turbokube.Register(host)
 			kitsune.Register(host)
 
-			if err := host.Start(); err != nil {
-				panic(err)
-			}
+			go func() {
+				if err := host.Start(); err != nil {
+					panic(err)
+				}
+			}()
 			hosts = append(hosts, host)
 			n++
 		}
@@ -141,40 +140,19 @@ func TestHost(t *testing.T) {
 			return err == nil && val == internal.ResultSuccess && len(data) > 0
 		}), `%d %s %s %v`, val, data, cfg.ClusterName, err)
 	})
-	// gRPC server
-	var grpcServer = grpc.NewServer([]grpc.ServerOption{
-		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
-			MinTime:             5 * time.Second,
-			PermitWithoutStream: false,
-		}),
-		grpc.KeepaliveParams(keepalive.ServerParameters{
-			Time:    2 * time.Hour,
-			Timeout: 20 * time.Second,
-		}),
-	}...)
-	addr := fmt.Sprintf(":%d", cfg.PortApi)
-	lis, err := net.Listen("tcp", addr)
-	if err != nil {
-		panic(err)
-	}
-	pb.RegisterControlServer(grpcServer, internal.NewGrpcServiceControl(shardClient))
-	go func() {
-		if err := grpcServer.Serve(lis); err != nil {
-			panic(err)
-		}
-	}()
+
+	// TLS Certs
+	generateTestCertificates(cfg.HostName, basedir)
+
+	ctrlClient := host.ControlClient()
 
 	// Register test model
-
-	conn, err := grpc.NewClient("localhost"+addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
+	ports := map[string]uint64{
+		"cluster-test": 19000,
 	}
-	ctrlClient := pb.NewControlClient(conn)
-
 	t.Run(`cluster-test`, func(t *testing.T) {
-		port := uint64(19000)
-		addr := fmt.Sprintf("localhost:%d", port)
+		port := ports["cluster-test"]
+		addr := fmt.Sprintf("%s:%d", cfg.HostName, port)
 		resource := &pb.Resource{
 			Namespace: "default",
 			Name:      "cluster-test",
@@ -190,6 +168,8 @@ func TestHost(t *testing.T) {
 			Status:    internal.Status_Active,
 			Tags: map[string]string{
 				"placement:cover": "host:class=service",
+				"tls:crt":         basedir + "/crt.pem",
+				"tls:key":         basedir + "/key.pem",
 			},
 		}
 		component := &pb.Component{
@@ -273,7 +253,7 @@ func TestHost(t *testing.T) {
 			})
 		})
 		t.Run(`query`, func(t *testing.T) {
-			conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+			conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(clientCreds(basedir)))
 			if err != nil {
 				panic(err)
 			}
@@ -297,8 +277,9 @@ func TestHost(t *testing.T) {
 		// 10s - component is deleted
 		// 10s - resource is deleted
 	})
+	ports[`kitsune`] = 19100
 	t.Run(`kitsune`, func(t *testing.T) {
-		port := 19100
+		port := ports[`kitsune`]
 		addr := fmt.Sprintf("localhost:%d", port)
 		t.Run(`provision`, func(t *testing.T) {
 			resource := &pb.Resource{
@@ -414,8 +395,9 @@ func TestHost(t *testing.T) {
 		})
 		kitsune_test.All(t, c, addr)
 	})
+	ports[`turbokube`] = 19200
 	t.Run(`turbokube`, func(t *testing.T) {
-		port := 19200
+		port := ports[`turbokube`]
 		addr := fmt.Sprintf("localhost:%d", port)
 		t.Run(`provision`, func(t *testing.T) {
 			resource := &pb.Resource{
@@ -530,11 +512,61 @@ func TestHost(t *testing.T) {
 			defer res.Body.Close()
 		})
 	})
-	host.logger.Infof("Stopping")
-	for i := range len(hosts) {
-		hosts[i].logger.Infof("Stopping cluster %d", i)
-		hosts[i].ctrlCluster.Stop()
-	}
+	t.Run(`resiliency`, func(t *testing.T) {
+		health := func(port uint64) bool {
+			res, err := http.Get(fmt.Sprintf("http://%s:%d/health", cfg.HostName, port))
+			if err != nil {
+				return false
+			}
+			defer res.Body.Close()
+			return res.StatusCode == http.StatusOK
+		}
+		t.Run(`stop`, func(t *testing.T) {
+			// Stop one host.
+			hosts[0].Stop()
+		})
+		t.Run(`ping`, func(t *testing.T) {
+			// Ensure healthcheck still passes on other hosts.
+			for _, port := range []uint64{ports[`turbokube`]} {
+				require.True(t, await(5, 10, func() bool {
+					return health(port)
+				}), "host on port %d did not remain healthy", port)
+			}
+		})
+		t.Run(`start`, func(t *testing.T) {
+			// Start host again.
+			require.NoError(t, hosts[0].Start())
+		})
+		t.Run(`ping`, func(t *testing.T) {
+			// Ensure healthcheck passes on host after host is restarted.
+			require.True(t, await(5, 10, func() bool {
+				return health(ports[`turbokube`])
+			}), "restarted host did not become healthy")
+		})
+		t.Run(`stop all`, func(t *testing.T) {
+			for i := range len(hosts) {
+				hosts[i].logger.Infof("Stopping host %d", i)
+				hosts[i].Stop()
+			}
+		})
+		t.Run(`start all`, func(t *testing.T) {
+			for i := range len(hosts) {
+				hosts[i].logger.Infof("Starting host %d", i)
+				hosts[i].Start()
+			}
+		})
+		t.Run(`ping`, func(t *testing.T) {
+			// Ensure healthcheck passes on host after host is restarted.
+			require.True(t, await(5, 10, func() bool {
+				return health(ports[`turbokube`])
+			}), "restarted host did not become healthy")
+		})
+	})
+	t.Run(`stop`, func(t *testing.T) {
+		for i := range len(hosts) {
+			hosts[i].Stop()
+		}
+	})
 	// TODO - Fix graceful shutdown hang
 	// for i := range len(agents) {
 	// 	logger.Infof("Stopping agent %d", i)

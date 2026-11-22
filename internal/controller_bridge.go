@@ -17,22 +17,28 @@ type ControllerBridge interface {
 type controllerBridge struct {
 	zongzi.RaftEventListener
 	agent   *Agent
+	cancel  context.CancelFunc
 	cluster string
-	work    chan LeaderInfo
+	ctx     context.Context
+	done    bool
 	index   uint64
 	log     Logger
-	wg      sync.WaitGroup
 	mutex   sync.RWMutex
 	running map[uint64]map[string]string
 	runtime *runtimeBridge
 	state   *State
+	wg      sync.WaitGroup
+	work    chan LeaderInfo
 }
 
 var _ ControllerBridge = new(controllerBridge)
 
 func NewControllerBridge(log Logger, a *Agent, runtime *runtimeBridge) *controllerBridge {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &controllerBridge{
 		agent:   a,
+		ctx:     ctx,
+		cancel:  cancel,
 		log:     log,
 		runtime: runtime,
 		running: make(map[uint64]map[string]string),
@@ -49,16 +55,32 @@ func (c *controllerBridge) SetState(s *State) {
 }
 
 func (c *controllerBridge) Start(ctx context.Context) (err error) {
-	c.agent.AddRaftEventListener(c)
+	c.done = false
+	c.agent.RaftEventListenerAdd(c)
 	c.wg.Go(func() {
-		for info := range c.work {
-			c.runLeaderUpdated(info)
+		for {
+			select {
+			case info := <-c.work:
+				c.runLeaderUpdated(info)
+			case <-c.ctx.Done():
+				c.agent.RaftEventListenerRemove(c)
+				c.mutex.Lock()
+				c.done = true
+				c.mutex.Unlock()
+				return
+			}
 		}
 	})
+	c.log.Infof(`%s Controller Started: bridge`, c.agent.HostID())
 	return
 }
 
 func (c *controllerBridge) LeaderUpdated(info LeaderInfo) {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+	if c.done {
+		return
+	}
 	c.work <- info
 }
 
@@ -73,6 +95,9 @@ func (c *controllerBridge) runLeaderUpdated(info LeaderInfo) {
 	var mods = make(map[string]string)
 	for name, mod := range shard.TagsPrefixed(prefix) {
 		mods[name[len(prefix)+1:]] = mod
+	}
+	if len(mods) == 0 {
+		return
 	}
 	running := c.running[shard.ID]
 	if running == nil {
@@ -101,10 +126,22 @@ func (c *controllerBridge) runLeaderUpdated(info LeaderInfo) {
 }
 
 func (c *controllerBridge) Stop() {
-	defer c.log.Infof(`Stopped Controller Bridge`)
-	close(c.work)
+	defer c.log.Infof(`%s Controller Stopped: bridge`, c.agent.HostID())
+	c.cancel()
 	c.wg.Wait()
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	// for shardID, running := range c.running {
+	// 	println(`stopping shard `, shardID)
+	// 	shard, err := c.agent.ShardFind(context.Background(), shardID)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	for name, found := range running {
+	// 		println(`stopping shard `, name)
+	// 		c.runtime.Stop(name, found, 0, shard)
+	// 	}
+	// }
+	// c.running = make(map[uint64]map[string]string)
 	c.index = 0
 }

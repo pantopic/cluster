@@ -46,25 +46,25 @@ func NewControllerCluster(logger Logger, agent *Agent) *controllerCluster {
 }
 
 func (c *controllerCluster) Start(ctx context.Context) (err error) {
-	defer c.agent.AddRaftEventListener(c)
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
+	c.agent.RaftEventListenerAdd(c)
+	c.ctx, c.ctxCancel = context.WithCancel(ctx)
 	c.controls = NewClusterControls(
 		c.agent.Client(ShardID, zongzi.WithWriteToLeader()),
 	)
-	c.ctx, c.ctxCancel = context.WithCancel(ctx)
 	c.wg.Go(func() {
 		t := c.clock.Ticker(time.Second)
 		defer t.Stop()
 		for {
 			select {
 			case <-c.ctx.Done():
+				c.agent.RaftEventListenerRemove(c)
 				return
 			case <-t.C:
 				c.tick()
 			}
 		}
 	})
+	c.log.Infof(`%s Controller Started: cluster`, c.agent.HostID())
 	return
 }
 
@@ -149,12 +149,11 @@ func (c *controllerCluster) init() {
 }
 
 func (c *controllerCluster) Stop() {
+	defer c.log.Infof(`%s Controller Stopped: cluster`, c.agent.HostID())
 	if c.ctxCancel == nil {
-		c.log.Infof(`Cluster controller not running`)
 		return
 	}
 	c.ctxCancel()
 	c.wg.Wait()
 	c.index = 0
-	c.log.Infof(`[%s] Cluster controller stopped`, c.agent.HostID())
 }

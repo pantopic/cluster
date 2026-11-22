@@ -53,7 +53,8 @@ func (c *controllerComponent) SetState(s *State) {
 }
 
 func (c *controllerComponent) Start(ctx context.Context) (err error) {
-	defer c.agent.AddRaftEventListener(c)
+	defer c.log.Infof(`%s Controller Started: component`, c.agent.HostID())
+	defer c.agent.RaftEventListenerAdd(c)
 	c.ctx = ctx
 	c.mutex.Lock()
 	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
@@ -66,6 +67,7 @@ func (c *controllerComponent) Start(ctx context.Context) (err error) {
 			case <-t.C:
 				err = c.tick()
 			case <-c.ctx.Done():
+				c.agent.RaftEventListenerRemove(c)
 				close(c.done)
 				return
 			}
@@ -157,7 +159,7 @@ func (c *controllerComponent) LeaderUpdated(info LeaderInfo) {
 }
 
 func (c *controllerComponent) Stop() {
-	defer c.log.Infof(`Stopped Controller Component`)
+	defer c.log.Infof(`%s Controller Stopped: component`, c.agent.HostID())
 	if c.ctxCancel != nil {
 		c.ctxCancel()
 	}

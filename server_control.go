@@ -31,12 +31,13 @@ func newServerControl(agent *zongzi.Agent, addr string) *serverControl {
 			Timeout: 20 * time.Second,
 		}),
 	}...)
+	shardClient := agent.Client(uint64(ShardID))
+	pb.RegisterControlServer(grpcServer, internal.NewGrpcServiceControl(shardClient))
 	return &serverControl{
 		addr:       addr,
 		agent:      agent,
 		grpcServer: grpcServer,
 	}
-
 }
 
 func (s *serverControl) Start() {
@@ -44,11 +45,12 @@ func (s *serverControl) Start() {
 	if err != nil {
 		panic(err)
 	}
-	shardClient := s.agent.Client(uint64(ShardID))
-	pb.RegisterControlServer(s.grpcServer, internal.NewGrpcServiceControl(shardClient))
 	go func() {
+		defer lis.Close()
 		if err := s.grpcServer.Serve(lis); err != nil {
-			panic(err)
+			if err != grpc.ErrServerStopped {
+				panic(err)
+			}
 		}
 	}()
 }
