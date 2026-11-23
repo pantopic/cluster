@@ -42,18 +42,14 @@ type Host struct {
 	wg             sync.WaitGroup
 }
 
-func New(ctx context.Context, cfg Config) *Host {
-	opts := []zongzi.AgentOption{
+func New(ctx context.Context, cfg Config, opts ...HostOption) *Host {
+	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","),
 		zongzi.WithDirRaft(cfg.DirRaft),
 		zongzi.WithDirWAL(cfg.DirWAL),
 		zongzi.WithAddrGossip(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortGossip)),
 		zongzi.WithAddrRaft(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortRaft)),
 		zongzi.WithAddrApi(fmt.Sprintf(`%s:%d`, cfg.HostName, cfg.PortZongzi)),
-	}
-	if cfg.HostTags != "" {
-		opts = append(opts, zongzi.WithHostTags(strings.Split(cfg.HostTags, "|")...))
-	}
-	agent, err := zongzi.NewAgent(cfg.ClusterName, strings.Split(cfg.HostPeers, ","), opts...)
+		zongzi.WithHostTags(strings.Split(cfg.HostTags, "|")...))
 	if err != nil {
 		panic(err)
 	}
@@ -93,11 +89,11 @@ func New(ctx context.Context, cfg Config) *Host {
 		ctrlCluster   = internal.NewControllerCluster(logger, agent)
 		ctrlBridge    = internal.NewControllerBridge(logger, agent, runtimeBridge)
 		ctrlService   = internal.NewControllerService(logger, agent, runtimeService)
-
-		fsm = internal.StateMachineFactory(logger, ctrlService, ctrlComponent)
 	)
-	agent.StateMachineRegister(internal.StateMachineUri, fsm)
-	return &Host{
+	agent.StateMachineRegister(internal.StateMachineUri,
+		internal.StateMachineFactory(logger, ctrlService, ctrlComponent),
+	)
+	h := &Host{
 		agent:          agent,
 		cfg:            cfg,
 		ctrlComponent:  ctrlComponent,
@@ -113,6 +109,10 @@ func New(ctx context.Context, cfg Config) *Host {
 		runtimeStorage: runtimeStorage,
 		serverControl:  newServerControl(agent, apiAddr),
 	}
+	for _, opt := range opts {
+		opt(h)
+	}
+	return h
 }
 
 func (h *Host) Agent() *zongzi.Agent {
