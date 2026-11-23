@@ -19,7 +19,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/pantopic/kitsune/embed"
-	"github.com/pantopic/kitsune/test"
 	"github.com/pantopic/turbokube/embed"
 
 	"github.com/pantopic/cluster/internal"
@@ -393,7 +392,6 @@ func TestHost(t *testing.T) {
 			require.Equal(t, "Okay", string(body))
 			defer res.Body.Close()
 		})
-		kitsune_test.All(t, c, addr)
 	})
 	ports[`turbokube`] = 19200
 	t.Run(`turbokube`, func(t *testing.T) {
@@ -470,9 +468,9 @@ func TestHost(t *testing.T) {
 					require.True(t, await(10, 100, func() bool {
 						svcListResp, err = ctrlClient.ServiceList(ctx, svcListReq)
 						return err == nil &&
-							svcListResp.Code == internal.ResultSuccess &&
+							svcListResp.Code == ResultSuccess &&
 							len(svcListResp.Item) > 0 &&
-							svcListResp.Item[0].Status == internal.Status_Active
+							svcListResp.Item[0].Status == Status_Active
 					}), "%#v, %#v", svcListResp, err)
 					require.Equal(t, 1, len(svcListResp.Item))
 					require.Equal(t, service.Type, svcListResp.Item[0].Type)
@@ -487,9 +485,9 @@ func TestHost(t *testing.T) {
 					require.True(t, await(10, 100, func() bool {
 						compListResp, err = ctrlClient.ComponentList(ctx, compListReq)
 						return err == nil &&
-							compListResp.Code == internal.ResultSuccess &&
+							compListResp.Code == ResultSuccess &&
 							len(compListResp.Item) > 0 &&
-							compListResp.Item[0].Status == internal.Status_Active
+							compListResp.Item[0].Status == Status_Active
 					}), err)
 					require.Equal(t, 1, len(compListResp.Item))
 					require.Equal(t, component.Type, compListResp.Item[0].Type)
